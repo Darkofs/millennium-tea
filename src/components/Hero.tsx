@@ -2,7 +2,7 @@
 
 import React, { useEffect, useRef, useState } from "react";
 import { motion, useScroll, useTransform, useMotionValueEvent, useSpring } from "framer-motion";
-import { ArrowRight, ChevronDown } from "lucide-react";
+import { ChevronDown } from "lucide-react";
 
 const TOTAL_FRAMES = 240;
 const frameUrl = (index: number) => `/images/herosection/ezgif-frame-${String(index).padStart(3, "0")}.png`;
@@ -13,6 +13,7 @@ export default function Hero() {
   const loadedImages = useRef<(HTMLImageElement | null)[]>(new Array(TOTAL_FRAMES + 1).fill(null));
   const currentFrameRef = useRef<number>(1);
   const [loadingProgress, setLoadingProgress] = useState(0);
+  const [heroComplete, setHeroComplete] = useState(false);
 
   // Monitor scroll progress of the entire 400vh container
   const { scrollYProgress } = useScroll({
@@ -209,7 +210,46 @@ export default function Hero() {
   useMotionValueEvent(smoothProgress, "change", (latest) => {
     const frameIndex = Math.max(1, Math.min(TOTAL_FRAMES, Math.floor((latest / 0.70) * (TOTAL_FRAMES - 1)) + 1));
     drawFrame(frameIndex);
+    // Mark hero as complete when scroll animation finishes
+    if (latest >= 0.98 && !heroComplete) {
+      setHeroComplete(true);
+    }
   });
+
+  // Mobile scroll-lock: on touch devices, prevent swiping PAST the hero section
+  // until the full scroll animation is complete. Scrolling within the hero works normally.
+  useEffect(() => {
+    const isMobile = window.matchMedia("(hover: none) and (pointer: coarse)").matches;
+    if (!isMobile || heroComplete) return;
+
+    let touchStartY = 0;
+
+    const onTouchStart = (e: TouchEvent) => {
+      touchStartY = e.touches[0].clientY;
+    };
+
+    const onTouchMove = (e: TouchEvent) => {
+      if (heroComplete) return;
+      const container = containerRef.current;
+      if (!container) return;
+
+      const heroBottom = container.getBoundingClientRect().bottom;
+      const swipingDown = e.touches[0].clientY < touchStartY; // finger moving up = scrolling down
+
+      // Block only if: animation not done AND user is trying to scroll past the hero
+      if (swipingDown && heroBottom <= window.innerHeight + 10) {
+        e.preventDefault();
+      }
+    };
+
+    document.addEventListener("touchstart", onTouchStart, { passive: true });
+    document.addEventListener("touchmove", onTouchMove, { passive: false });
+
+    return () => {
+      document.removeEventListener("touchstart", onTouchStart);
+      document.removeEventListener("touchmove", onTouchMove);
+    };
+  }, [heroComplete]);
 
   const scrollToSection = (id: string) => {
     const element = document.getElementById(id);
