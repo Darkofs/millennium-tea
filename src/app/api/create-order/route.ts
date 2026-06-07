@@ -2,13 +2,18 @@ import { NextRequest, NextResponse } from "next/server";
 import Razorpay from "razorpay";
 
 export async function POST(req: NextRequest) {
-  // Initialize inside handler so env vars are available at runtime (not build time)
-  const razorpay = new Razorpay({
-    key_id: process.env.RAZORPAY_KEY_ID!,
-    key_secret: process.env.RAZORPAY_KEY_SECRET!,
-  });
-
   try {
+    // Guard: ensure env vars are present before using Razorpay
+    const keyId = process.env.RAZORPAY_KEY_ID;
+    const keySecret = process.env.RAZORPAY_KEY_SECRET;
+    if (!keyId || !keySecret) {
+      console.error("[create-order] Missing Razorpay env vars");
+      return NextResponse.json({ error: "Payment gateway not configured" }, { status: 500 });
+    }
+
+    // Initialize inside handler so env vars are available at runtime (not build time)
+    const razorpay = new Razorpay({ key_id: keyId, key_secret: keySecret });
+
     const body = await req.json();
     const { amount, currency = "INR", receipt } = body;
 
