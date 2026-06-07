@@ -1,11 +1,13 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { Menu, X, Globe, ArrowRight } from "lucide-react";
+import { Menu, X, Globe, ArrowRight, ShoppingBag } from "lucide-react";
+import { useCart } from "@/context/CartContext";
 
 export default function Header() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const { totalCount, openCart } = useCart();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -78,6 +80,20 @@ export default function Header() {
             <span>EN</span>
           </button>
           
+          {/* Cart Button */}
+          <button
+            onClick={openCart}
+            className="relative flex items-center justify-center w-9 h-9 rounded-full border border-luxury-gold/30 text-luxury-ivory hover:text-luxury-gold hover:border-luxury-gold/60 transition-all cursor-pointer"
+            aria-label="Open cart"
+          >
+            <ShoppingBag className="w-4 h-4" />
+            {totalCount > 0 && (
+              <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-luxury-gold text-luxury-black text-[9px] font-bold flex items-center justify-center">
+                {totalCount > 9 ? "9+" : totalCount}
+              </span>
+            )}
+          </button>
+
           <button
             onClick={() => scrollToSection("contact")}
             className="btn-gold-shimmer text-xs tracking-widest uppercase px-5 py-2.5 rounded-full border border-luxury-gold/50 flex items-center gap-2 group cursor-pointer"
@@ -87,14 +103,28 @@ export default function Header() {
           </button>
         </div>
 
-        {/* Mobile Menu Button */}
-        <button
-          onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-          className="lg:hidden text-luxury-ivory hover:text-luxury-gold focus:outline-none cursor-pointer"
-          aria-label="Toggle menu"
-        >
-          {isMobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
-        </button>
+        {/* Mobile: Cart + Menu Button */}
+        <div className="lg:hidden flex items-center gap-3">
+          <button
+            onClick={openCart}
+            className="relative flex items-center justify-center w-9 h-9 rounded-full border border-luxury-gold/30 text-luxury-ivory hover:text-luxury-gold transition-all cursor-pointer"
+            aria-label="Open cart"
+          >
+            <ShoppingBag className="w-4 h-4" />
+            {totalCount > 0 && (
+              <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-luxury-gold text-luxury-black text-[9px] font-bold flex items-center justify-center">
+                {totalCount > 9 ? "9+" : totalCount}
+              </span>
+            )}
+          </button>
+          <button
+            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+            className="text-luxury-ivory hover:text-luxury-gold focus:outline-none cursor-pointer"
+            aria-label="Toggle menu"
+          >
+            {isMobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+          </button>
+        </div>
       </div>
 
       {/* Mobile Drawer */}

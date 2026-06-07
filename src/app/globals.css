@@ -13,6 +13,7 @@
   --animate-float: float 8s infinite ease-in-out;
   --animate-float-delayed: float-delayed 10s infinite ease-in-out;
   --animate-spin-slow: spin 25s linear infinite;
+  --animate-marquee: marquee 28s linear infinite;
   
   @keyframes shimmer {
     0% { background-position: -200% 0; }
@@ -30,6 +31,10 @@
     0%, 100% { transform: translateY(0px) rotate(0deg); }
     50% { transform: translateY(15px) rotate(-3deg); }
   }
+  @keyframes marquee {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-50%); }
+  }
 }
 
 /* Custom Base Styles */
@@ -42,6 +47,12 @@ body {
 
 h1, h2, h3, h4, h5, h6 {
   font-family: var(--font-serif), serif;
+}
+
+/* Marquee animation utility */
+.animate-marquee {
+  animation: marquee 28s linear infinite;
+  display: inline-flex;
 }
 
 /* Custom Utilities */
@@ -70,6 +81,7 @@ h1, h2, h3, h4, h5, h6 {
 .gold-gradient-text {
   background: linear-gradient(135deg, #f8f5f0 0%, #d4af37 50%, #aa8c2c 100%);
   -webkit-background-clip: text;
+  background-clip: text;
   -webkit-text-fill-color: transparent;
 }
 
@@ -85,6 +97,7 @@ h1, h2, h3, h4, h5, h6 {
   padding: 1px;
   background: linear-gradient(to right, rgba(212, 175, 55, 0.1), rgba(212, 175, 55, 0.6), rgba(212, 175, 55, 0.1));
   -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
   -webkit-mask-composite: xor;
   mask-composite: exclude;
   pointer-events: none;

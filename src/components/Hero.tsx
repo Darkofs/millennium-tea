@@ -29,32 +29,32 @@ export default function Hero() {
   });
 
   // Slide 1: Top-Left Corner (Opacity, X, Y)
-  const opacityTL = useTransform(smoothProgress, [0, 0.05, 0.20, 0.24], [0, 1, 1, 0]);
-  const xTL = useTransform(smoothProgress, [0, 0.05, 0.20, 0.24], [-60, 0, 0, -60]);
-  const yTL = useTransform(smoothProgress, [0, 0.05, 0.20, 0.24], [-30, 0, 0, -30]);
+  const opacityTL = useTransform(smoothProgress, [0.02, 0.06, 0.16, 0.20], [0, 1, 1, 0]);
+  const xTL = useTransform(smoothProgress, [0.02, 0.06, 0.16, 0.20], [-60, 0, 0, -60]);
+  const yTL = useTransform(smoothProgress, [0.02, 0.06, 0.16, 0.20], [-30, 0, 0, -30]);
 
   // Slide 2: Top-Right Corner (Opacity, X, Y)
-  const opacityTR = useTransform(smoothProgress, [0.26, 0.30, 0.44, 0.48], [0, 1, 1, 0]);
-  const xTR = useTransform(smoothProgress, [0.26, 0.30, 0.44, 0.48], [60, 0, 0, 60]);
-  const yTR = useTransform(smoothProgress, [0.26, 0.30, 0.44, 0.48], [-30, 0, 0, -30]);
+  const opacityTR = useTransform(smoothProgress, [0.20, 0.24, 0.34, 0.38], [0, 1, 1, 0]);
+  const xTR = useTransform(smoothProgress, [0.20, 0.24, 0.34, 0.38], [60, 0, 0, 60]);
+  const yTR = useTransform(smoothProgress, [0.20, 0.24, 0.34, 0.38], [-30, 0, 0, -30]);
 
   // Slide 3: Bottom-Left Corner (Opacity, X, Y)
-  const opacityBL = useTransform(smoothProgress, [0.50, 0.54, 0.68, 0.72], [0, 1, 1, 0]);
-  const xBL = useTransform(smoothProgress, [0.50, 0.54, 0.68, 0.72], [-60, 0, 0, -60]);
-  const yBL = useTransform(smoothProgress, [0.50, 0.54, 0.68, 0.72], [30, 0, 0, 30]);
+  const opacityBL = useTransform(smoothProgress, [0.38, 0.42, 0.52, 0.56], [0, 1, 1, 0]);
+  const xBL = useTransform(smoothProgress, [0.38, 0.42, 0.52, 0.56], [-60, 0, 0, -60]);
+  const yBL = useTransform(smoothProgress, [0.38, 0.42, 0.52, 0.56], [30, 0, 0, 30]);
 
   // Slide 4: Bottom-Right Corner (Opacity, X, Y)
-  const opacityBR = useTransform(smoothProgress, [0.74, 0.78, 0.90, 0.94], [0, 1, 1, 0]);
-  const xBR = useTransform(smoothProgress, [0.74, 0.78, 0.90, 0.94], [60, 0, 0, 60]);
-  const yBR = useTransform(smoothProgress, [0.74, 0.78, 0.90, 0.94], [30, 0, 0, 30]);
+  const opacityBR = useTransform(smoothProgress, [0.56, 0.60, 0.70, 0.74], [0, 1, 1, 0]);
+  const xBR = useTransform(smoothProgress, [0.56, 0.60, 0.70, 0.74], [60, 0, 0, 60]);
+  const yBR = useTransform(smoothProgress, [0.56, 0.60, 0.70, 0.74], [30, 0, 0, 30]);
 
 
 
   // Smooth transition from Hero pre-rendered sequence to ThreeScene WebGL canvas
-  const canvasOpacity = useTransform(smoothProgress, [0.90, 0.97], [1, 0]);
+  const canvasOpacity = useTransform(smoothProgress, [0.70, 0.75], [1, 0]);
   const heroBg = useTransform(
     smoothProgress,
-    [0.90, 0.97],
+    [0.70, 0.75],
     ["rgba(11, 11, 11, 1)", "rgba(11, 11, 11, 0)"]
   );
 
@@ -207,7 +207,7 @@ export default function Hero() {
   }, []);
 
   useMotionValueEvent(smoothProgress, "change", (latest) => {
-    const frameIndex = Math.max(1, Math.min(TOTAL_FRAMES, Math.floor(latest * (TOTAL_FRAMES - 1)) + 1));
+    const frameIndex = Math.max(1, Math.min(TOTAL_FRAMES, Math.floor((latest / 0.70) * (TOTAL_FRAMES - 1)) + 1));
     drawFrame(frameIndex);
   });
 
@@ -224,7 +224,7 @@ export default function Hero() {
       {/* Sticky Frame Container - fades background to transparent to reveal ThreeScene */}
       <motion.div 
         style={{ backgroundColor: heroBg }}
-        className="sticky top-0 left-0 w-full h-screen overflow-hidden flex items-center justify-center"
+        className="sticky top-0 left-0 w-full h-[100dvh] overflow-hidden flex items-center justify-center"
       >
         
         {/* Canvas & Overlays wrapper - dissolves to reveal WebGL background underneath */}

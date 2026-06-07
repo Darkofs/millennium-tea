@@ -3,7 +3,8 @@
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
-import { ChevronRight, Award, Compass, Scale, Box, ArrowUpRight, ShoppingBag } from "lucide-react";
+import { ChevronRight, Award, Compass, Scale, Box, ArrowUpRight, ShoppingBag, MessageCircle } from "lucide-react";
+import { useCart } from "@/context/CartContext";
 
 interface Grade {
   name: string;
@@ -156,6 +157,8 @@ export default function Catalog() {
   const [activeTab, setActiveTab] = useState<string>("masala");
   const [selectedGrade, setSelectedGrade] = useState<number>(0);
   const [selectedSize, setSelectedSize] = useState<string>("250g");
+  const [addedFeedback, setAddedFeedback] = useState(false);
+  const { addItem } = useCart();
 
   const activeProduct = teaData.find((item) => item.id === activeTab)!;
 
@@ -163,6 +166,28 @@ export default function Catalog() {
     setActiveTab(tabId);
     setSelectedGrade(0);
     setSelectedSize("250g");
+  };
+
+  // Price map (in INR)
+  const priceMap: Record<string, number> = {
+    masala: 349,
+    ginger: 329,
+    lemon: 299,
+    green: 399,
+    turmeric: 379,
+  };
+
+  const handleAddToCart = () => {
+    addItem({
+      id: activeProduct.id,
+      name: activeProduct.name,
+      image: activeProduct.image,
+      size: selectedSize,
+      grade: activeProduct.grades[selectedGrade]?.name ?? "Standard",
+      price: priceMap[activeProduct.id] ?? 349,
+    });
+    setAddedFeedback(true);
+    setTimeout(() => setAddedFeedback(false), 1800);
   };
 
   const handleBuyAction = () => {
@@ -360,14 +385,30 @@ export default function Catalog() {
                 </ul>
               </div>
 
-              {/* Inquire Quote CTA */}
-              <button
-                onClick={scrollToContact}
-                className="btn-gold-shimmer w-full text-center py-4 rounded-xl text-xs font-semibold tracking-widest uppercase flex items-center justify-center gap-2 group cursor-pointer"
-              >
-                Inquire For Product Details
-                <ArrowUpRight className="w-4 h-4 transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
-              </button>
+              {/* Action Buttons */}
+              <div className="flex flex-col sm:flex-row gap-3">
+                {/* Add to Cart */}
+                <button
+                  onClick={handleAddToCart}
+                  className={`flex-1 py-4 rounded-xl text-xs font-semibold tracking-widest uppercase flex items-center justify-center gap-2 group cursor-pointer transition-all duration-300 border ${
+                    addedFeedback
+                      ? "bg-luxury-gold text-luxury-black border-luxury-gold"
+                      : "border-luxury-gold/50 text-luxury-gold hover:bg-luxury-gold/10"
+                  }`}
+                >
+                  <ShoppingBag className="w-4 h-4" />
+                  {addedFeedback ? "Added ✓" : "Add to Cart"}
+                </button>
+
+                {/* Buy via WhatsApp */}
+                <button
+                  onClick={handleBuyAction}
+                  className="flex-1 flex items-center justify-center gap-2 bg-[#25D366] hover:bg-[#1ebe5d] text-white py-4 rounded-xl text-xs font-semibold tracking-widest uppercase transition-all duration-300 cursor-pointer"
+                >
+                  <MessageCircle className="w-4 h-4 fill-white" />
+                  Buy on WhatsApp
+                </button>
+              </div>
             </div>
           </motion.div>
         </AnimatePresence>

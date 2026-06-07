@@ -10,6 +10,7 @@ import OurStory from "@/components/OurStory";
 import WhyChooseUs from "@/components/WhyChooseUs";
 import Contact from "@/components/Contact";
 import Footer from "@/components/Footer";
+import TrustBanner from "@/components/TrustBanner";
 
 // Load 3D WebGL scene dynamically to bypass SSR issues and optimize initial load speed
 const ThreeScene = dynamic(() => import("@/components/ThreeScene"), {
@@ -29,6 +30,9 @@ export default function Home() {
       <main className="relative z-10 w-full">
         {/* Cinematic Landing */}
         <Hero />
+
+        {/* Trust & Credibility Strip */}
+        <TrustBanner />
 
         {/* 3D Coordinated Showcases */}
         <ProductShowcase />
