@@ -168,13 +168,13 @@ export default function Catalog() {
     setSelectedSize("250g");
   };
 
-  // Price map (in INR)
+  // Price map (in INR) — TEMP: all set to ₹1 for payment testing
   const priceMap: Record<string, number> = {
-    masala: 349,
-    ginger: 329,
-    lemon: 299,
-    green: 399,
-    turmeric: 379,
+    masala: 1,
+    ginger: 1,
+    lemon: 1,
+    green: 1,
+    turmeric: 1,
   };
 
   const handleAddToCart = () => {
