@@ -1,4 +1,10 @@
 {
   "css.customData": [],
-  "css.lint.unknownAtRules": "ignore"
+  "css.lint.unknownAtRules": "ignore",
+  "git.autofetch": "all",
+  "git.autofetchPeriod": 180,
+  "git.enableSmartCommit": true,
+  "git.postCommitCommand": "sync",
+  "git.confirmSync": false,
+  "git.autoSync": true
 }
