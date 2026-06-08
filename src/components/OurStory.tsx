@@ -36,7 +36,7 @@ const timelineEvents: TimelineEvent[] = [
 
 export default function OurStory() {
   return (
-    <section id="origin" className="relative w-full z-10 py-32 bg-luxury-charcoal/30">
+    <section id="origin" className="relative w-full z-10 py-32 bg-luxury-black">
       <div className="max-w-7xl mx-auto px-6 md:px-12">
         {/* Section Header */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 mb-20 items-end">

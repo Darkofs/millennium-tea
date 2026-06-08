@@ -13,7 +13,7 @@ export default function ProductShowcase() {
   };
 
   return (
-    <section id="showcase" className="relative w-full z-10">
+    <section id="showcase" className="relative w-full z-10 bg-luxury-black">
       
       {/* 1. Special Masala Tea Powder (Image on Left, Text on Right) */}
       <div className="min-h-screen w-full flex flex-col md:flex-row items-center justify-between px-6 md:px-12 lg:px-24 py-20 relative gap-12">

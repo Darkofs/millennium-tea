@@ -12,17 +12,9 @@ import Contact from "@/components/Contact";
 import Footer from "@/components/Footer";
 import TrustBanner from "@/components/TrustBanner";
 
-// Load 3D WebGL scene dynamically to bypass SSR issues and optimize initial load speed
-const ThreeScene = dynamic(() => import("@/components/ThreeScene"), {
-  ssr: false,
-});
-
 export default function Home() {
   return (
     <>
-      {/* 3D Background Canvas */}
-      <ThreeScene />
-
       {/* Luxury Navigation */}
       <Header />
 

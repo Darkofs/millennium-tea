@@ -45,7 +45,7 @@ const trustItems = [
 
 export default function TrustBanner() {
   return (
-    <section className="relative z-10 w-full overflow-hidden border-y border-luxury-gold/10 bg-luxury-black/60 backdrop-blur-md">
+    <section className="relative z-10 w-full overflow-hidden border-y border-luxury-gold/10 bg-luxury-black">
       {/* Top gold accent line */}
       <div className="absolute top-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-luxury-gold/40 to-transparent" />
       {/* Bottom gold accent line */}

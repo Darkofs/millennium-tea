@@ -110,7 +110,7 @@ export default function FeaturedCollection() {
   };
 
   return (
-    <section id="collection" className="relative w-full z-10 py-32 bg-luxury-charcoal/20">
+    <section id="collection" className="relative w-full z-10 py-32 bg-luxury-black">
       <div className="max-w-7xl mx-auto px-6 md:px-12">
         
         {/* Section Header */}

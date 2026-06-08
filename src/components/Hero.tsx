@@ -3,6 +3,11 @@
 import React, { useEffect, useRef, useState } from "react";
 import { motion, useScroll, useTransform, useMotionValueEvent, useSpring } from "framer-motion";
 import { ChevronDown } from "lucide-react";
+import dynamic from "next/dynamic";
+
+const ThreeScene = dynamic(() => import("./ThreeScene"), {
+  ssr: false,
+});
 
 const TOTAL_FRAMES = 240;
 const frameUrl = (index: number) => `/images/herosection/ezgif-frame-${String(index).padStart(3, "0")}.png`;
@@ -14,6 +19,14 @@ export default function Hero() {
   const currentFrameRef = useRef<number>(1);
   const [loadingProgress, setLoadingProgress] = useState(0);
   const [heroComplete, setHeroComplete] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth < 768);
+    checkMobile();
+    window.addEventListener("resize", checkMobile);
+    return () => window.removeEventListener("resize", checkMobile);
+  }, []);
 
   // Monitor scroll progress of the entire 400vh container
   const { scrollYProgress } = useScroll({
@@ -30,32 +43,34 @@ export default function Hero() {
   });
 
   // Slide 1: Top-Left Corner (Opacity, X, Y)
-  const opacityTL = useTransform(smoothProgress, [0.02, 0.06, 0.16, 0.20], [0, 1, 1, 0]);
-  const xTL = useTransform(smoothProgress, [0.02, 0.06, 0.16, 0.20], [-60, 0, 0, -60]);
-  const yTL = useTransform(smoothProgress, [0.02, 0.06, 0.16, 0.20], [-30, 0, 0, -30]);
+  const opacityTL = useTransform(smoothProgress, [0.02, 0.08, 0.20, 0.25], [0, 1, 1, 0]);
+  const xTL = useTransform(smoothProgress, [0.02, 0.08, 0.20, 0.25], [-60, 0, 0, -60]);
+  const yTL = useTransform(smoothProgress, [0.02, 0.08, 0.20, 0.25], [-30, 0, 0, -30]);
+  const yMobileTL = useTransform(smoothProgress, [0.02, 0.08, 0.20, 0.25], [20, 0, 0, 20]);
 
   // Slide 2: Top-Right Corner (Opacity, X, Y)
-  const opacityTR = useTransform(smoothProgress, [0.20, 0.24, 0.34, 0.38], [0, 1, 1, 0]);
-  const xTR = useTransform(smoothProgress, [0.20, 0.24, 0.34, 0.38], [60, 0, 0, 60]);
-  const yTR = useTransform(smoothProgress, [0.20, 0.24, 0.34, 0.38], [-30, 0, 0, -30]);
+  const opacityTR = useTransform(smoothProgress, [0.25, 0.30, 0.42, 0.47], [0, 1, 1, 0]);
+  const xTR = useTransform(smoothProgress, [0.25, 0.30, 0.42, 0.47], [60, 0, 0, 60]);
+  const yTR = useTransform(smoothProgress, [0.25, 0.30, 0.42, 0.47], [-30, 0, 0, -30]);
+  const yMobileTR = useTransform(smoothProgress, [0.25, 0.30, 0.42, 0.47], [20, 0, 0, 20]);
 
   // Slide 3: Bottom-Left Corner (Opacity, X, Y)
-  const opacityBL = useTransform(smoothProgress, [0.38, 0.42, 0.52, 0.56], [0, 1, 1, 0]);
-  const xBL = useTransform(smoothProgress, [0.38, 0.42, 0.52, 0.56], [-60, 0, 0, -60]);
-  const yBL = useTransform(smoothProgress, [0.38, 0.42, 0.52, 0.56], [30, 0, 0, 30]);
+  const opacityBL = useTransform(smoothProgress, [0.47, 0.52, 0.64, 0.69], [0, 1, 1, 0]);
+  const xBL = useTransform(smoothProgress, [0.47, 0.52, 0.64, 0.69], [-60, 0, 0, -60]);
+  const yBL = useTransform(smoothProgress, [0.47, 0.52, 0.64, 0.69], [30, 0, 0, 30]);
+  const yMobileBL = useTransform(smoothProgress, [0.47, 0.52, 0.64, 0.69], [20, 0, 0, 20]);
 
   // Slide 4: Bottom-Right Corner (Opacity, X, Y)
-  const opacityBR = useTransform(smoothProgress, [0.56, 0.60, 0.70, 0.74], [0, 1, 1, 0]);
-  const xBR = useTransform(smoothProgress, [0.56, 0.60, 0.70, 0.74], [60, 0, 0, 60]);
-  const yBR = useTransform(smoothProgress, [0.56, 0.60, 0.70, 0.74], [30, 0, 0, 30]);
-
-
+  const opacityBR = useTransform(smoothProgress, [0.69, 0.74, 0.86, 0.90], [0, 1, 1, 0]);
+  const xBR = useTransform(smoothProgress, [0.69, 0.74, 0.86, 0.90], [60, 0, 0, 60]);
+  const yBR = useTransform(smoothProgress, [0.69, 0.74, 0.86, 0.90], [30, 0, 0, 30]);
+  const yMobileBR = useTransform(smoothProgress, [0.69, 0.74, 0.86, 0.90], [20, 0, 0, 20]);
 
   // Smooth transition from Hero pre-rendered sequence to ThreeScene WebGL canvas
-  const canvasOpacity = useTransform(smoothProgress, [0.70, 0.75], [1, 0]);
+  const canvasOpacity = useTransform(smoothProgress, [0.90, 0.98], [1, 0]);
   const heroBg = useTransform(
     smoothProgress,
-    [0.70, 0.75],
+    [0.90, 0.98],
     ["rgba(11, 11, 11, 1)", "rgba(11, 11, 11, 0)"]
   );
 
@@ -116,12 +131,20 @@ export default function Hero() {
   };
 
   useEffect(() => {
+    let lastWidth = window.innerWidth;
     const handleResize = () => {
       const canvas = canvasRef.current;
       if (!canvas) return;
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
-      drawFrame(currentFrameRef.current);
+
+      const widthChanged = window.innerWidth !== lastWidth;
+      const isMobileDevice = window.matchMedia("(hover: none) and (pointer: coarse)").matches;
+
+      if (!isMobileDevice || widthChanged) {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+        lastWidth = window.innerWidth;
+        drawFrame(currentFrameRef.current);
+      }
     };
 
     window.addEventListener("resize", handleResize);
@@ -208,48 +231,13 @@ export default function Hero() {
   }, []);
 
   useMotionValueEvent(smoothProgress, "change", (latest) => {
-    const frameIndex = Math.max(1, Math.min(TOTAL_FRAMES, Math.floor((latest / 0.70) * (TOTAL_FRAMES - 1)) + 1));
+    const frameIndex = Math.max(1, Math.min(TOTAL_FRAMES, Math.floor((Math.min(1, latest / 0.90)) * (TOTAL_FRAMES - 1)) + 1));
     drawFrame(frameIndex);
     // Mark hero as complete when scroll animation finishes
     if (latest >= 0.98 && !heroComplete) {
       setHeroComplete(true);
     }
   });
-
-  // Mobile scroll-lock: on touch devices, prevent swiping PAST the hero section
-  // until the full scroll animation is complete. Scrolling within the hero works normally.
-  useEffect(() => {
-    const isMobile = window.matchMedia("(hover: none) and (pointer: coarse)").matches;
-    if (!isMobile || heroComplete) return;
-
-    let touchStartY = 0;
-
-    const onTouchStart = (e: TouchEvent) => {
-      touchStartY = e.touches[0].clientY;
-    };
-
-    const onTouchMove = (e: TouchEvent) => {
-      if (heroComplete) return;
-      const container = containerRef.current;
-      if (!container) return;
-
-      const heroBottom = container.getBoundingClientRect().bottom;
-      const swipingDown = e.touches[0].clientY < touchStartY; // finger moving up = scrolling down
-
-      // Block only if: animation not done AND user is trying to scroll past the hero
-      if (swipingDown && heroBottom <= window.innerHeight + 10) {
-        e.preventDefault();
-      }
-    };
-
-    document.addEventListener("touchstart", onTouchStart, { passive: true });
-    document.addEventListener("touchmove", onTouchMove, { passive: false });
-
-    return () => {
-      document.removeEventListener("touchstart", onTouchStart);
-      document.removeEventListener("touchmove", onTouchMove);
-    };
-  }, [heroComplete]);
 
   const scrollToSection = (id: string) => {
     const element = document.getElementById(id);
@@ -259,18 +247,19 @@ export default function Hero() {
   };
 
   return (
-    <div ref={containerRef} className="relative w-full h-[400vh] z-10">
+    <div ref={containerRef} className="relative w-full h-[200vh] md:h-[400vh] z-10">
       
-      {/* Sticky Frame Container - fades background to transparent to reveal ThreeScene */}
       <motion.div 
         style={{ backgroundColor: heroBg }}
-        className="sticky top-0 left-0 w-full h-[100dvh] overflow-hidden flex items-center justify-center"
+        className="sticky top-0 left-0 w-full h-screen overflow-hidden flex items-center justify-center"
       >
+        {/* 3D Background Canvas */}
+        <ThreeScene />
         
         {/* Canvas & Overlays wrapper - dissolves to reveal WebGL background underneath */}
         <motion.div style={{ opacity: canvasOpacity }} className="absolute inset-0 w-full h-full pointer-events-none z-0">
           {/* Canvas for rendering frames */}
-          <canvas ref={canvasRef} className="absolute inset-0 w-full h-full object-cover pointer-events-auto" />
+          <canvas ref={canvasRef} className="absolute inset-0 w-full h-full object-cover pointer-events-none" />
 
           {/* Ambient very light overlay so the animation remains in the "front side" */}
           <div className="absolute inset-0 bg-black/20 pointer-events-none"></div>
@@ -279,10 +268,14 @@ export default function Hero() {
           <div className="absolute inset-0 bg-gradient-to-b from-black/45 via-transparent to-black/45 pointer-events-none"></div>
         </motion.div>
 
-        {/* ---------------- CORNER 1: TOP-LEFT (0.05 - 0.20) ---------------- */}
+        {/* ---------------- CORNER 1: TOP-LEFT ---------------- */}
         <motion.div
-          style={{ opacity: opacityTL, x: xTL, y: yTL }}
-          className="absolute top-24 left-6 md:top-28 md:left-16 max-w-[280px] md:max-w-[340px] pointer-events-none"
+          style={{ 
+            opacity: opacityTL, 
+            x: isMobile ? 0 : xTL, 
+            y: isMobile ? yMobileTL : yTL 
+          }}
+          className="absolute top-auto bottom-24 left-6 right-6 md:top-28 md:left-16 md:bottom-auto md:right-auto md:max-w-[340px] pointer-events-none"
         >
           <div className="border border-luxury-gold/25 bg-black/75 backdrop-blur-md p-6 rounded-2xl flex flex-col gap-2 shadow-xl">
             <span className="text-[10px] tracking-widest font-semibold text-luxury-gold uppercase">
@@ -297,10 +290,14 @@ export default function Hero() {
           </div>
         </motion.div>
 
-        {/* ---------------- CORNER 2: TOP-RIGHT (0.26 - 0.44) ---------------- */}
+        {/* ---------------- CORNER 2: TOP-RIGHT ---------------- */}
         <motion.div
-          style={{ opacity: opacityTR, x: xTR, y: yTR }}
-          className="absolute top-24 right-6 md:top-28 md:right-16 max-w-[280px] md:max-w-[340px] pointer-events-none"
+          style={{ 
+            opacity: opacityTR, 
+            x: isMobile ? 0 : xTR, 
+            y: isMobile ? yMobileTR : yTR 
+          }}
+          className="absolute top-auto bottom-24 left-6 right-6 md:top-28 md:right-16 md:bottom-auto md:left-auto md:max-w-[340px] pointer-events-none"
         >
           <div className="border border-luxury-gold/25 bg-black/75 backdrop-blur-md p-6 rounded-2xl flex flex-col gap-2 shadow-xl">
             <span className="text-[10px] tracking-widest font-semibold text-luxury-gold uppercase">
@@ -315,10 +312,14 @@ export default function Hero() {
           </div>
         </motion.div>
 
-        {/* ---------------- CORNER 3: BOTTOM-LEFT (0.50 - 0.68) ---------------- */}
+        {/* ---------------- CORNER 3: BOTTOM-LEFT ---------------- */}
         <motion.div
-          style={{ opacity: opacityBL, x: xBL, y: yBL }}
-          className="absolute bottom-24 left-6 md:bottom-28 md:left-16 max-w-[280px] md:max-w-[340px] pointer-events-none"
+          style={{ 
+            opacity: opacityBL, 
+            x: isMobile ? 0 : xBL, 
+            y: isMobile ? yMobileBL : yBL 
+          }}
+          className="absolute top-auto bottom-24 left-6 right-6 md:bottom-28 md:left-16 md:top-auto md:right-auto md:max-w-[340px] pointer-events-none"
         >
           <div className="border border-luxury-gold/25 bg-black/75 backdrop-blur-md p-6 rounded-2xl flex flex-col gap-2 shadow-xl">
             <span className="text-[10px] tracking-widest font-semibold text-luxury-gold uppercase">
@@ -333,10 +334,14 @@ export default function Hero() {
           </div>
         </motion.div>
 
-        {/* ---------------- CORNER 4: BOTTOM-RIGHT (0.74 - 0.90) ---------------- */}
+        {/* ---------------- CORNER 4: BOTTOM-RIGHT ---------------- */}
         <motion.div
-          style={{ opacity: opacityBR, x: xBR, y: yBR }}
-          className="absolute bottom-24 right-6 md:bottom-28 md:right-16 max-w-[280px] md:max-w-[340px] pointer-events-none"
+          style={{ 
+            opacity: opacityBR, 
+            x: isMobile ? 0 : xBR, 
+            y: isMobile ? yMobileBR : yBR 
+          }}
+          className="absolute top-auto bottom-24 left-6 right-6 md:bottom-28 md:right-16 md:top-auto md:left-auto md:max-w-[340px] pointer-events-none"
         >
           <div className="border border-luxury-gold/25 bg-black/75 backdrop-blur-md p-6 rounded-2xl flex flex-col gap-2 shadow-xl">
             <span className="text-[10px] tracking-widest font-semibold text-luxury-gold uppercase">
