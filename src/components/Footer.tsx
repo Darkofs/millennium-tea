@@ -38,7 +38,7 @@ export default function Footer() {
               </div>
             </button>
             <p className="text-xs md:text-sm text-luxury-ivory/55 leading-relaxed max-w-sm">
-              Millennium is an artisanal tea exporter and blender registered under the Tea Board of India. We source, blend, and export premium high-altitude orthodox and wellness tea blends to tea connoisseurs globally.
+              Millennium Premium Tea is an artisanal tea brand based in Anachal, Munnar, Kerala. We craft and supply premium handcrafted tea blends — Masala, Ginger, Lemon, Green, and Turmeric — from the lush highlands of Idukki.
             </p>
           </div>
 
@@ -92,14 +92,14 @@ export default function Footer() {
         {/* Bottom row */}
         <div className="border-t border-luxury-gold/10 pt-8 flex flex-col md:flex-row justify-between items-center gap-6">
           <span className="text-[11px] md:text-xs text-luxury-ivory/40 tracking-wider">
-            © {new Date().getFullYear()} Millennium Tea. All rights reserved. Sourced from Munnar & Darjeeling.
+            © {new Date().getFullYear()} Millennium Premium Tea, Munnar. All rights reserved.
           </span>
 
           {/* Socials & Scroll to Top */}
           <div className="flex items-center gap-6">
             <div className="flex gap-4">
               <a
-                href="mailto:sales@millenniumtea.com"
+                href="mailto:millenniumpremiumtea@gmail.com"
                 className="p-2 rounded-full bg-luxury-charcoal hover:bg-luxury-gold/15 text-luxury-ivory/60 hover:text-luxury-gold transition-colors"
                 aria-label="Email"
               >

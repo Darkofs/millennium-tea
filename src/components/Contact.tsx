@@ -63,7 +63,7 @@ export default function Contact() {
           <div className="lg:col-span-5 flex flex-col gap-8">
             <div className="glass-gold-static p-8 rounded-2xl">
               <h3 className="font-serif text-xl text-luxury-ivory font-bold mb-6">
-                Corporate Sourcing Office
+                Our Office
               </h3>
               
               <div className="flex flex-col gap-6">
@@ -71,22 +71,12 @@ export default function Contact() {
                   <MapPin className="w-5 h-5 text-luxury-gold shrink-0 mt-0.5" />
                   <div>
                     <h4 className="text-xs text-luxury-ivory/50 font-semibold tracking-wider uppercase mb-1">
-                      HQ & Processing Unit
+                      Address
                     </h4>
                     <p className="text-sm text-luxury-ivory/80 leading-relaxed">
-                      Millennium, Estates Road, Munnar, Idukki District, Kerala, 685612, India
-                    </p>
-                  </div>
-                </div>
-
-                <div className="flex gap-4 items-start">
-                  <Globe className="w-5 h-5 text-luxury-gold shrink-0 mt-0.5" />
-                  <div>
-                    <h4 className="text-xs text-luxury-ivory/50 font-semibold tracking-wider uppercase mb-1">
-                      Export Logistics Hub
-                    </h4>
-                    <p className="text-sm text-luxury-ivory/80 leading-relaxed">
-                      Ernakulam Wharf, Willingdon Island, Port Kochi, Kerala, India
+                      Millennium Premium Tea Munnar<br />
+                      Anachal PO, Munnar,<br />
+                      Idukki, Kerala — 685565
                     </p>
                   </div>
                 </div>
@@ -95,13 +85,13 @@ export default function Contact() {
                   <Mail className="w-5 h-5 text-luxury-gold shrink-0 mt-0.5" />
                   <div>
                     <h4 className="text-xs text-luxury-ivory/50 font-semibold tracking-wider uppercase mb-1">
-                      Direct Email
+                      Email
                     </h4>
                     <a
-                      href="mailto:sales@millenniumtea.com"
+                      href="mailto:millenniumpremiumtea@gmail.com"
                       className="text-sm text-luxury-gold hover:underline font-mono"
                     >
-                      sales@millenniumtea.com
+                      millenniumpremiumtea@gmail.com
                     </a>
                   </div>
                 </div>
@@ -110,77 +100,38 @@ export default function Contact() {
                   <Phone className="w-5 h-5 text-luxury-gold shrink-0 mt-0.5" />
                   <div>
                     <h4 className="text-xs text-luxury-ivory/50 font-semibold tracking-wider uppercase mb-1">
-                      Customer Helpline
+                      Phone
                     </h4>
                     <a
-                      href="tel:+919446056672"
+                      href="tel:+918089406346"
                       className="text-sm text-luxury-ivory/80 hover:text-luxury-gold font-mono"
                     >
-                      +91 94460 56672 (GMT+5:30)
+                      +91 80894 06346
                     </a>
                   </div>
                 </div>
               </div>
             </div>
 
-            {/* Stylized Dark / Gold Vector Map */}
-            <div className="glass-gold-static p-6 rounded-2xl flex flex-col items-center">
-              <h4 className="text-[10px] tracking-widest text-luxury-gold uppercase font-bold mb-4 self-start">
-                Munnar Sourcing & Kochi Port Terminal
+            {/* Google Maps embed */}
+            <div className="glass-gold-static p-4 rounded-2xl flex flex-col items-center">
+              <h4 className="text-[10px] tracking-widest text-luxury-gold uppercase font-bold mb-3 self-start">
+                Find Us — Anachal, Munnar
               </h4>
-              <div className="w-full h-44 relative bg-black/40 rounded-xl border border-luxury-gold/5 overflow-hidden flex items-center justify-center">
-                {/* Minimalist Grid lines */}
-                <div className="absolute inset-0 bg-[linear-gradient(to_right,#111_1px,transparent_1px),linear-gradient(to_bottom,#111_1px,transparent_1px)] bg-[size:1.5rem_1.5rem] opacity-30"></div>
-                
-                {/* Coastal Line (Diagonal gold line) */}
-                <svg className="absolute inset-0 w-full h-full" xmlns="http://www.w3.org/2000/svg">
-                  <path
-                    d="M 60,0 C 90,80 120,120 180,176"
-                    fill="none"
-                    stroke="#d4af37"
-                    strokeWidth="1.5"
-                    strokeDasharray="4 4"
-                    className="opacity-40"
-                  />
-                </svg>
-
-                {/* Port Kochi Pin */}
-                <div className="absolute left-[90px] top-[80px] flex flex-col items-center">
-                  <div className="relative flex h-3 w-3">
-                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-luxury-gold opacity-75"></span>
-                    <span className="relative inline-flex rounded-full h-3 w-3 bg-luxury-gold"></span>
-                  </div>
-                  <span className="text-[9px] font-sans text-luxury-ivory/80 tracking-widest uppercase mt-1 bg-luxury-black/75 px-1 py-0.5 rounded border border-luxury-gold/20">
-                    Kochi Export Terminal
-                  </span>
-                </div>
-
-                {/* HQ Idukki Pin */}
-                <div className="absolute left-[180px] top-[120px] flex flex-col items-center">
-                  <div className="relative flex h-3 w-3">
-                    <span className="relative inline-flex rounded-full h-3 w-3 bg-luxury-gold"></span>
-                  </div>
-                  <span className="text-[9px] font-sans text-luxury-gold tracking-widest uppercase mt-1 bg-luxury-black/75 px-1 py-0.5 rounded border border-luxury-gold/20 font-bold">
-                    Munnar Sourcing HQ
-                  </span>
-                </div>
-
-                {/* Connection line between Port and HQ */}
-                <svg className="absolute inset-0 w-full h-full" xmlns="http://www.w3.org/2000/svg">
-                  <line
-                    x1="96"
-                    y1="86"
-                    x2="186"
-                    y2="126"
-                    stroke="#d4af37"
-                    strokeWidth="1"
-                    strokeDasharray="2 2"
-                    className="opacity-60"
-                  />
-                </svg>
+              <div className="w-full rounded-xl overflow-hidden border border-luxury-gold/15">
+                <iframe
+                  title="Millennium Premium Tea — Anachal, Munnar"
+                  src="https://maps.google.com/maps?q=Anachal+PO+Munnar+Idukki+Kerala+685565&output=embed"
+                  width="100%"
+                  height="220"
+                  style={{ border: 0, display: "block" }}
+                  allowFullScreen
+                  loading="lazy"
+                  referrerPolicy="no-referrer-when-downgrade"
+                />
               </div>
               <p className="text-[10px] text-luxury-ivory/40 mt-3 leading-relaxed text-center">
-                Munnar highlands packaging facility located 110km east of Kochi Container Terminal, ensuring express ocean/air exports.
+                Anachal PO, Munnar, Idukki, Kerala — 685565
               </p>
             </div>
           </div>

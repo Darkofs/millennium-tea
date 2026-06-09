@@ -495,9 +495,11 @@ function InvoiceContent() {
               {/* Seller */}
               <div>
                 <div className="inv-party-label">Sold By — Millennium Tea</div>
-                <div className="inv-party-name">Millennium Tea Exports</div>
-                <div className="inv-party-line">Munnar, Kerala — 685612, India</div>
-                <div className="inv-party-line">sales@millenniumtea.com</div>
+                <div className="inv-party-name">Millennium Premium Tea</div>
+                <div className="inv-party-line">Anachal PO, Munnar,</div>
+                <div className="inv-party-line">Idukki, Kerala — 685565, India</div>
+                <div className="inv-party-line">millenniumpremiumtea@gmail.com</div>
+                <div className="inv-party-line">+91 80894 06346</div>
                 <div className="inv-party-line" style={{ marginTop: "8px", fontSize: "11px", color: "#aaa" }}>
                   GSTIN: 32AAECB5910K1ZB<br />
                   Tea Board Reg: TB-A9821
@@ -588,9 +590,9 @@ function InvoiceContent() {
               </p>
               <p style={{ fontFamily: "sans-serif", fontSize: "11px", color: "#aaa", marginTop: "8px" }}>
                 For queries, reach us at{" "}
-                <a href="https://wa.me/message/WXU5NCOSMGVRE1" style={{ color: "#D4AF37" }}>WhatsApp</a>
+                                <a href="https://wa.me/message/WXU5NCOSMGVRE1" style={{ color: "#D4AF37" }}>WhatsApp</a>
                 {" "}or{" "}
-                <a href="mailto:sales@millenniumtea.com" style={{ color: "#D4AF37" }}>sales@millenniumtea.com</a>
+                <a href="mailto:millenniumpremiumtea@gmail.com" style={{ color: "#D4AF37" }}>millenniumpremiumtea@gmail.com</a>
               </p>
             </div>
           </div>

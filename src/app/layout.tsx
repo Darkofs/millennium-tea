@@ -19,7 +19,7 @@ const sansFont = Outfit({
 
 export const metadata: Metadata = {
   title: "Millennium | Premium Handcrafted Luxury Tea",
-  description: "Exquisite artisanal tea blends designed for wellness, flavor, and everyday luxury. Special Masala Tea, Ginger Tea, Lemon Tea, Green Tea, and Turmeric Health Tea.",
+  description: "Exquisite artisanal tea blends from Anachal, Munnar — designed for wellness, flavor, and everyday luxury. Special Masala Tea, Ginger Tea, Lemon Tea, Green Tea, and Turmeric Health Tea.",
   metadataBase: new URL("https://millenniumtea.com"),
   openGraph: {
     title: "Millennium | Premium Handcrafted Luxury Tea",
