@@ -111,8 +111,8 @@ export default function CartDrawer() {
         order_id: orderId,
         image: "/images/logo.png",
         prefill: {
-          name: "",
-          email: "",
+          name: user?.name ?? "",
+          email: user?.email ?? "",
           contact: "",
         },
         theme: {
