@@ -4,11 +4,13 @@ import React, { useState, useEffect } from "react";
 import { Menu, X, Globe, ArrowRight, ShoppingBag, Receipt } from "lucide-react";
 import { useCart } from "@/context/CartContext";
 import Link from "next/link";
+import { useAuth } from "@/context/AuthContext";
 
 export default function Header() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const { totalCount, openCart } = useCart();
+  const { user, logout } = useAuth();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -81,8 +83,29 @@ export default function Header() {
             <span>EN</span>
           </button>
           
+          {/* User Sign In / Profile */}
+          {!user ? (
+            <Link
+              href="/auth"
+              className="text-[10px] tracking-widest text-luxury-ivory/70 hover:text-luxury-gold uppercase font-semibold transition-colors duration-300"
+            >
+              Sign In
+            </Link>
+          ) : (
+            <div className="flex items-center gap-3">
+              <span className="text-[10px] text-luxury-ivory/50 font-medium">Hi, {user.name.split(" ")[0]}</span>
+              <button
+                onClick={logout}
+                className="text-[10px] tracking-widest text-luxury-gold hover:text-yellow-400 uppercase font-bold focus:outline-none transition-colors duration-300 cursor-pointer"
+              >
+                Sign Out
+              </button>
+            </div>
+          )}
+
           {/* My Orders Button */}
           <Link
+
             href="/orders"
             className="relative flex items-center justify-center w-9 h-9 rounded-full border border-luxury-gold/30 text-luxury-ivory hover:text-luxury-gold hover:border-luxury-gold/60 transition-all cursor-pointer"
             aria-label="View orders"
@@ -181,6 +204,34 @@ export default function Header() {
               </div>
               <Receipt className="w-4.5 h-4.5 text-luxury-gold/60 mr-1" />
             </Link>
+            {!user ? (
+              <Link
+                href="/auth"
+                onClick={() => setIsMobileMenuOpen(false)}
+                className="text-left font-serif text-xl tracking-wider text-luxury-gold hover:text-yellow-400 transition-colors py-2 border-b border-luxury-gold/15 focus:outline-none cursor-pointer flex items-center justify-between"
+              >
+                <div>
+                  <span className="text-[10px] font-sans text-luxury-gold/50 tracking-widest mr-4">07</span>
+                  Sign In
+                </div>
+              </Link>
+            ) : (
+              <div className="flex flex-col py-2 border-b border-luxury-ivory/5 gap-1 text-left">
+                <span className="text-[10px] text-luxury-ivory/40 uppercase tracking-widest block">Logged In As</span>
+                <div className="flex items-center justify-between">
+                  <span className="font-serif text-lg text-luxury-ivory">{user.name}</span>
+                  <button
+                    onClick={() => {
+                      setIsMobileMenuOpen(false);
+                      logout();
+                    }}
+                    className="text-[10px] tracking-widest text-luxury-gold hover:text-yellow-400 uppercase font-bold focus:outline-none transition-colors duration-300 cursor-pointer"
+                  >
+                    Sign Out
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
 
           <div className="flex flex-col gap-4">

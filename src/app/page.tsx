@@ -12,7 +12,25 @@ import Contact from "@/components/Contact";
 import Footer from "@/components/Footer";
 import TrustBanner from "@/components/TrustBanner";
 
+import React, { useEffect } from "react";
+import { useCart } from "@/context/CartContext";
+
 export default function Home() {
+  const { openCart } = useCart();
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const params = new URLSearchParams(window.location.search);
+      if (params.get("cart") === "open") {
+        openCart();
+        // Clean up URL query parameters cleanly
+        const url = new URL(window.location.href);
+        url.searchParams.delete("cart");
+        window.history.replaceState({}, document.title, url.pathname + url.search);
+      }
+    }
+  }, [openCart]);
+
   return (
     <>
       {/* Luxury Navigation */}

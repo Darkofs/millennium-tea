@@ -5,7 +5,8 @@ import Link from "next/link";
 import Image from "next/image";
 import { useSearchParams } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import { ArrowLeft, CheckCircle, Clock, ShoppingBag, Receipt, HelpCircle, Package, Calendar } from "lucide-react";
+import { ArrowLeft, CheckCircle, Clock, ShoppingBag, Receipt, HelpCircle, Package, Calendar, User } from "lucide-react";
+import { useAuth } from "@/context/AuthContext";
 
 interface OrderItem {
   id: string;
@@ -31,6 +32,8 @@ function OrdersContent() {
   const successParam = searchParams.get("success") === "true";
   const newPaymentId = searchParams.get("id");
 
+  const { user } = useAuth();
+
   const [orders, setOrders] = useState<Order[]>([]);
   const [mounted, setMounted] = useState(false);
   const [showConfirmation, setShowConfirmation] = useState(false);
@@ -38,26 +41,73 @@ function OrdersContent() {
   useEffect(() => {
     setMounted(true);
     
-    // Load orders from LocalStorage
-    const saved = localStorage.getItem("millennium_orders");
-    if (saved) {
-      try {
-        const parsedOrders = JSON.parse(saved);
-        setOrders(parsedOrders);
-      } catch (e) {
-        console.error("Failed to parse orders:", e);
+    // Load user specific orders from LocalStorage
+    if (user) {
+      const saved = localStorage.getItem(`millennium_orders_${user.email}`);
+      if (saved) {
+        try {
+          const parsedOrders = JSON.parse(saved);
+          setOrders(parsedOrders);
+        } catch (e) {
+          console.error("Failed to parse orders:", e);
+        }
       }
     }
 
     if (successParam && newPaymentId) {
       setShowConfirmation(true);
     }
-  }, [successParam, newPaymentId]);
+  }, [successParam, newPaymentId, user]);
 
   if (!mounted) {
     return (
       <div className="min-h-screen bg-[#060606] text-luxury-ivory flex items-center justify-center">
         <div className="w-8 h-8 rounded-full border border-luxury-gold/30 border-t-transparent animate-spin"></div>
+      </div>
+    );
+  }
+
+  if (!user) {
+    return (
+      <div className="min-h-screen bg-[#060606] text-luxury-ivory font-sans relative overflow-hidden flex flex-col justify-between">
+        <div className="absolute top-[-20%] left-[-10%] w-[50%] h-[50%] bg-radial-gradient from-luxury-gold/5 via-transparent to-transparent pointer-events-none blur-[120px]" />
+        
+        <header className="fixed top-0 left-0 w-full z-50 bg-[#060606]/80 backdrop-blur-md border-b border-luxury-gold/10 py-5">
+          <div className="max-w-5xl mx-auto px-6 flex items-center justify-between">
+            <Link href="/" className="flex items-center gap-3 group focus:outline-none">
+              <div className="relative w-9 h-9 rounded-full border border-luxury-gold flex items-center justify-center">
+                <span className="text-luxury-gold font-serif text-base font-bold">M</span>
+              </div>
+              <span className="font-serif text-sm tracking-[0.2em] font-bold text-luxury-ivory uppercase">Millennium</span>
+            </Link>
+          </div>
+        </header>
+
+        <main className="flex-grow max-w-md w-full mx-auto px-6 flex flex-col items-center justify-center pt-28 pb-16 relative z-10">
+          <div className="w-full text-center border border-luxury-gold/10 rounded-3xl p-8 bg-black/40 space-y-6">
+            <div className="w-16 h-16 rounded-full border border-luxury-gold/25 flex items-center justify-center mx-auto bg-luxury-gold/[0.02]">
+              <User className="w-6 h-6 text-luxury-gold/80" />
+            </div>
+            <div className="space-y-2">
+              <h2 className="font-serif text-2xl text-luxury-ivory font-bold">Access Denied</h2>
+              <p className="text-xs text-luxury-ivory/50 leading-relaxed">
+                Please sign in to your Millennium account to view your order history and dispatch statuses.
+              </p>
+            </div>
+            <Link
+              href="/auth?redirect=/orders"
+              className="btn-gold-shimmer w-full py-3.5 rounded-xl border border-luxury-gold/50 cursor-pointer text-xs font-bold tracking-widest uppercase flex items-center justify-center"
+            >
+              Sign In to View Orders
+            </Link>
+          </div>
+        </main>
+
+        <footer className="border-t border-luxury-gold/10 py-6 bg-[#060606]">
+          <div className="max-w-5xl mx-auto px-6 text-center text-[10px] tracking-widest text-luxury-ivory/30 uppercase">
+            &copy; {new Date().getFullYear()} Millennium Tea.
+          </div>
+        </footer>
       </div>
     );
   }

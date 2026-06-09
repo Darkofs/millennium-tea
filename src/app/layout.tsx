@@ -3,6 +3,7 @@ import { Cormorant_Garamond, Outfit } from "next/font/google";
 import "./globals.css";
 import { CartProvider } from "@/context/CartContext";
 import CartDrawer from "@/components/CartDrawer";
+import { AuthProvider } from "@/context/AuthContext";
 
 const serifFont = Cormorant_Garamond({
   variable: "--font-serif",
@@ -39,10 +40,12 @@ export default function RootLayout({
       style={{ backgroundColor: "#0B0B0B" }}
     >
       <body className="min-h-screen bg-[#0B0B0B] text-[#F8F5F0] font-sans selection:bg-[#D4AF37] selection:text-[#0B0B0B]">
-        <CartProvider>
-          <CartDrawer />
-          {children}
-        </CartProvider>
+        <AuthProvider>
+          <CartProvider>
+            <CartDrawer />
+            {children}
+          </CartProvider>
+        </AuthProvider>
       </body>
     </html>
   );

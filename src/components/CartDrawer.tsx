@@ -2,10 +2,11 @@
 
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, Minus, Plus, Trash2, ShoppingBag, MessageCircle, ChevronRight, CreditCard, CheckCircle, AlertCircle, Loader } from "lucide-react";
+import { X, Minus, Plus, Trash2, ShoppingBag, MessageCircle, ChevronRight, CreditCard, CheckCircle, AlertCircle, Loader, User } from "lucide-react";
 import { useCart } from "@/context/CartContext";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
+import { useAuth } from "@/context/AuthContext";
 
 // Razorpay types
 declare global {
@@ -59,6 +60,7 @@ export default function CartDrawer() {
   const [paymentError, setPaymentError] = useState<string>("");
   const [successId, setSuccessId] = useState<string>("");
   const router = useRouter();
+  const { user } = useAuth();
 
   const handleWhatsAppCheckout = () => {
     if (items.length === 0) return;
@@ -141,9 +143,10 @@ export default function CartDrawer() {
               };
 
               try {
-                const existingOrders = JSON.parse(localStorage.getItem("millennium_orders") || "[]");
+                const storageKey = user ? `millennium_orders_${user.email}` : "millennium_orders";
+                const existingOrders = JSON.parse(localStorage.getItem(storageKey) || "[]");
                 existingOrders.unshift(newOrder);
-                localStorage.setItem("millennium_orders", JSON.stringify(existingOrders));
+                localStorage.setItem(storageKey, JSON.stringify(existingOrders));
               } catch (e) {
                 console.error("Failed to save order to local storage:", e);
               }
@@ -359,25 +362,40 @@ export default function CartDrawer() {
                   </motion.div>
                 )}
 
-                {/* Razorpay Pay Now */}
-                <button
-                  onClick={handleRazorpayPayment}
-                  disabled={paymentStatus === "loading"}
-                  className="w-full flex items-center justify-center gap-2.5 bg-luxury-gold hover:bg-yellow-400 text-luxury-black font-bold text-sm tracking-wide py-3.5 rounded-xl transition-all duration-300 shadow-lg shadow-luxury-gold/20 cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
-                >
-                  {paymentStatus === "loading" ? (
-                    <>
-                      <Loader className="w-4 h-4 animate-spin" />
-                      Processing…
-                    </>
-                  ) : (
-                    <>
-                      <CreditCard className="w-4 h-4" />
-                      Pay ₹{totalPrice.toLocaleString()} Now
-                      <ChevronRight className="w-4 h-4" />
-                    </>
-                  )}
-                </button>
+                 {/* Checkout Button gated by Auth */}
+                 {!user ? (
+                   <button
+                     onClick={() => {
+                       closeCart();
+                       router.push("/auth?redirect=checkout");
+                     }}
+                     className="w-full flex items-center justify-center gap-2.5 bg-luxury-gold hover:bg-yellow-400 text-luxury-black font-bold text-sm tracking-wide py-3.5 rounded-xl transition-all duration-300 shadow-lg shadow-luxury-gold/20 cursor-pointer"
+                   >
+                     <User className="w-4 h-4 text-luxury-black" />
+                     Sign In to Checkout
+                     <ChevronRight className="w-4 h-4" />
+                   </button>
+                 ) : (
+                   /* Razorpay Pay Now */
+                   <button
+                     onClick={handleRazorpayPayment}
+                     disabled={paymentStatus === "loading"}
+                     className="w-full flex items-center justify-center gap-2.5 bg-luxury-gold hover:bg-yellow-400 text-luxury-black font-bold text-sm tracking-wide py-3.5 rounded-xl transition-all duration-300 shadow-lg shadow-luxury-gold/20 cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
+                   >
+                     {paymentStatus === "loading" ? (
+                       <>
+                         <Loader className="w-4 h-4 animate-spin" />
+                         Processing…
+                       </>
+                     ) : (
+                       <>
+                         <CreditCard className="w-4 h-4" />
+                         Pay ₹{totalPrice.toLocaleString()} Now
+                         <ChevronRight className="w-4 h-4" />
+                       </>
+                     )}
+                   </button>
+                 )}
 
                 {/* WhatsApp Alternate */}
                 <button
