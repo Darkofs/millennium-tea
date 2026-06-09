@@ -5,7 +5,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { useSearchParams } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import { ArrowLeft, CheckCircle, Clock, ShoppingBag, Receipt, HelpCircle, Package, Calendar, User, MessageCircle } from "lucide-react";
+import { ArrowLeft, CheckCircle, Clock, ShoppingBag, Receipt, HelpCircle, Package, Calendar, User, MessageCircle, FileText } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 
 interface OrderItem {
@@ -267,11 +267,21 @@ function OrdersContent() {
                     </div>
                   </div>
 
-                  <div className="flex items-center gap-2 self-start md:self-center">
+                  <div className="flex items-center gap-2 self-start md:self-center flex-wrap">
                     <span className="inline-flex items-center gap-1 bg-green-500/10 border border-green-500/20 text-green-400 text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-widest">
                       <CheckCircle className="w-3 h-3" />
                       {order.status}
                     </span>
+                    {/* Invoice Button */}
+                    <a
+                      href={`/invoice?id=${order.id}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1.5 bg-luxury-gold/10 border border-luxury-gold/30 hover:bg-luxury-gold/20 hover:border-luxury-gold/60 text-luxury-gold text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-widest transition-all duration-300 whitespace-nowrap cursor-pointer"
+                    >
+                      <FileText className="w-3 h-3" />
+                      Invoice PDF
+                    </a>
                   </div>
                 </div>
 
