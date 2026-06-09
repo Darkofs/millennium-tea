@@ -1,8 +1,9 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { Menu, X, Globe, ArrowRight, ShoppingBag } from "lucide-react";
+import { Menu, X, Globe, ArrowRight, ShoppingBag, Receipt } from "lucide-react";
 import { useCart } from "@/context/CartContext";
+import Link from "next/link";
 
 export default function Header() {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -80,6 +81,15 @@ export default function Header() {
             <span>EN</span>
           </button>
           
+          {/* My Orders Button */}
+          <Link
+            href="/orders"
+            className="relative flex items-center justify-center w-9 h-9 rounded-full border border-luxury-gold/30 text-luxury-ivory hover:text-luxury-gold hover:border-luxury-gold/60 transition-all cursor-pointer"
+            aria-label="View orders"
+          >
+            <Receipt className="w-4 h-4" />
+          </Link>
+
           {/* Cart Button */}
           <button
             onClick={openCart}
@@ -105,6 +115,15 @@ export default function Header() {
 
         {/* Mobile: Cart + Menu Button */}
         <div className="lg:hidden flex items-center gap-3">
+          {/* My Orders Button */}
+          <Link
+            href="/orders"
+            className="relative flex items-center justify-center w-9 h-9 rounded-full border border-luxury-gold/30 text-luxury-ivory hover:text-luxury-gold transition-all cursor-pointer"
+            aria-label="View orders"
+          >
+            <Receipt className="w-4 h-4" />
+          </Link>
+
           <button
             onClick={openCart}
             className="relative flex items-center justify-center w-9 h-9 rounded-full border border-luxury-gold/30 text-luxury-ivory hover:text-luxury-gold transition-all cursor-pointer"
@@ -151,6 +170,17 @@ export default function Header() {
                 {item.name}
               </button>
             ))}
+            <Link
+              href="/orders"
+              onClick={() => setIsMobileMenuOpen(false)}
+              className="text-left font-serif text-xl tracking-wider text-luxury-ivory hover:text-luxury-gold transition-colors py-2 border-b border-luxury-ivory/5 focus:outline-none cursor-pointer flex items-center justify-between"
+            >
+              <div>
+                <span className="text-[10px] font-sans text-luxury-gold/50 tracking-widest mr-4">06</span>
+                My Orders
+              </div>
+              <Receipt className="w-4.5 h-4.5 text-luxury-gold/60 mr-1" />
+            </Link>
           </div>
 
           <div className="flex flex-col gap-4">

@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { X, Minus, Plus, Trash2, ShoppingBag, MessageCircle, ChevronRight, CreditCard, CheckCircle, AlertCircle, Loader } from "lucide-react";
 import { useCart } from "@/context/CartContext";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 
 // Razorpay types
 declare global {
@@ -57,6 +58,7 @@ export default function CartDrawer() {
   const [paymentStatus, setPaymentStatus] = useState<PaymentStatus>("idle");
   const [paymentError, setPaymentError] = useState<string>("");
   const [successId, setSuccessId] = useState<string>("");
+  const router = useRouter();
 
   const handleWhatsAppCheckout = () => {
     if (items.length === 0) return;
@@ -128,9 +130,33 @@ export default function CartDrawer() {
             });
             const verifyData = await verifyRes.json();
             if (verifyData.success) {
+              // Save order details to local storage
+              const newOrder = {
+                id: response.razorpay_payment_id,
+                orderId: response.razorpay_order_id,
+                date: new Date().toISOString(),
+                items: [...items],
+                total: totalPrice,
+                status: "Paid"
+              };
+
+              try {
+                const existingOrders = JSON.parse(localStorage.getItem("millennium_orders") || "[]");
+                existingOrders.unshift(newOrder);
+                localStorage.setItem("millennium_orders", JSON.stringify(existingOrders));
+              } catch (e) {
+                console.error("Failed to save order to local storage:", e);
+              }
+
               setSuccessId(response.razorpay_payment_id);
               setPaymentStatus("success");
               clearCart();
+
+              // Wait 1.5s to let the drawer success state render, then redirect to My Orders page
+              setTimeout(() => {
+                closeCart();
+                router.push(`/orders?success=true&id=${response.razorpay_payment_id}`);
+              }, 1500);
             } else {
               throw new Error(verifyData.error ?? "Payment verification failed");
             }
