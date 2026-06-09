@@ -10,7 +10,7 @@ const ThreeScene = dynamic(() => import("./ThreeScene"), {
 });
 
 const TOTAL_FRAMES = 240;
-const frameUrl = (index: number) => `/images/herosection/ezgif-frame-${String(index).padStart(3, "0")}.png`;
+const frameUrl = (index: number) => `/images/herosection/ezgif-frame-${String(index).padStart(3, "0")}.jpg`;
 
 export default function Hero() {
   const containerRef = useRef<HTMLDivElement>(null);
