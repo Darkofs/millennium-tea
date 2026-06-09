@@ -72,7 +72,7 @@ export default function CartDrawer() {
     const message = encodeURIComponent(
       `Hello Millennium Tea! I'd like to place an order:\n\n${lines.join("\n")}${total}\n\nPlease confirm availability and share payment details. Thank you!`
     );
-    window.open(`https://wa.me/919446056672?text=${message}`, "_blank");
+    window.open(`https://wa.me/message/WXU5NCOSMGVRE1?text=${message}`, "_blank");
   };
 
   const handleRazorpayPayment = async () => {

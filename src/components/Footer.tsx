@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { ArrowUp, Mail } from "lucide-react";
+import { ArrowUp, Mail, MessageCircle } from "lucide-react";
 
 export default function Footer() {
   const scrollToTop = () => {
@@ -104,6 +104,16 @@ export default function Footer() {
                 aria-label="Email"
               >
                 <Mail className="w-4 h-4" />
+              </a>
+              {/* WhatsApp */}
+              <a
+                href="https://wa.me/message/WXU5NCOSMGVRE1"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="p-2 rounded-full bg-luxury-charcoal hover:bg-[#25D366]/20 text-luxury-ivory/60 hover:text-[#25D366] transition-colors"
+                aria-label="WhatsApp"
+              >
+                <MessageCircle className="w-4 h-4" />
               </a>
               <a
                 href="https://linkedin.com"

@@ -191,10 +191,11 @@ export default function Catalog() {
   };
 
   const handleBuyAction = () => {
+    const gradeInfo = activeProduct.grades[selectedGrade];
     const text = encodeURIComponent(
-      `Hello Millennium, I am interested in purchasing ${activeProduct.name} (250g pack). Please provide the payment and shipping details.`
+      `Hello Millennium Tea! I am interested in purchasing:\n\n🍃 ${activeProduct.name}\nGrade: ${gradeInfo?.name ?? "Standard"}\nSize: ${selectedSize}\n\nPlease share payment and shipping details. Thank you!`
     );
-    window.open(`https://wa.me/919446056672?text=${text}`, "_blank");
+    window.open(`https://wa.me/message/WXU5NCOSMGVRE1?text=${text}`, "_blank");
   };
 
   const scrollToContact = () => {

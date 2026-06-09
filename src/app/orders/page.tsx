@@ -5,7 +5,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { useSearchParams } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import { ArrowLeft, CheckCircle, Clock, ShoppingBag, Receipt, HelpCircle, Package, Calendar, User } from "lucide-react";
+import { ArrowLeft, CheckCircle, Clock, ShoppingBag, Receipt, HelpCircle, Package, Calendar, User, MessageCircle } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 
 interface OrderItem {
@@ -305,15 +305,27 @@ function OrdersContent() {
                 </div>
 
                 {/* Card Footer info */}
-                <div className="bg-black/20 border-t border-luxury-gold/5 px-6 py-3.5 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 text-[11px] text-luxury-ivory/40">
-                  <span className="flex items-center gap-1.5">
-                    <Clock className="w-3.5 h-3.5 text-luxury-gold/40" />
-                    Estimated Delivery: 3-5 business days
-                  </span>
-                  <span className="flex items-center gap-1.5">
-                    <Receipt className="w-3.5 h-3.5 text-luxury-gold/40" />
-                    Razorpay Order ID: <span className="font-mono text-luxury-ivory/60">{order.orderId}</span>
-                  </span>
+                <div className="bg-black/20 border-t border-luxury-gold/5 px-6 py-3.5 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 text-[11px] text-luxury-ivory/40">
+                  <div className="flex flex-col gap-1.5">
+                    <span className="flex items-center gap-1.5">
+                      <Clock className="w-3.5 h-3.5 text-luxury-gold/40" />
+                      Estimated Delivery: 3-5 business days
+                    </span>
+                    <span className="flex items-center gap-1.5">
+                      <Receipt className="w-3.5 h-3.5 text-luxury-gold/40" />
+                      Razorpay Order ID: <span className="font-mono text-luxury-ivory/60">{order.orderId}</span>
+                    </span>
+                  </div>
+                  {/* WhatsApp Enquiry Button */}
+                  <a
+                    href={`https://wa.me/message/WXU5NCOSMGVRE1?text=${encodeURIComponent(`Hi Millennium Tea! I have an enquiry about my order.%0AOrder ID: ${order.id}%0ARazorpay Ref: ${order.orderId}%0ADate: ${formatDate(order.date)}%0ATotal: ₹${order.total.toLocaleString()}%0A%0APlease assist me. Thank you!`)}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-2 bg-[#25D366]/10 border border-[#25D366]/30 hover:bg-[#25D366]/20 hover:border-[#25D366]/60 text-[#25D366] text-[11px] font-semibold px-4 py-2 rounded-full transition-all duration-300 whitespace-nowrap shrink-0"
+                  >
+                    <MessageCircle className="w-3.5 h-3.5" />
+                    Enquire on WhatsApp
+                  </a>
                 </div>
               </div>
             ))}
@@ -325,13 +337,18 @@ function OrdersContent() {
       <footer className="border-t border-luxury-gold/10 py-6 bg-[#060606]">
         <div className="max-w-5xl mx-auto px-6 flex flex-col sm:flex-row justify-between items-center gap-4 text-[10px] tracking-widest text-luxury-ivory/30 uppercase">
           <span>&copy; {new Date().getFullYear()} Millennium Tea. All Rights Reserved.</span>
-          <div className="flex gap-6">
+          <div className="flex gap-6 items-center">
             <Link href="/" className="hover:text-luxury-gold transition-colors">Home</Link>
             <Link href="/#catalog" className="hover:text-luxury-gold transition-colors">Catalog</Link>
-            <span className="flex items-center gap-1">
-              <HelpCircle className="w-3.5 h-3.5" />
-              <span>Assistance desk</span>
-            </span>
+            <a
+              href="https://wa.me/message/WXU5NCOSMGVRE1"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-1.5 text-[#25D366]/60 hover:text-[#25D366] transition-colors duration-300"
+            >
+              <MessageCircle className="w-3.5 h-3.5" />
+              <span>WhatsApp Support</span>
+            </a>
           </div>
         </div>
       </footer>

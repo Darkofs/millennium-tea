@@ -34,9 +34,9 @@ export default function Contact() {
 
   const handleWhatsAppChat = () => {
     const text = encodeURIComponent(
-      `Hello Millennium, I am interested in ordering tea. Name: ${formData.name || "Visitor"}, Company: ${formData.company || "N/A"}. Tea: ${formData.tea}, Quantity: ${formData.volume}.`
+      `Hello Millennium Tea! I am interested in ordering tea.\n\nName: ${formData.name || "Visitor"}\nCompany: ${formData.company || "N/A"}\nTea: ${formData.tea}\nQuantity: ${formData.volume}${formData.message ? `\n\nMessage: ${formData.message}` : ""}`
     );
-    window.open(`https://wa.me/919446056672?text=${text}`, "_blank");
+    window.open(`https://wa.me/message/WXU5NCOSMGVRE1?text=${text}`, "_blank");
   };
 
   return (

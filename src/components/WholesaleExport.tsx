@@ -2,7 +2,7 @@
 
 import React from "react";
 import { motion } from "framer-motion";
-import { Container, Settings, Ship, Users, Gift, CheckCircle, ArrowUpRight } from "lucide-react";
+import { Container, Settings, Ship, Users, Gift, CheckCircle, ArrowUpRight, MessageCircle } from "lucide-react";
 
 interface ServiceItem {
   id: string;
@@ -77,11 +77,11 @@ const wholesaleServices: ServiceItem[] = [
 ];
 
 export default function WholesaleExport() {
-  const scrollToContact = () => {
-    const element = document.getElementById("contact");
-    if (element) {
-      element.scrollIntoView({ behavior: "smooth" });
-    }
+  const openWhatsApp = () => {
+    const text = encodeURIComponent(
+      `Hello Millennium Tea! I am interested in establishing a wholesale/export partnership.\n\nCould you please share:\n• Bulk pricing schedule\n• Minimum order quantities\n• Shipping & logistics options\n\nThank you!`
+    );
+    window.open(`https://wa.me/message/WXU5NCOSMGVRE1?text=${text}`, "_blank");
   };
 
   return (
@@ -178,10 +178,11 @@ export default function WholesaleExport() {
             </div>
 
             <button
-              onClick={scrollToContact}
+              onClick={openWhatsApp}
               className="btn-gold-shimmer w-full text-center py-4 rounded-xl text-xs font-semibold tracking-widest uppercase flex items-center justify-center gap-2 group cursor-pointer mt-6"
             >
-              Initiate Partnership
+              <MessageCircle className="w-4 h-4" />
+              Chat on WhatsApp
               <ArrowUpRight className="w-4 h-4 transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
             </button>
           </motion.div>
