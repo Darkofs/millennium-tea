@@ -34,13 +34,22 @@ export default function Hero() {
     offset: ["start start", "end end"],
   });
 
-  // Create a super smooth spring-dampened motion value from raw scroll progress
-  const smoothProgress = useSpring(scrollYProgress, {
+  // Create two springs: one for desktop (smooth, stylized) and one for mobile (highly responsive, minimal lag)
+  const desktopSpring = useSpring(scrollYProgress, {
     damping: 40,
     stiffness: 120,
     mass: 0.5,
     restDelta: 0.001
   });
+
+  const mobileSpring = useSpring(scrollYProgress, {
+    damping: 25,
+    stiffness: 180,
+    mass: 0.25,
+    restDelta: 0.001
+  });
+
+  const smoothProgress = isMobile ? mobileSpring : desktopSpring;
 
   // Slide 1: Top-Left Corner (Opacity, X, Y)
   const opacityTL = useTransform(smoothProgress, [0.02, 0.08, 0.20, 0.25], [0, 1, 1, 0]);
@@ -247,7 +256,7 @@ export default function Hero() {
   };
 
   return (
-    <div ref={containerRef} className="relative w-full h-[200vh] md:h-[400vh] z-10">
+    <div ref={containerRef} className="relative w-full h-[400vh] z-10">
       
       <motion.div 
         style={{ backgroundColor: heroBg }}
