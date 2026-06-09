@@ -19,7 +19,7 @@ export default function Home() {
       <Header />
 
       {/* Scrollable Storytelling Experience */}
-      <main className="relative z-10 w-full">
+      <main className="relative z-10 w-full overflow-x-hidden">
         {/* Cinematic Landing */}
         <Hero />
 

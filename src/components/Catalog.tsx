@@ -205,7 +205,7 @@ export default function Catalog() {
   };
 
   return (
-    <section id="catalog" className="relative w-full z-10 py-32 bg-luxury-black">
+    <section id="catalog" className="relative w-full z-10 py-32 bg-luxury-black overflow-hidden">
       {/* Background radial glow */}
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-luxury-gold/5 rounded-full blur-[150px] pointer-events-none"></div>
 

@@ -40,7 +40,7 @@ export default function Contact() {
   };
 
   return (
-    <section id="contact" className="relative w-full z-10 py-32 bg-luxury-black">
+    <section id="contact" className="relative w-full z-10 py-32 bg-luxury-black overflow-hidden">
       {/* Background glow */}
       <div className="absolute bottom-0 right-0 w-[500px] h-[500px] bg-luxury-gold/5 rounded-full blur-[120px] pointer-events-none"></div>
 
