@@ -179,3 +179,68 @@ h1, h2, h3, h4, h5, h6 {
   box-shadow: 0 0 20px rgba(212, 175, 55, 0.6);
   transform: translateY(-2px);
 }
+
+/* Custom cursor styling for fine pointers (desktop) */
+@media (pointer: fine) {
+  .custom-cursor-dot,
+  .custom-cursor-ring {
+    display: block !important;
+  }
+  
+  /* Suppress default cursor on desktop for interactive elements */
+  body, 
+  a, 
+  button, 
+  [role="button"], 
+  .glass-gold, 
+  .clickable-card {
+    cursor: none !important;
+  }
+}
+
+.custom-cursor-dot {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 6px;
+  height: 6px;
+  background-color: #d4af37;
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 9999;
+  transform: translate(-50%, -50%);
+  mix-blend-mode: difference;
+}
+
+.custom-cursor-ring {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 36px;
+  height: 36px;
+  border: 1px solid rgba(212, 175, 55, 0.5);
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 9998;
+  transform: translate(-50%, -50%);
+  transform-origin: center center;
+}
+
+/* Morph active states */
+.custom-cursor-ring.cursor-active {
+  background-color: rgba(212, 175, 55, 0.12);
+  border-color: rgba(212, 175, 55, 0.95);
+  mix-blend-mode: normal;
+}
+
+.custom-cursor-dot.cursor-active {
+  background-color: #f8f5f0;
+}
+
+/* 3D Perspective container utility */
+.perspective-container {
+  perspective: 1200px;
+}
+

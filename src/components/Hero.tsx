@@ -1,391 +1,323 @@
 "use client";
 
-import React, { useEffect, useRef, useState } from "react";
-import { motion, useScroll, useTransform, useMotionValueEvent, useSpring } from "framer-motion";
+import React, { useEffect, useRef } from "react";
 import { ChevronDown } from "lucide-react";
-import dynamic from "next/dynamic";
-
-const ThreeScene = dynamic(() => import("./ThreeScene"), {
-  ssr: false,
-});
-
-const TOTAL_FRAMES = 240;
-const frameUrl = (index: number) => `/images/herosection/ezgif-frame-${String(index).padStart(3, "0")}.jpg`;
+import { gsap } from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
 
 export default function Hero() {
   const containerRef = useRef<HTMLDivElement>(null);
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-  const loadedImages = useRef<(HTMLImageElement | null)[]>(new Array(TOTAL_FRAMES + 1).fill(null));
-  const currentFrameRef = useRef<number>(1);
-  const [loadingProgress, setLoadingProgress] = useState(0);
-  const [heroComplete, setHeroComplete] = useState(false);
-  const [isMobile, setIsMobile] = useState(false);
+  const titleRef = useRef<HTMLHeadingElement>(null);
+  const copyRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const checkMobile = () => setIsMobile(window.innerWidth < 768);
-    checkMobile();
-    window.addEventListener("resize", checkMobile);
-    return () => window.removeEventListener("resize", checkMobile);
+    if (typeof window === "undefined") return;
+
+    gsap.registerPlugin(ScrollTrigger);
+
+    const ctx = gsap.context(() => {
+      // Large text words slide up out of mask
+      gsap.fromTo(
+        ".title-word",
+        { yPercent: 100, opacity: 0 },
+        {
+          yPercent: 0,
+          opacity: 1,
+          duration: 1.2,
+          stagger: 0.15,
+          ease: "power4.out",
+        }
+      );
+
+      // Spinning leaf inside title
+      gsap.fromTo(
+        ".title-leaf",
+        { scale: 0, rotate: -90 },
+        {
+          scale: 1,
+          rotate: 0,
+          duration: 1.5,
+          ease: "elastic.out(1, 0.5)",
+          delay: 0.4,
+        }
+      );
+
+      // Continuous slow rotation on title leaf
+      gsap.to(".title-leaf", {
+        rotate: 360,
+        duration: 25,
+        repeat: -1,
+        ease: "none",
+      });
+
+      // Ambient background shapes load animation
+      gsap.fromTo(
+        ".bg-shape",
+        { scale: 0, opacity: 0 },
+        {
+          scale: 1,
+          opacity: 0.35,
+          duration: 1.8,
+          stagger: 0.2,
+          ease: "power3.out",
+        }
+      );
+
+      // ScrollTrigger for the text copy section lines
+      const copyLines = gsap.utils.toArray(".copy-text-line");
+      copyLines.forEach((line: any) => {
+        gsap.fromTo(
+          line,
+          { y: 30, opacity: 0 },
+          {
+            y: 0,
+            opacity: 1,
+            duration: 0.8,
+            ease: "power3.out",
+            scrollTrigger: {
+              trigger: line,
+              start: "top 85%",
+              toggleActions: "play none none none",
+            },
+          }
+        );
+      });
+    }, containerRef);
+
+    return () => ctx.revert();
   }, []);
 
-  // Monitor scroll progress of the entire 400vh container
-  const { scrollYProgress } = useScroll({
-    target: containerRef,
-    offset: ["start start", "end end"],
-  });
-
-  // Create two springs: one for desktop (smooth, stylized) and one for mobile (highly responsive, minimal lag)
-  const desktopSpring = useSpring(scrollYProgress, {
-    damping: 40,
-    stiffness: 120,
-    mass: 0.5,
-    restDelta: 0.001
-  });
-
-  const mobileSpring = useSpring(scrollYProgress, {
-    damping: 25,
-    stiffness: 180,
-    mass: 0.25,
-    restDelta: 0.001
-  });
-
-  const smoothProgress = isMobile ? mobileSpring : desktopSpring;
-
-  // Slide 1: Top-Left Corner (Opacity, X, Y)
-  const opacityTL = useTransform(smoothProgress, [0.02, 0.08, 0.20, 0.25], [0, 1, 1, 0]);
-  const xTL = useTransform(smoothProgress, [0.02, 0.08, 0.20, 0.25], [-60, 0, 0, -60]);
-  const yTL = useTransform(smoothProgress, [0.02, 0.08, 0.20, 0.25], [-30, 0, 0, -30]);
-  const yMobileTL = useTransform(smoothProgress, [0.02, 0.08, 0.20, 0.25], [20, 0, 0, 20]);
-
-  // Slide 2: Top-Right Corner (Opacity, X, Y)
-  const opacityTR = useTransform(smoothProgress, [0.25, 0.30, 0.42, 0.47], [0, 1, 1, 0]);
-  const xTR = useTransform(smoothProgress, [0.25, 0.30, 0.42, 0.47], [60, 0, 0, 60]);
-  const yTR = useTransform(smoothProgress, [0.25, 0.30, 0.42, 0.47], [-30, 0, 0, -30]);
-  const yMobileTR = useTransform(smoothProgress, [0.25, 0.30, 0.42, 0.47], [20, 0, 0, 20]);
-
-  // Slide 3: Bottom-Left Corner (Opacity, X, Y)
-  const opacityBL = useTransform(smoothProgress, [0.47, 0.52, 0.64, 0.69], [0, 1, 1, 0]);
-  const xBL = useTransform(smoothProgress, [0.47, 0.52, 0.64, 0.69], [-60, 0, 0, -60]);
-  const yBL = useTransform(smoothProgress, [0.47, 0.52, 0.64, 0.69], [30, 0, 0, 30]);
-  const yMobileBL = useTransform(smoothProgress, [0.47, 0.52, 0.64, 0.69], [20, 0, 0, 20]);
-
-  // Slide 4: Bottom-Right Corner (Opacity, X, Y)
-  const opacityBR = useTransform(smoothProgress, [0.69, 0.74, 0.86, 0.90], [0, 1, 1, 0]);
-  const xBR = useTransform(smoothProgress, [0.69, 0.74, 0.86, 0.90], [60, 0, 0, 60]);
-  const yBR = useTransform(smoothProgress, [0.69, 0.74, 0.86, 0.90], [30, 0, 0, 30]);
-  const yMobileBR = useTransform(smoothProgress, [0.69, 0.74, 0.86, 0.90], [20, 0, 0, 20]);
-
-  // Smooth transition from Hero pre-rendered sequence to ThreeScene WebGL canvas
-  const canvasOpacity = useTransform(smoothProgress, [0.90, 0.98], [1, 0]);
-  const heroBg = useTransform(
-    smoothProgress,
-    [0.90, 0.98],
-    ["rgba(11, 11, 11, 1)", "rgba(11, 11, 11, 0)"]
-  );
-
-  // Function to draw an image on the canvas matching object-fit: cover
-  const drawFrame = (frameIndex: number) => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const ctx = canvas.getContext("2d");
-    if (!ctx) return;
-
-    // High performance O(1) lookup with fast outward scan fallback
-    let closestIndex = -1;
-    if (loadedImages.current[frameIndex]) {
-      closestIndex = frameIndex;
-    } else {
-      // Scan outwards from the frameIndex to find the nearest loaded frame
-      for (let offset = 1; offset < TOTAL_FRAMES; offset++) {
-        const left = frameIndex - offset;
-        const right = frameIndex + offset;
-        if (left >= 1 && loadedImages.current[left]) {
-          closestIndex = left;
-          break;
-        }
-        if (right <= TOTAL_FRAMES && loadedImages.current[right]) {
-          closestIndex = right;
-          break;
-        }
+  // Hover animations for inline keywords
+  const handleMouseEnterWord = (wordType: string, event: React.MouseEvent) => {
+    const target = event.currentTarget;
+    if (wordType === "effortlessly") {
+      const leaf = target.querySelector(".word-leaf-svg");
+      const loop = target.querySelector(".word-loop-path");
+      if (leaf) {
+        gsap.to(leaf, { rotate: "+=180", scale: 1.25, duration: 0.45, ease: "power2.out", overwrite: "auto" });
+      }
+      if (loop) {
+        gsap.to(loop, { strokeDashoffset: 0, duration: 0.5, ease: "power2.out", overwrite: "auto" });
+      }
+    } else if (wordType === "handpicked") {
+      const circle = target.querySelector(".word-circle-path");
+      if (circle) {
+        gsap.to(circle, { strokeDashoffset: 0, duration: 0.6, ease: "power2.out", overwrite: "auto" });
+      }
+    } else if (wordType === "wellness") {
+      const oval = target.querySelector(".word-oval-path");
+      if (oval) {
+        gsap.to(oval, { strokeDashoffset: 0, duration: 0.6, ease: "power2.out", overwrite: "auto" });
+      }
+    } else if (wordType === "sensory") {
+      const block = target.querySelector(".word-highlight-block");
+      const text = target.querySelector(".word-text");
+      if (block) {
+        gsap.to(block, { yPercent: 0, duration: 0.3, ease: "power2.out", overwrite: "auto" });
+      }
+      if (text) {
+        gsap.to(text, { color: "#0b0b0b", duration: 0.2, overwrite: "auto" });
       }
     }
-
-    const img = closestIndex !== -1 ? loadedImages.current[closestIndex] : null;
-    if (!img) return;
-
-    const canvasWidth = canvas.width;
-    const canvasHeight = canvas.height;
-    const imgWidth = img.width;
-    const imgHeight = img.height;
-
-    const canvasRatio = canvasWidth / canvasHeight;
-    const imgRatio = imgWidth / imgHeight;
-
-    let drawWidth = canvasWidth;
-    let drawHeight = canvasHeight;
-    let offsetX = 0;
-    let offsetY = 0;
-
-    if (canvasRatio > imgRatio) {
-      drawHeight = canvasWidth / imgRatio;
-      offsetY = (canvasHeight - drawHeight) / 2;
-    } else {
-      drawWidth = canvasHeight * imgRatio;
-      offsetX = (canvasWidth - drawWidth) / 2;
-    }
-
-    ctx.clearRect(0, 0, canvasWidth, canvasHeight);
-    ctx.drawImage(img, offsetX, offsetY, drawWidth, drawHeight);
-    currentFrameRef.current = frameIndex;
   };
 
-  useEffect(() => {
-    let lastWidth = window.innerWidth;
-    const handleResize = () => {
-      const canvas = canvasRef.current;
-      if (!canvas) return;
-
-      const widthChanged = window.innerWidth !== lastWidth;
-      const isMobileDevice = window.matchMedia("(hover: none) and (pointer: coarse)").matches;
-
-      if (!isMobileDevice || widthChanged) {
-        canvas.width = window.innerWidth;
-        canvas.height = window.innerHeight;
-        lastWidth = window.innerWidth;
-        drawFrame(currentFrameRef.current);
+  const handleMouseLeaveWord = (wordType: string, event: React.MouseEvent) => {
+    const target = event.currentTarget;
+    if (wordType === "effortlessly") {
+      const leaf = target.querySelector(".word-leaf-svg");
+      const loop = target.querySelector(".word-loop-path");
+      if (leaf) {
+        gsap.to(leaf, { scale: 0, rotate: -90, duration: 0.45, ease: "power2.out", overwrite: "auto" });
       }
-    };
-
-    window.addEventListener("resize", handleResize);
-    const canvas = canvasRef.current;
-    if (canvas) {
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
-    }
-
-    // Load Frame 1 immediately
-    const img1 = new Image();
-    img1.src = frameUrl(1);
-    img1.onload = () => {
-      loadedImages.current[1] = img1;
-      drawFrame(1);
-    };
-
-    // Preload key sparse frames first (every 5th)
-    const sparseFrames = [];
-    for (let i = 5; i <= TOTAL_FRAMES; i += 5) {
-      sparseFrames.push(i);
-    }
-
-    let loadedCount = 1;
-    const updateProgress = () => {
-      loadedCount++;
-      setLoadingProgress(Math.min(Math.round((loadedCount / TOTAL_FRAMES) * 100), 100));
-    };
-
-    sparseFrames.forEach((frameIdx) => {
-      const img = new Image();
-      img.src = frameUrl(frameIdx);
-      img.onload = () => {
-        loadedImages.current[frameIdx] = img;
-        updateProgress();
-        if (Math.abs(currentFrameRef.current - frameIdx) < 3) {
-          drawFrame(currentFrameRef.current);
-        }
-      };
-    });
-
-    // Progressive staggered loading of remaining frames after 600ms to prevent main thread lockup
-    const timer = setTimeout(() => {
-      const remainingFrames: number[] = [];
-      for (let i = 2; i <= TOTAL_FRAMES; i++) {
-        if (i % 5 !== 0) {
-          remainingFrames.push(i);
-        }
+      if (loop) {
+        gsap.to(loop, { strokeDashoffset: 150, duration: 0.4, ease: "power2.inOut", overwrite: "auto" });
       }
-
-      let batchIndex = 0;
-      const batchSize = 6; // Load 6 frames per tick to keep scroll interactions butter smooth
-      
-      const loadBatch = () => {
-        if (batchIndex >= remainingFrames.length) return;
-        const start = batchIndex;
-        const end = Math.min(start + batchSize, remainingFrames.length);
-        
-        for (let j = start; j < end; j++) {
-          const frameIdx = remainingFrames[j];
-          const img = new Image();
-          img.src = frameUrl(frameIdx);
-          img.onload = () => {
-            loadedImages.current[frameIdx] = img;
-            updateProgress();
-            // Draw immediately if close to the active frame
-            if (Math.abs(currentFrameRef.current - frameIdx) < 2) {
-              drawFrame(currentFrameRef.current);
-            }
-          };
-        }
-        
-        batchIndex += batchSize;
-        requestAnimationFrame(loadBatch);
-      };
-      
-      requestAnimationFrame(loadBatch);
-    }, 600);
-
-    return () => {
-      window.removeEventListener("resize", handleResize);
-      clearTimeout(timer);
-    };
-  }, []);
-
-  useMotionValueEvent(smoothProgress, "change", (latest) => {
-    const frameIndex = Math.max(1, Math.min(TOTAL_FRAMES, Math.floor((Math.min(1, latest / 0.90)) * (TOTAL_FRAMES - 1)) + 1));
-    drawFrame(frameIndex);
-    // Mark hero as complete when scroll animation finishes
-    if (latest >= 0.98 && !heroComplete) {
-      setHeroComplete(true);
-    }
-  });
-
-  const scrollToSection = (id: string) => {
-    const element = document.getElementById(id);
-    if (element) {
-      element.scrollIntoView({ behavior: "smooth" });
+    } else if (wordType === "handpicked") {
+      const circle = target.querySelector(".word-circle-path");
+      if (circle) {
+        gsap.to(circle, { strokeDashoffset: 300, duration: 0.4, ease: "power2.inOut", overwrite: "auto" });
+      }
+    } else if (wordType === "wellness") {
+      const oval = target.querySelector(".word-oval-path");
+      if (oval) {
+        gsap.to(oval, { strokeDashoffset: 350, duration: 0.4, ease: "power2.inOut", overwrite: "auto" });
+      }
+    } else if (wordType === "sensory") {
+      const block = target.querySelector(".word-highlight-block");
+      const text = target.querySelector(".word-text");
+      if (block) {
+        gsap.to(block, { yPercent: 100, duration: 0.3, ease: "power2.out", overwrite: "auto" });
+      }
+      if (text) {
+        gsap.to(text, { color: "#d4af37", duration: 0.2, overwrite: "auto" });
+      }
     }
   };
 
   return (
-    <div ref={containerRef} className="relative w-full h-[400vh] z-10">
+    <div ref={containerRef} className="relative w-full bg-luxury-black overflow-hidden select-none">
       
-      <motion.div 
-        style={{ backgroundColor: heroBg }}
-        className="sticky top-0 left-0 w-full h-screen overflow-hidden flex items-center justify-center"
-      >
-        {/* 3D Background Canvas */}
-        <ThreeScene />
+      {/* Ambient background glows / vector shapes */}
+      <div className="absolute inset-0 z-0 pointer-events-none opacity-40">
+        <div className="bg-shape absolute top-[20%] left-[10%] w-[350px] h-[350px] bg-luxury-gold/5 rounded-full blur-[100px]" />
+        <div className="bg-shape absolute bottom-[15%] right-[15%] w-[450px] h-[450px] bg-luxury-gold/5 rounded-full blur-[130px]" />
         
-        {/* Canvas & Overlays wrapper - dissolves to reveal WebGL background underneath */}
-        <motion.div style={{ opacity: canvasOpacity }} className="absolute inset-0 w-full h-full pointer-events-none z-0">
-          {/* Canvas for rendering frames */}
-          <canvas ref={canvasRef} className="absolute inset-0 w-full h-full object-cover pointer-events-none" />
+        {/* Floating background outline shape */}
+        <div className="bg-shape absolute top-[45%] right-[20%] w-36 h-36 text-luxury-gold/10">
+          <svg viewBox="0 0 100 100" className="w-full h-full stroke-current fill-none" strokeWidth="1">
+            <polygon points="50,15 80,75 20,75" />
+          </svg>
+        </div>
+      </div>
 
-          {/* Ambient very light overlay so the animation remains in the "front side" */}
-          <div className="absolute inset-0 bg-black/20 pointer-events-none"></div>
-
-          {/* Vignette gradients to aid readability at corners */}
-          <div className="absolute inset-0 bg-gradient-to-b from-black/45 via-transparent to-black/45 pointer-events-none"></div>
-        </motion.div>
-
-        {/* ---------------- CORNER 1: TOP-LEFT ---------------- */}
-        <motion.div
-          style={{ 
-            opacity: opacityTL, 
-            x: isMobile ? 0 : xTL, 
-            y: isMobile ? yMobileTL : yTL 
-          }}
-          className="absolute top-auto bottom-24 left-6 right-6 md:top-28 md:left-16 md:bottom-auto md:right-auto md:max-w-[340px] pointer-events-none"
-        >
-          <div className="border border-luxury-gold/25 bg-black/75 backdrop-blur-md p-6 rounded-2xl flex flex-col gap-2 shadow-xl">
-            <span className="text-[10px] tracking-widest font-semibold text-luxury-gold uppercase">
-              Millennium Heritage
+      {/* 1. Cinematic Typography Hero Landing */}
+      <section className="relative h-screen flex flex-col justify-center items-center px-6 md:px-12 z-10 border-b border-luxury-gold/10">
+        <div className="text-center">
+          <span className="text-xs md:text-sm tracking-[0.4em] font-medium text-luxury-gold uppercase block mb-6 animate-pulse">
+            Millennium Tea Reserves
+          </span>
+          
+          <h1 ref={titleRef} className="font-serif text-[11vw] font-bold uppercase tracking-tight text-luxury-ivory leading-none flex flex-col items-center">
+            {/* Word 1: BREW */}
+            <span className="overflow-hidden h-[13vw] flex items-center justify-center">
+              <span className="title-word inline-block flex items-center gap-4">
+                BREW
+                {/* Floating/rotating gold leaf inside the text spacing */}
+                <span className="title-leaf inline-block w-[9vw] h-[9vw] text-luxury-gold relative align-middle -mt-1 select-none">
+                  <svg viewBox="0 0 100 100" className="w-full h-full fill-current">
+                    <path d="M50 10 C65 30 75 45 70 70 C65 90 40 90 30 70 C25 45 35 30 50 10 Z M50 10 C50 35 48 60 52 80 M52 40 C42 45 35 52 35 52 M52 55 C60 58 65 65 65 65" stroke="currentColor" strokeWidth="2.5" fill="none" />
+                  </svg>
+                </span>
+              </span>
             </span>
-            <h3 className="font-serif text-xl md:text-2xl text-luxury-ivory font-bold leading-tight">
-              A Legacy of Grand Luxury
-            </h3>
-            <p className="font-sans text-[11px] md:text-xs text-luxury-ivory/70 leading-relaxed">
-              Born from high-altitude fields at 6,000 feet, Millennium crafts rare tea reserves for the refined palate.
-            </p>
-          </div>
-        </motion.div>
 
-        {/* ---------------- CORNER 2: TOP-RIGHT ---------------- */}
-        <motion.div
-          style={{ 
-            opacity: opacityTR, 
-            x: isMobile ? 0 : xTR, 
-            y: isMobile ? yMobileTR : yTR 
-          }}
-          className="absolute top-auto bottom-24 left-6 right-6 md:top-28 md:right-16 md:bottom-auto md:left-auto md:max-w-[340px] pointer-events-none"
-        >
-          <div className="border border-luxury-gold/25 bg-black/75 backdrop-blur-md p-6 rounded-2xl flex flex-col gap-2 shadow-xl">
-            <span className="text-[10px] tracking-widest font-semibold text-luxury-gold uppercase">
-              Pristine Sourcing
+            {/* Word 2: LUXURY */}
+            <span className="overflow-hidden h-[13vw] mt-2 flex items-center justify-center">
+              <span className="title-word gold-gradient-text inline-block">
+                LUXURY
+              </span>
             </span>
-            <h3 className="font-serif text-xl md:text-2xl text-luxury-ivory font-bold leading-tight">
-              High-Altitude Harvests
-            </h3>
-            <p className="font-sans text-[11px] md:text-xs text-luxury-ivory/70 leading-relaxed">
-              Our leaves are handpicked strictly during primary flushes, locking active antioxidants and clean vegetal tones.
-            </p>
+          </h1>
+        </div>
+
+        {/* Scroll Indicator */}
+        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 text-luxury-ivory/40 flex flex-col items-center gap-2 pointer-events-none">
+          <span className="text-[9px] tracking-[0.22em] font-medium uppercase animate-pulse">Explore Brand</span>
+          <ChevronDown className="w-3.5 h-3.5 animate-bounce text-luxury-gold/70" />
+        </div>
+      </section>
+
+      {/* 2. Interactive Brand Copy Section ({ Why Millennium }) */}
+      <section className="brand-copy-section relative py-40 px-6 md:px-12 z-10 max-w-7xl mx-auto flex flex-col items-center justify-center border-b border-luxury-gold/10">
+        
+        <div className="mb-14 text-center">
+          <span className="text-xs md:text-sm tracking-[0.3em] font-medium text-luxury-gold/75 uppercase block mb-3">
+            {"{ Why Millennium? }"}
+          </span>
+        </div>
+
+        <div ref={copyRef} className="font-serif text-2xl md:text-4xl lg:text-5xl text-luxury-ivory/80 leading-snug md:leading-relaxed text-center max-w-6xl mx-auto px-2">
+          
+          <div className="copy-text-line mb-4">
+            Millennium allows you to{" "}
+            {/* Word A: effortlessly */}
+            <span
+              onMouseEnter={(e) => handleMouseEnterWord("effortlessly", e)}
+              onMouseLeave={(e) => handleMouseLeaveWord("effortlessly", e)}
+              className="clickable-card relative inline-block text-luxury-gold font-bold mx-1 pb-1 cursor-pointer transition-colors duration-300"
+            >
+              effortlessly
+              {/* Spinning leaf icon popping up */}
+              <span className="word-leaf-svg absolute -top-8 left-1/2 -translate-x-1/2 w-7 h-7 text-luxury-gold/90 transition-transform duration-300 scale-0 origin-center pointer-events-none">
+                <svg viewBox="0 0 100 100" className="w-full h-full fill-current">
+                  <path d="M50 10 C65 30 75 45 70 70 C65 90 40 90 30 70 C25 45 35 30 50 10 Z" fill="none" stroke="currentColor" strokeWidth="4" />
+                </svg>
+              </span>
+              {/* Loop SVG line drawing */}
+              <svg className="absolute left-0 bottom-[-5px] w-full h-[12px] pointer-events-none" viewBox="0 0 100 20" preserveAspectRatio="none">
+                <path
+                  className="word-loop-path stroke-current text-luxury-gold fill-none"
+                  strokeWidth="2.5"
+                  d="M5,15 Q50,0 95,15"
+                  strokeDasharray="150"
+                  strokeDashoffset="150"
+                />
+              </svg>
+            </span>{" "}
+            brew the rarest single-origin teas.
           </div>
-        </motion.div>
 
-        {/* ---------------- CORNER 3: BOTTOM-LEFT ---------------- */}
-        <motion.div
-          style={{ 
-            opacity: opacityBL, 
-            x: isMobile ? 0 : xBL, 
-            y: isMobile ? yMobileBL : yBL 
-          }}
-          className="absolute top-auto bottom-24 left-6 right-6 md:bottom-28 md:left-16 md:top-auto md:right-auto md:max-w-[340px] pointer-events-none"
-        >
-          <div className="border border-luxury-gold/25 bg-black/75 backdrop-blur-md p-6 rounded-2xl flex flex-col gap-2 shadow-xl">
-            <span className="text-[10px] tracking-widest font-semibold text-luxury-gold uppercase">
-              Micro Blending
-            </span>
-            <h3 className="font-serif text-xl md:text-2xl text-luxury-ivory font-bold leading-tight">
-              Traditional Stone Mills
-            </h3>
-            <p className="font-sans text-[11px] md:text-xs text-luxury-ivory/70 leading-relaxed">
-              Spices are ground in micro-batches and blended with black tea varieties within hours of primary harvest.
-            </p>
+          <div className="copy-text-line mb-4">
+            Delivering{" "}
+            {/* Word B: handpicked */}
+            <span
+              onMouseEnter={(e) => handleMouseEnterWord("handpicked", e)}
+              onMouseLeave={(e) => handleMouseLeaveWord("handpicked", e)}
+              className="clickable-card relative inline-block text-luxury-gold font-bold mx-1 px-1.5 cursor-pointer transition-colors duration-300"
+            >
+              handpicked
+              {/* Circle sketch loop */}
+              <svg className="absolute inset-x-[-12px] inset-y-[-6px] w-[calc(100%+24px)] h-[calc(100%+12px)] pointer-events-none" viewBox="0 0 100 40" preserveAspectRatio="none">
+                <path
+                  className="word-circle-path stroke-current text-luxury-gold/80 fill-none"
+                  strokeWidth="2"
+                  d="M10,20 C10,5 90,5 90,20 C90,35 10,35 10,20"
+                  strokeDasharray="300"
+                  strokeDashoffset="300"
+                />
+              </svg>
+            </span>{" "}
+            organic flushes and clean
           </div>
-        </motion.div>
 
-        {/* ---------------- CORNER 4: BOTTOM-RIGHT ---------------- */}
-        <motion.div
-          style={{ 
-            opacity: opacityBR, 
-            x: isMobile ? 0 : xBR, 
-            y: isMobile ? yMobileBR : yBR 
-          }}
-          className="absolute top-auto bottom-24 left-6 right-6 md:bottom-28 md:right-16 md:top-auto md:left-auto md:max-w-[340px] pointer-events-none"
-        >
-          <div className="border border-luxury-gold/25 bg-black/75 backdrop-blur-md p-6 rounded-2xl flex flex-col gap-2 shadow-xl">
-            <span className="text-[10px] tracking-widest font-semibold text-luxury-gold uppercase">
-              Preservation
-            </span>
-            <h3 className="font-serif text-xl md:text-2xl text-luxury-ivory font-bold leading-tight">
-              Signature Gold Tin Canister
-            </h3>
-            <p className="font-sans text-[11px] md:text-xs text-luxury-ivory/70 leading-relaxed">
-              Each formulation is packed in airtight double-lid canisters to shield delicate essential oils from light and moisture.
-            </p>
+          <div className="copy-text-line mb-4">
+            botanical{" "}
+            {/* Word C: wellness */}
+            <span
+              onMouseEnter={(e) => handleMouseEnterWord("wellness", e)}
+              onMouseLeave={(e) => handleMouseLeaveWord("wellness", e)}
+              className="clickable-card relative inline-block text-luxury-gold font-bold mx-1 px-2.5 py-0.5 cursor-pointer transition-colors duration-300"
+            >
+              wellness
+              {/* Oval outline */}
+              <svg className="absolute inset-0 w-full h-full pointer-events-none" viewBox="0 0 120 50" preserveAspectRatio="none">
+                <ellipse
+                  className="word-oval-path stroke-current text-luxury-gold/90 fill-none"
+                  strokeWidth="2.5"
+                  cx="60"
+                  cy="25"
+                  rx="56"
+                  ry="21"
+                  strokeDasharray="350"
+                  strokeDashoffset="350"
+                />
+              </svg>
+            </span>{" "}
+            direct to your cup so you can
           </div>
-        </motion.div>
 
-
-
-        {/* Small Progressive Image Loading Indicator at bottom center */}
-        {loadingProgress < 100 && (
-          <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex items-center gap-2 bg-black/60 border border-luxury-gold/25 px-4 py-2 rounded-full z-20">
-            <div className="w-3 h-3 rounded-full border-2 border-luxury-gold border-t-transparent animate-spin"></div>
-            <span className="text-[9px] font-mono text-luxury-gold font-bold tracking-widest uppercase">
-              Caching Video: {loadingProgress}%
-            </span>
+          <div className="copy-text-line">
+            focus on the ultimate{" "}
+            {/* Word D: sensory */}
+            <span
+              onMouseEnter={(e) => handleMouseEnterWord("sensory", e)}
+              onMouseLeave={(e) => handleMouseLeaveWord("sensory", e)}
+              className="clickable-card relative inline-block text-luxury-gold border border-luxury-gold/35 rounded-lg px-4.5 overflow-hidden cursor-pointer transition-all duration-300"
+            >
+              {/* Highlight background pill block */}
+              <span className="word-highlight-block absolute inset-0 bg-luxury-gold translate-y-full z-0 pointer-events-none"></span>
+              
+              <span className="word-text relative z-10 font-bold transition-colors duration-300">
+                sensory
+              </span>
+            </span>{" "}
+            perfection of taste.
           </div>
-        )}
 
-        {/* Floating Scroll Down Indicator (visible mostly in initial half) */}
-        <motion.div 
-          style={{ opacity: useTransform(smoothProgress, [0, 0.15], [1, 0]) }}
-          className="absolute bottom-8 left-1/2 -translate-x-1/2 text-luxury-ivory/40 hover:text-luxury-gold transition-colors duration-300 flex flex-col items-center gap-2 pointer-events-none"
-        >
-          <span className="text-[9px] tracking-[0.22em] font-medium uppercase animate-pulse">Scroll Down</span>
-          <ChevronDown className="w-3.5 h-3.5 animate-bounce" />
-        </motion.div>
-      </motion.div>
+        </div>
+
+      </section>
+
     </div>
   );
 }

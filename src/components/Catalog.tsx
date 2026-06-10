@@ -253,13 +253,13 @@ export default function Catalog() {
           >
             {/* Left Col: Image & Description (5 cols) */}
             <div className="lg:col-span-5 flex flex-col items-center lg:items-start text-center lg:text-left">
-              <div className="relative w-full aspect-[4/5] rounded-2xl overflow-hidden glass-gold mb-8 group">
+              <div className="relative w-full aspect-[4/5] rounded-2xl overflow-hidden glass-gold mb-8 group parallax-img-wrap">
                 <Image
                   src={activeProduct.image}
                   alt={activeProduct.name}
                   fill
                   priority
-                  className="object-cover transition-transform duration-700 group-hover:scale-105"
+                  className="object-cover transition-transform duration-700 group-hover:scale-105 scale-110"
                 />
                 {/* Decorative border */}
                 <div className="absolute inset-4 rounded-xl border border-luxury-gold/10 pointer-events-none"></div>

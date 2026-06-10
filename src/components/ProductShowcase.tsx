@@ -24,7 +24,7 @@ export default function ProductShowcase() {
             whileInView={{ opacity: 1, x: 0, scale: 1 }}
             viewport={{ once: false, margin: "-100px" }}
             transition={{ duration: 0.8 }}
-            className="relative w-80 h-96 md:w-[500px] md:h-[600px]"
+            className="relative w-80 h-96 md:w-[500px] md:h-[600px] showcase-img-wrap"
           >
             <img
               src="/images/masalatea/special masala tea.png"
@@ -218,7 +218,7 @@ export default function ProductShowcase() {
             whileInView={{ opacity: 1, x: 0, scale: 1 }}
             viewport={{ once: false, margin: "-100px" }}
             transition={{ duration: 0.8 }}
-            className="relative w-80 h-96 md:w-[500px] md:h-[600px]"
+            className="relative w-80 h-96 md:w-[500px] md:h-[600px] showcase-img-wrap"
           >
             <img
               src="/images/ginger tea/ginger tea transparent.png"
@@ -238,7 +238,7 @@ export default function ProductShowcase() {
             whileInView={{ opacity: 1, x: 0, scale: 1 }}
             viewport={{ once: false, margin: "-100px" }}
             transition={{ duration: 0.8 }}
-            className="relative w-80 h-96 md:w-[500px] md:h-[600px]"
+            className="relative w-80 h-96 md:w-[500px] md:h-[600px] showcase-img-wrap"
           >
             <img
               src="/images/lemontea/lemon tea.png"
@@ -432,7 +432,7 @@ export default function ProductShowcase() {
             whileInView={{ opacity: 1, x: 0, scale: 1 }}
             viewport={{ once: false, margin: "-100px" }}
             transition={{ duration: 0.8 }}
-            className="relative w-80 h-96 md:w-[500px] md:h-[600px]"
+            className="relative w-80 h-96 md:w-[500px] md:h-[600px] showcase-img-wrap"
           >
             <img
               src="/images/green tea/green tea.png"
@@ -452,7 +452,7 @@ export default function ProductShowcase() {
             whileInView={{ opacity: 1, x: 0, scale: 1 }}
             viewport={{ once: false, margin: "-100px" }}
             transition={{ duration: 0.8 }}
-            className="relative w-80 h-96 md:w-[500px] md:h-[600px]"
+            className="relative w-80 h-96 md:w-[500px] md:h-[600px] showcase-img-wrap"
           >
             <img
               src="/images/turmeric/turmeric health.png"

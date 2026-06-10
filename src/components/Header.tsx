@@ -5,6 +5,7 @@ import { Menu, X, Globe, ArrowRight, ShoppingBag, Receipt } from "lucide-react";
 import { useCart } from "@/context/CartContext";
 import Link from "next/link";
 import { useAuth } from "@/context/AuthContext";
+import { gsap } from "gsap";
 
 export default function Header() {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -40,11 +41,59 @@ export default function Header() {
         {/* Brand Logo */}
         <button
           onClick={() => scrollToSection("home")}
-          className="flex items-center gap-3 group focus:outline-none cursor-pointer"
+          className="flex items-center gap-3 focus:outline-none cursor-pointer"
+          onMouseEnter={(e) => {
+            const badge = e.currentTarget.querySelector(".logo-badge");
+            const ring = e.currentTarget.querySelector(".logo-inner-ring");
+            if (badge) {
+              gsap.to(badge, {
+                rotate: 180,
+                scale: 1.06,
+                borderColor: "#f8f5f0",
+                duration: 0.5,
+                ease: "power2.out",
+                overwrite: "auto",
+              });
+            }
+            if (ring) {
+              gsap.to(ring, {
+                scale: 0.88,
+                opacity: 0.7,
+                borderColor: "#f8f5f0",
+                duration: 0.5,
+                ease: "power2.out",
+                overwrite: "auto",
+              });
+            }
+          }}
+          onMouseLeave={(e) => {
+            const badge = e.currentTarget.querySelector(".logo-badge");
+            const ring = e.currentTarget.querySelector(".logo-inner-ring");
+            if (badge) {
+              gsap.to(badge, {
+                rotate: 0,
+                scale: 1,
+                borderColor: "#d4af37",
+                duration: 0.65,
+                ease: "elastic.out(1, 0.5)",
+                overwrite: "auto",
+              });
+            }
+            if (ring) {
+              gsap.to(ring, {
+                scale: 1,
+                opacity: 1,
+                borderColor: "rgba(212, 175, 55, 0.3)",
+                duration: 0.65,
+                ease: "elastic.out(1, 0.5)",
+                overwrite: "auto",
+              });
+            }
+          }}
         >
-          <div className="relative w-10 h-10 rounded-full border border-luxury-gold flex items-center justify-center transition-transform duration-500 group-hover:rotate-180">
+          <div className="logo-badge relative w-10 h-10 rounded-full border border-luxury-gold flex items-center justify-center transition-all duration-300">
             <span className="text-luxury-gold font-serif text-lg font-bold">M</span>
-            <div className="absolute inset-0.5 rounded-full border border-luxury-gold/30 animate-pulse"></div>
+            <div className="logo-inner-ring absolute inset-0.5 rounded-full border border-luxury-gold/30"></div>
           </div>
           <div className="text-left">
             <span className="block font-serif text-base tracking-[0.2em] font-bold text-luxury-ivory uppercase group-hover:text-luxury-gold transition-colors duration-300">
@@ -68,10 +117,37 @@ export default function Header() {
             <button
               key={item.name}
               onClick={() => scrollToSection(item.id)}
-              className="text-xs font-medium tracking-widest text-luxury-ivory/70 hover:text-luxury-gold uppercase relative py-2 group focus:outline-none transition-colors duration-300 cursor-pointer"
+              className="text-xs font-medium tracking-widest text-luxury-ivory/70 hover:text-luxury-gold uppercase relative py-2 group focus:outline-none cursor-pointer"
+              onMouseEnter={(e) => {
+                const underline = e.currentTarget.querySelector(".nav-underline");
+                if (underline) {
+                  gsap.to(underline, {
+                    width: "100%",
+                    left: "0%",
+                    duration: 0.35,
+                    ease: "power2.out",
+                    overwrite: "auto",
+                  });
+                }
+              }}
+              onMouseLeave={(e) => {
+                const underline = e.currentTarget.querySelector(".nav-underline");
+                if (underline) {
+                  gsap.to(underline, {
+                    width: "0%",
+                    left: "100%",
+                    duration: 0.35,
+                    ease: "power2.inOut",
+                    overwrite: "auto",
+                    onComplete: () => {
+                      gsap.set(underline, { left: "0%" });
+                    },
+                  });
+                }
+              }}
             >
               {item.name}
-              <span className="absolute bottom-0 left-0 w-0 h-[1px] bg-luxury-gold transition-all duration-300 group-hover:w-full"></span>
+              <span className="nav-underline absolute bottom-0 left-0 w-0 h-[1px] bg-luxury-gold"></span>
             </button>
           ))}
         </nav>

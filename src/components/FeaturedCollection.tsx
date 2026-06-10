@@ -1,8 +1,9 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Coffee, Flame, Leaf, Snowflake, Activity, X, Droplet, Clock, Thermometer, ArrowUpRight } from "lucide-react";
+import { gsap } from "gsap";
 
 interface CollectionItem {
   id: string;
@@ -101,6 +102,90 @@ const collectionItems: CollectionItem[] = [
 export default function FeaturedCollection() {
   const [selectedProduct, setSelectedProduct] = useState<CollectionItem | null>(null);
 
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+
+    const cards = gsap.utils.toArray(".glass-gold");
+    cards.forEach((card: any) => {
+      // Dynamically add a glare element
+      if (!card.querySelector(".card-glare")) {
+        const glare = document.createElement("div");
+        glare.className = "card-glare absolute inset-0 pointer-events-none opacity-0 z-20 rounded-2xl";
+        card.appendChild(glare);
+      }
+
+      const glareEl = card.querySelector(".card-glare");
+
+      const handleMouseMove = (e: MouseEvent) => {
+        const rect = card.getBoundingClientRect();
+        const x = e.clientX - rect.left - rect.width / 2;
+        const y = e.clientY - rect.top - rect.height / 2;
+
+        const rotX = -(y / (rect.height / 2)) * 12;
+        const rotY = (x / (rect.width / 2)) * 12;
+
+        const glareX = ((e.clientX - rect.left) / rect.width) * 100;
+        const glareY = ((e.clientY - rect.top) / rect.height) * 100;
+
+        gsap.to(card, {
+          rotateX: rotX,
+          rotateY: rotY,
+          transformPerspective: 1200,
+          scale: 1.03,
+          boxShadow: "0 22px 45px rgba(0, 0, 0, 0.65), 0 0 30px rgba(212, 175, 55, 0.18)",
+          duration: 0.35,
+          ease: "power2.out",
+          overwrite: "auto",
+        });
+
+        if (glareEl) {
+          gsap.to(glareEl, {
+            opacity: 1,
+            background: `radial-gradient(circle at ${glareX}% ${glareY}%, rgba(212, 175, 55, 0.15) 0%, transparent 65%)`,
+            duration: 0.2,
+            ease: "power1.out",
+            overwrite: "auto",
+          });
+        }
+      };
+
+      const handleMouseLeave = () => {
+        gsap.to(card, {
+          rotateX: 0,
+          rotateY: 0,
+          scale: 1,
+          boxShadow: "0 8px 32px 0 rgba(0, 0, 0, 0.37)",
+          duration: 0.6,
+          ease: "elastic.out(1, 0.6)",
+          overwrite: "auto",
+        });
+
+        if (glareEl) {
+          gsap.to(glareEl, {
+            opacity: 0,
+            duration: 0.4,
+            ease: "power2.out",
+            overwrite: "auto",
+          });
+        }
+      };
+
+      card.addEventListener("mousemove", handleMouseMove);
+      card.addEventListener("mouseleave", handleMouseLeave);
+
+      card._cleanupTilt = () => {
+        card.removeEventListener("mousemove", handleMouseMove);
+        card.removeEventListener("mouseleave", handleMouseLeave);
+      };
+    });
+
+    return () => {
+      cards.forEach((card: any) => {
+        if (card._cleanupTilt) card._cleanupTilt();
+      });
+    };
+  }, []);
+
   const scrollToContact = () => {
     setSelectedProduct(null);
     const element = document.getElementById("contact");
@@ -126,8 +211,8 @@ export default function FeaturedCollection() {
           </p>
         </div>
 
-        {/* Products Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6">
+        {/* Products Grid with 3D perspective wrapper */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6 perspective-container">
           {collectionItems.map((item, idx) => (
             <motion.div
               key={item.id}
