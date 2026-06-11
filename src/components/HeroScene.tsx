@@ -185,7 +185,7 @@ export default function HeroScene() {
 
       // ── 4. Teacup entrance ───────────────────────────────────────────────
       gsap.fromTo(".hero-teacup-trigger",
-        { opacity: 0, y: 30, scale: 0.92, transformOrigin: "480px 760px" },
+        { opacity: 0, y: 30, scale: 0.92, transformOrigin: "720px 760px" },
         { opacity: 1, y: 0, scale: 1, duration: 1.4, ease: "power3.out", delay: 0.2 }
       );
 
@@ -400,8 +400,8 @@ export default function HeroScene() {
         />
 
         {/* ── 2. Atmospheric glow zones ──────────────────────────────────────── */}
-        {/* Warm center-left glow (teacup warmth) */}
-        <ellipse cx="430" cy="500" rx="320" ry="260" fill="url(#cup-glow)" filter="url(#soft-blur)" />
+        {/* Warm center glow (teacup warmth) */}
+        <ellipse cx="720" cy="500" rx="320" ry="260" fill="url(#cup-glow)" filter="url(#soft-blur)" />
 
         {/* ── 3. Decorative border elements ─────────────────────────────────── */}
         {/* Top left ornate corner */}
@@ -478,7 +478,7 @@ export default function HeroScene() {
         {/* 7. Teacup & Saucer */}
         {/* 7. Teacup & Saucer */}
         <g className="hero-teacup-trigger">
-          <g className="hero-teacup" transform="translate(480, 690)">
+          <g className="hero-teacup" transform="translate(720, 690)">
             {/* Saucer */}
             <ellipse cx="0" cy="70" rx="80" ry="14" fill="#1e1810" stroke="#D4AF37" strokeWidth="0.8" opacity="0.9" />
             <ellipse cx="0" cy="68" rx="65" ry="10" fill="#2a2010" stroke="rgba(212,175,55,0.3)" strokeWidth="0.4" />
@@ -518,7 +518,7 @@ export default function HeroScene() {
 
         {/* ── 8. Tea Steam ──────────────────────────────────────────────────── */}
         {/* 3 steam strands rising from the cup */}
-        <g transform="translate(0, 210)">
+        <g transform="translate(240, 210)">
           <path className="steam-0"
             d="M 456 478 C 448 464 452 446 444 432 C 436 418 440 402 432 388"
             stroke="rgba(255,248,230,0.5)" strokeWidth="2.2" strokeLinecap="round" fill="none" />
@@ -532,14 +532,14 @@ export default function HeroScene() {
 
         {/* ── 9. Scattered tea leaves / herb decoration ─────────────────────── */}
         {/* Small botanical sprigs near the cup */}
-        <g transform="translate(360, 520)" opacity="0.4">
+        <g transform="translate(600, 520)" opacity="0.4">
           <path d="M 0 0 L 20 -15 M 20 -15 C 22 -22 18 -25 16 -22 C 18 -25 15 -28 12 -25 C 15 -28 10 -28 10 -24" stroke="#6B8E23" strokeWidth="1.2" fill="none" strokeLinecap="round" />
           <path d="M 0 0 L -5 -18 M -5 -18 C -8 -24 -12 -24 -10 -20 C -12 -24 -15 -22 -12 -18" stroke="#6B8E23" strokeWidth="1.0" fill="none" strokeLinecap="round" />
         </g>
-        <g transform="translate(620, 530)" opacity="0.35">
+        <g transform="translate(860, 530)" opacity="0.35">
           <path d="M 0 0 L -18 -12 M -18 -12 C -22 -18 -18 -22 -15 -18 C -18 -22 -14 -26 -12 -22" stroke="#5F7A2A" strokeWidth="1.0" fill="none" strokeLinecap="round" />
         </g>
-        <g transform="translate(340, 580)" opacity="0.3">
+        <g transform="translate(580, 580)" opacity="0.3">
           <circle cx="0" cy="0" r="5" fill="#4A6B1A" />
           <circle cx="12" cy="-4" r="4" fill="#4A6B1A" />
           <circle cx="6" cy="-12" r="3.5" fill="#4A6B1A" />
