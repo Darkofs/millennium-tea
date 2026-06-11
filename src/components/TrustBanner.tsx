@@ -53,6 +53,8 @@ export default function TrustBanner() {
     const cards = containerRef.current?.querySelectorAll(".trust-card");
     if (!cards || cards.length === 0) return;
 
+    let loopAnim: gsap.core.Tween | null = null;
+
     const anim = gsap.fromTo(
       cards,
       { opacity: 0, y: 80, rotateY: 0 },
@@ -72,13 +74,32 @@ export default function TrustBanner() {
         ease: "elastic.out(1, 0.75)",
         duration: 1.8,
         stagger: 0.1,
-        clearProps: "all",
+        onComplete: () => {
+          // Clear only transform to keep opacity: 1
+          gsap.set(cards, { clearProps: "transform,y,rotateY" });
+          
+          // Start a constant rotating loop
+          loopAnim = gsap.to(cards, {
+            rotateY: "+=360",
+            keyframes: {
+              y: [0, -15, 5, -2, 0],
+              ease: "none",
+              easeEach: "power2.inOut",
+            },
+            ease: "elastic.out(1, 0.75)",
+            duration: 1.8,
+            stagger: 0.15,
+            repeat: -1,
+            repeatDelay: 6,
+          });
+        },
       }
     );
 
     return () => {
       if (anim.scrollTrigger) anim.scrollTrigger.kill();
       anim.kill();
+      if (loopAnim) loopAnim.kill();
     };
   }, []);
 
@@ -115,7 +136,7 @@ export default function TrustBanner() {
             return (
               <div
                 key={idx}
-                className="trust-card opacity-0 group flex flex-col items-center text-center gap-3 p-5 rounded-2xl border border-luxury-gold/10 bg-black/25 hover:border-luxury-gold/30 hover:bg-luxury-gold/5 transition-colors duration-300"
+                className="trust-card group flex flex-col items-center text-center gap-3 p-5 rounded-2xl border border-luxury-gold/10 bg-black/25 hover:border-luxury-gold/30 hover:bg-luxury-gold/5 transition-colors duration-300"
               >
                 {/* Icon badge */}
                 <div className="w-11 h-11 rounded-full border border-luxury-gold/25 flex items-center justify-center bg-luxury-gold/5 group-hover:bg-luxury-gold/10 transition-colors duration-300">

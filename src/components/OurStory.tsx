@@ -44,6 +44,8 @@ export default function OurStory() {
     const cards = timelineRef.current?.querySelectorAll(".story-card");
     if (!cards || cards.length === 0) return;
 
+    let loopAnim: gsap.core.Tween | null = null;
+
     const anim = gsap.fromTo(
       cards,
       { opacity: 0, y: 80, rotateY: 0 },
@@ -63,13 +65,30 @@ export default function OurStory() {
         ease: "elastic.out(1, 0.75)",
         duration: 1.8,
         stagger: 0.15,
-        clearProps: "all",
+        onComplete: () => {
+          gsap.set(cards, { clearProps: "transform,y,rotateY" });
+
+          loopAnim = gsap.to(cards, {
+            rotateY: "+=360",
+            keyframes: {
+              y: [0, -15, 5, -2, 0],
+              ease: "none",
+              easeEach: "power2.inOut",
+            },
+            ease: "elastic.out(1, 0.75)",
+            duration: 1.8,
+            stagger: 0.2,
+            repeat: -1,
+            repeatDelay: 7,
+          });
+        },
       }
     );
 
     return () => {
       if (anim.scrollTrigger) anim.scrollTrigger.kill();
       anim.kill();
+      if (loopAnim) loopAnim.kill();
     };
   }, []);
 
@@ -188,7 +207,7 @@ export default function OurStory() {
               {timelineEvents.map((event, idx) => (
                 <div
                   key={idx}
-                  className="story-card opacity-0 relative group"
+                  className="story-card relative group"
                 >
                   {/* Timeline circle point */}
                   <div className="absolute -left-[31px] md:-left-[47px] top-1.5 w-4 h-4 rounded-full bg-luxury-black border border-luxury-gold flex items-center justify-center transition-all duration-300 group-hover:scale-125">

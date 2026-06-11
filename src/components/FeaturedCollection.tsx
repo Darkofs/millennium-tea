@@ -185,6 +185,7 @@ export default function FeaturedCollection() {
 
     // ScrollTrigger entrance animation
     let entryAnim: gsap.core.Tween | null = null;
+    let loopAnim: gsap.core.Tween | null = null;
     if (cards.length > 0) {
       entryAnim = gsap.fromTo(
         cards,
@@ -209,6 +210,21 @@ export default function FeaturedCollection() {
             cards.forEach((card: any) => {
               gsap.set(card, { clearProps: "transform,y,rotateY" });
             });
+
+            // Start a constant rotating loop
+            loopAnim = gsap.to(cards, {
+              rotateY: "+=360",
+              keyframes: {
+                y: [0, -15, 5, -2, 0],
+                ease: "none",
+                easeEach: "power2.inOut",
+              },
+              ease: "elastic.out(1, 0.75)",
+              duration: 1.8,
+              stagger: 0.15,
+              repeat: -1,
+              repeatDelay: 8,
+            });
           },
         }
       );
@@ -222,6 +238,7 @@ export default function FeaturedCollection() {
         if (entryAnim.scrollTrigger) entryAnim.scrollTrigger.kill();
         entryAnim.kill();
       }
+      if (loopAnim) loopAnim.kill();
     };
   }, []);
 
@@ -259,7 +276,7 @@ export default function FeaturedCollection() {
             <div
               key={item.id}
               onClick={() => setSelectedProduct(item)}
-              className="collection-card opacity-0 glass-gold p-6 rounded-2xl flex flex-col justify-between cursor-pointer relative group overflow-hidden h-[340px]"
+              className="collection-card glass-gold p-6 rounded-2xl flex flex-col justify-between cursor-pointer relative group overflow-hidden h-[340px]"
             >
               {/* Custom background gradient highlight */}
               <div className={`absolute inset-0 bg-gradient-to-br ${item.colorTheme} opacity-0 group-hover:opacity-100 transition-opacity duration-700`}></div>
