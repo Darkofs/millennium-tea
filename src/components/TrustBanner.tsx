@@ -1,8 +1,10 @@
 "use client";
 
-import React from "react";
+import React, { useEffect, useRef } from "react";
 import { motion } from "framer-motion";
 import { Star, ShieldCheck, Leaf, Award, Truck, Users } from "lucide-react";
+import { gsap } from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
 
 const trustItems = [
   {
@@ -44,6 +46,42 @@ const trustItems = [
 ];
 
 export default function TrustBanner() {
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    gsap.registerPlugin(ScrollTrigger);
+    const cards = containerRef.current?.querySelectorAll(".trust-card");
+    if (!cards || cards.length === 0) return;
+
+    const anim = gsap.fromTo(
+      cards,
+      { opacity: 0, y: 80, rotateY: 0 },
+      {
+        scrollTrigger: {
+          trigger: containerRef.current,
+          start: "top 85%",
+          toggleActions: "play none none none",
+        },
+        opacity: 1,
+        keyframes: {
+          y: [80, -20, 10, -5, 0],
+          ease: "none",
+          easeEach: "power2.inOut",
+        },
+        rotateY: 360,
+        ease: "elastic.out(1, 0.75)",
+        duration: 1.8,
+        stagger: 0.1,
+        clearProps: "all",
+      }
+    );
+
+    return () => {
+      if (anim.scrollTrigger) anim.scrollTrigger.kill();
+      anim.kill();
+    };
+  }, []);
+
   return (
     <section className="relative z-10 w-full overflow-hidden border-y border-luxury-gold/10 bg-luxury-black">
       {/* Top gold accent line */}
@@ -68,17 +106,16 @@ export default function TrustBanner() {
         </motion.div>
 
         {/* Trust Grid */}
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 md:gap-6">
+        <div
+          ref={containerRef}
+          className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 md:gap-6 perspective-container"
+        >
           {trustItems.map((item, idx) => {
             const Icon = item.icon;
             return (
-              <motion.div
+              <div
                 key={idx}
-                initial={{ opacity: 0, y: 24 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, margin: "-40px" }}
-                transition={{ duration: 0.55, delay: idx * 0.09 }}
-                className="group flex flex-col items-center text-center gap-3 p-5 rounded-2xl border border-luxury-gold/10 bg-black/25 hover:border-luxury-gold/30 hover:bg-luxury-gold/5 transition-all duration-400"
+                className="trust-card opacity-0 group flex flex-col items-center text-center gap-3 p-5 rounded-2xl border border-luxury-gold/10 bg-black/25 hover:border-luxury-gold/30 hover:bg-luxury-gold/5 transition-colors duration-300"
               >
                 {/* Icon badge */}
                 <div className="w-11 h-11 rounded-full border border-luxury-gold/25 flex items-center justify-center bg-luxury-gold/5 group-hover:bg-luxury-gold/10 transition-colors duration-300">
@@ -99,7 +136,7 @@ export default function TrustBanner() {
                 <div className="font-sans text-[10px] text-luxury-ivory/45 leading-snug">
                   {item.sub}
                 </div>
-              </motion.div>
+              </div>
             );
           })}
         </div>

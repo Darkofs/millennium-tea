@@ -1,9 +1,10 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Coffee, Flame, Leaf, Snowflake, Activity, X, Droplet, Clock, Thermometer, ArrowUpRight } from "lucide-react";
 import { gsap } from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
 
 interface CollectionItem {
   id: string;
@@ -101,11 +102,14 @@ const collectionItems: CollectionItem[] = [
 
 export default function FeaturedCollection() {
   const [selectedProduct, setSelectedProduct] = useState<CollectionItem | null>(null);
+  const gridRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
 
-    const cards = gsap.utils.toArray(".glass-gold");
+    gsap.registerPlugin(ScrollTrigger);
+
+    const cards = gsap.utils.toArray(".collection-card");
     cards.forEach((card: any) => {
       // Dynamically add a glare element
       if (!card.querySelector(".card-glare")) {
@@ -179,10 +183,45 @@ export default function FeaturedCollection() {
       };
     });
 
+    // ScrollTrigger entrance animation
+    let entryAnim: gsap.core.Tween | null = null;
+    if (cards.length > 0) {
+      entryAnim = gsap.fromTo(
+        cards,
+        { opacity: 0, y: 100, rotateY: 0 },
+        {
+          scrollTrigger: {
+            trigger: gridRef.current,
+            start: "top 85%",
+            toggleActions: "play none none none",
+          },
+          opacity: 1,
+          keyframes: {
+            y: [100, -25, 10, -3, 0],
+            ease: "none",
+            easeEach: "power2.inOut",
+          },
+          rotateY: 360,
+          ease: "elastic.out(1, 0.75)",
+          duration: 2.2,
+          stagger: 0.12,
+          onComplete: () => {
+            cards.forEach((card: any) => {
+              gsap.set(card, { clearProps: "transform,y,rotateY" });
+            });
+          },
+        }
+      );
+    }
+
     return () => {
       cards.forEach((card: any) => {
         if (card._cleanupTilt) card._cleanupTilt();
       });
+      if (entryAnim) {
+        if (entryAnim.scrollTrigger) entryAnim.scrollTrigger.kill();
+        entryAnim.kill();
+      }
     };
   }, []);
 
@@ -212,16 +251,15 @@ export default function FeaturedCollection() {
         </div>
 
         {/* Products Grid with 3D perspective wrapper */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6 perspective-container">
+        <div
+          ref={gridRef}
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6 perspective-container"
+        >
           {collectionItems.map((item, idx) => (
-            <motion.div
+            <div
               key={item.id}
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: "-80px" }}
-              transition={{ duration: 0.6, delay: idx * 0.08 }}
               onClick={() => setSelectedProduct(item)}
-              className="glass-gold p-6 rounded-2xl flex flex-col justify-between cursor-pointer relative group overflow-hidden h-[340px]"
+              className="collection-card opacity-0 glass-gold p-6 rounded-2xl flex flex-col justify-between cursor-pointer relative group overflow-hidden h-[340px]"
             >
               {/* Custom background gradient highlight */}
               <div className={`absolute inset-0 bg-gradient-to-br ${item.colorTheme} opacity-0 group-hover:opacity-100 transition-opacity duration-700`}></div>
@@ -252,7 +290,7 @@ export default function FeaturedCollection() {
                   Details <X className="w-3 h-3 rotate-45" />
                 </span>
               </div>
-            </motion.div>
+            </div>
           ))}
         </div>
       </div>

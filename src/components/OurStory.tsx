@@ -1,9 +1,11 @@
 "use client";
 
-import React from "react";
+import React, { useEffect, useRef } from "react";
 import { motion } from "framer-motion";
 import Image from "next/image";
 import { Calendar, Shield, Sparkles, Heart } from "lucide-react";
+import { gsap } from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
 
 interface TimelineEvent {
   year: string;
@@ -35,6 +37,42 @@ const timelineEvents: TimelineEvent[] = [
 ];
 
 export default function OurStory() {
+  const timelineRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    gsap.registerPlugin(ScrollTrigger);
+    const cards = timelineRef.current?.querySelectorAll(".story-card");
+    if (!cards || cards.length === 0) return;
+
+    const anim = gsap.fromTo(
+      cards,
+      { opacity: 0, y: 80, rotateY: 0 },
+      {
+        scrollTrigger: {
+          trigger: timelineRef.current,
+          start: "top 85%",
+          toggleActions: "play none none none",
+        },
+        opacity: 1,
+        keyframes: {
+          y: [80, -20, 8, -2, 0],
+          ease: "none",
+          easeEach: "power2.inOut",
+        },
+        rotateY: 360,
+        ease: "elastic.out(1, 0.75)",
+        duration: 1.8,
+        stagger: 0.15,
+        clearProps: "all",
+      }
+    );
+
+    return () => {
+      if (anim.scrollTrigger) anim.scrollTrigger.kill();
+      anim.kill();
+    };
+  }, []);
+
   return (
     <section id="origin" className="relative w-full z-10 py-32 bg-luxury-black">
       <div className="max-w-7xl mx-auto px-6 md:px-12">
@@ -143,15 +181,14 @@ export default function OurStory() {
           {/* Right Column: Historical Timeline (7 cols) */}
           <div className="lg:col-span-7">
             <span className="text-xs tracking-widest text-luxury-gold font-medium uppercase block mb-4">Tea History Timeline</span>
-            <div className="relative border-l border-luxury-gold/20 pl-6 md:pl-10 ml-4 flex flex-col gap-10">
+            <div
+              ref={timelineRef}
+              className="relative border-l border-luxury-gold/20 pl-6 md:pl-10 ml-4 flex flex-col gap-10 perspective-container"
+            >
               {timelineEvents.map((event, idx) => (
-                <motion.div
+                <div
                   key={idx}
-                  initial={{ opacity: 0, x: -20 }}
-                  whileInView={{ opacity: 1, x: 0 }}
-                  viewport={{ once: true, margin: "-100px" }}
-                  transition={{ duration: 0.6, delay: idx * 0.15 }}
-                  className="relative group"
+                  className="story-card opacity-0 relative group"
                 >
                   {/* Timeline circle point */}
                   <div className="absolute -left-[31px] md:-left-[47px] top-1.5 w-4 h-4 rounded-full bg-luxury-black border border-luxury-gold flex items-center justify-center transition-all duration-300 group-hover:scale-125">
@@ -172,7 +209,7 @@ export default function OurStory() {
                       {event.description}
                     </p>
                   </div>
-                </motion.div>
+                </div>
               ))}
             </div>
           </div>
