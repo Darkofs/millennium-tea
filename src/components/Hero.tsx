@@ -1,13 +1,12 @@
 "use client";
 
 import React, { useEffect, useRef } from "react";
-import { ChevronDown } from "lucide-react";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import HeroSceneWrapper from "./HeroSceneWrapper";
 
 export default function Hero() {
   const containerRef = useRef<HTMLDivElement>(null);
-  const titleRef = useRef<HTMLHeadingElement>(null);
   const copyRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -16,53 +15,6 @@ export default function Hero() {
     gsap.registerPlugin(ScrollTrigger);
 
     const ctx = gsap.context(() => {
-      // Large text words slide up out of mask
-      gsap.fromTo(
-        ".title-word",
-        { yPercent: 100, opacity: 0 },
-        {
-          yPercent: 0,
-          opacity: 1,
-          duration: 1.2,
-          stagger: 0.15,
-          ease: "power4.out",
-        }
-      );
-
-      // Spinning leaf inside title
-      gsap.fromTo(
-        ".title-leaf",
-        { scale: 0, rotate: -90 },
-        {
-          scale: 1,
-          rotate: 0,
-          duration: 1.5,
-          ease: "elastic.out(1, 0.5)",
-          delay: 0.4,
-        }
-      );
-
-      // Continuous slow rotation on title leaf
-      gsap.to(".title-leaf", {
-        rotate: 360,
-        duration: 25,
-        repeat: -1,
-        ease: "none",
-      });
-
-      // Ambient background shapes load animation
-      gsap.fromTo(
-        ".bg-shape",
-        { scale: 0, opacity: 0 },
-        {
-          scale: 1,
-          opacity: 0.35,
-          duration: 1.8,
-          stagger: 0.2,
-          ease: "power3.out",
-        }
-      );
-
       // ScrollTrigger for the text copy section lines
       const copyLines = gsap.utils.toArray(".copy-text-line");
       copyLines.forEach((line: any) => {
@@ -156,56 +108,9 @@ export default function Hero() {
 
   return (
     <div ref={containerRef} className="relative w-full bg-luxury-black overflow-hidden select-none">
-      
-      {/* Ambient background glows / vector shapes */}
-      <div className="absolute inset-0 z-0 pointer-events-none opacity-40">
-        <div className="bg-shape absolute top-[20%] left-[10%] w-[350px] h-[350px] bg-luxury-gold/5 rounded-full blur-[100px]" />
-        <div className="bg-shape absolute bottom-[15%] right-[15%] w-[450px] h-[450px] bg-luxury-gold/5 rounded-full blur-[130px]" />
-        
-        {/* Floating background outline shape */}
-        <div className="bg-shape absolute top-[45%] right-[20%] w-36 h-36 text-luxury-gold/10">
-          <svg viewBox="0 0 100 100" className="w-full h-full stroke-current fill-none" strokeWidth="1">
-            <polygon points="50,15 80,75 20,75" />
-          </svg>
-        </div>
-      </div>
 
-      {/* 1. Cinematic Typography Hero Landing */}
-      <section className="relative h-screen flex flex-col justify-center items-center px-6 md:px-12 z-10 border-b border-luxury-gold/10">
-        <div className="text-center">
-          <span className="text-xs md:text-sm tracking-[0.4em] font-medium text-luxury-gold uppercase block mb-6 animate-pulse">
-            Millennium Tea Reserves
-          </span>
-          
-          <h1 ref={titleRef} className="font-serif text-[11vw] font-bold uppercase tracking-tight text-luxury-ivory leading-none flex flex-col items-center">
-            {/* Word 1: BREW */}
-            <span className="overflow-hidden h-[13vw] flex items-center justify-center">
-              <span className="title-word inline-block flex items-center gap-4">
-                BREW
-                {/* Floating/rotating gold leaf inside the text spacing */}
-                <span className="title-leaf inline-block w-[9vw] h-[9vw] text-luxury-gold relative align-middle -mt-1 select-none">
-                  <svg viewBox="0 0 100 100" className="w-full h-full fill-current">
-                    <path d="M50 10 C65 30 75 45 70 70 C65 90 40 90 30 70 C25 45 35 30 50 10 Z M50 10 C50 35 48 60 52 80 M52 40 C42 45 35 52 35 52 M52 55 C60 58 65 65 65 65" stroke="currentColor" strokeWidth="2.5" fill="none" />
-                  </svg>
-                </span>
-              </span>
-            </span>
-
-            {/* Word 2: LUXURY */}
-            <span className="overflow-hidden h-[13vw] mt-2 flex items-center justify-center">
-              <span className="title-word gold-gradient-text inline-block">
-                LUXURY
-              </span>
-            </span>
-          </h1>
-        </div>
-
-        {/* Scroll Indicator */}
-        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 text-luxury-ivory/40 flex flex-col items-center gap-2 pointer-events-none">
-          <span className="text-[9px] tracking-[0.22em] font-medium uppercase animate-pulse">Explore Brand</span>
-          <ChevronDown className="w-3.5 h-3.5 animate-bounce text-luxury-gold/70" />
-        </div>
-      </section>
+      {/* 1. Interactive SVG Illustration Hero */}
+      <HeroSceneWrapper />
 
       {/* 2. Interactive Brand Copy Section ({ Why Millennium }) */}
       <section className="brand-copy-section relative py-40 px-6 md:px-12 z-10 max-w-7xl mx-auto flex flex-col items-center justify-center border-b border-luxury-gold/10">

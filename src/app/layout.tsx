@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Cormorant_Garamond, Outfit } from "next/font/google";
+import { Cormorant_Garamond, Outfit, Great_Vibes } from "next/font/google";
 import "./globals.css";
 import { CartProvider } from "@/context/CartContext";
 import CartDrawer from "@/components/CartDrawer";
@@ -16,6 +16,12 @@ const sansFont = Outfit({
   variable: "--font-sans",
   subsets: ["latin"],
   weight: ["300", "400", "500", "600", "700"],
+});
+
+const scriptFont = Great_Vibes({
+  variable: "--font-script",
+  subsets: ["latin"],
+  weight: ["400"],
 });
 
 export const metadata: Metadata = {
@@ -37,7 +43,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${serifFont.variable} ${sansFont.variable} scroll-smooth antialiased`}
+      className={`${serifFont.variable} ${sansFont.variable} ${scriptFont.variable} scroll-smooth antialiased`}
       style={{ backgroundColor: "#0B0B0B" }}
     >
       <body className="min-h-screen bg-[#0B0B0B] text-[#F8F5F0] font-sans selection:bg-[#D4AF37] selection:text-[#0B0B0B]">
