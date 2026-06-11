@@ -93,59 +93,59 @@ export default function HeroScene() {
     let handleMouseLeave: any = null;
 
     const ctx = gsap.context(() => {
-      // ── 1. Leaves — wave-based fall loop ─────────────────────────────────
+      // ── 1. Leaves — continuous fall loop ─────────────────────────────────
       const scrollLeaves = gsap.utils.toArray<SVGElement>(".scene-leaf-scroll", scene);
       if (scrollLeaves.length) {
-        const startWave = () => {
-          const tl = gsap.timeline({
-            onComplete: () => {
-              // Wait 0.8 seconds after all leaves have vanished before starting the next wave
-              gsap.delayedCall(0.8, startWave);
-            }
-          });
+        scrollLeaves.forEach((scrollLeaf) => {
+          const innerLeaf = scrollLeaf.querySelector(".scene-leaf") as HTMLElement;
+          const leafX = parseFloat(innerLeaf?.dataset.x || "0");
+          const leafY = parseFloat(innerLeaf?.dataset.y || "0");
 
-          scrollLeaves.forEach((scrollLeaf) => {
-            const innerLeaf = scrollLeaf.querySelector(".scene-leaf") as HTMLElement;
-            const leafX = parseFloat(innerLeaf?.dataset.x || "0");
-            const leafY = parseFloat(innerLeaf?.dataset.y || "0");
-
-            const delay = gsap.utils.random(0, 5); // Stagger starts over 5 seconds
-            const duration = gsap.utils.random(7, 11); // Fall duration of 7-11 seconds
+          const startFall = (delay = 0) => {
+            const duration = gsap.utils.random(8, 12); // Fall duration of 8-12 seconds
 
             // Set initial position above the SVG viewport: random x across the width
-            tl.set(scrollLeaf, {
+            gsap.set(scrollLeaf, {
               x: gsap.utils.random(50, 1390) - leafX,
               y: -150 - leafY,
               opacity: 0,
               rotation: gsap.utils.random(0, 360),
-            }, 0);
+            });
 
             // Fade in as it enters the viewport
-            tl.to(scrollLeaf, {
+            gsap.to(scrollLeaf, {
               opacity: 1,
               duration: 1.5,
+              delay: delay,
               ease: "power1.out",
-            }, delay);
+            });
 
             // Fall animation way past the bottom edge of the hero (SVG height is 810)
-            tl.to(scrollLeaf, {
+            gsap.to(scrollLeaf, {
               y: 1100 - leafY, // Fall down more (past bottom tabletop and viewport boundary)
               x: `+=${gsap.utils.random(-200, 200)}`,
               rotation: `+=${gsap.utils.random(270, 630)}`,
               duration: duration,
               ease: "none",
-            }, delay);
+              delay: delay,
+              onComplete: () => {
+                // Restart falling only after this leaf has completely finished its path and vanished
+                startFall(0);
+              },
+            });
 
             // Fade out near the bottom to vanish cleanly
-            tl.to(scrollLeaf, {
+            gsap.to(scrollLeaf, {
               opacity: 0,
               duration: 0.8,
               ease: "power1.in",
-            }, delay + duration - 0.8);
-          });
-        };
+              delay: delay + duration - 0.8,
+            });
+          };
 
-        startWave();
+          // Distribute the initial starts with staggered delays
+          startFall(gsap.utils.random(0, 12));
+        });
       }
 
       // Continuous ambient sway on inner ambient group
