@@ -310,12 +310,6 @@ export default function HeroScene() {
             <stop offset="100%" stopColor="#D4AF37" stopOpacity="0" />
           </radialGradient>
 
-          {/* Candle warm light glow */}
-          <radialGradient id="candle-light" cx="50%" cy="50%" r="50%">
-            <stop offset="0%" stopColor="#FF9A2E" stopOpacity="0.22" />
-            <stop offset="60%" stopColor="#FF6B00" stopOpacity="0.06" />
-            <stop offset="100%" stopColor="#FF6B00" stopOpacity="0" />
-          </radialGradient>
 
           {/* Right side warm vignette for calendar */}
           <radialGradient id="cal-bg" cx="50%" cy="50%" r="50%">
@@ -364,8 +358,6 @@ export default function HeroScene() {
         {/* ── 2. Atmospheric glow zones ──────────────────────────────────────── */}
         {/* Warm center-left glow (teacup warmth) */}
         <ellipse cx="430" cy="500" rx="320" ry="260" fill="url(#cup-glow)" filter="url(#soft-blur)" />
-        {/* Candle warm light */}
-        <ellipse cx="280" cy="430" rx="180" ry="160" fill="url(#candle-light)" filter="url(#soft-blur)" />
         {/* Calendar area subtle warm panel */}
         <rect x="1000" y="220" width="380" height="400" rx="8" fill="url(#cal-bg)" />
 
@@ -424,47 +416,8 @@ export default function HeroScene() {
           </g>
         ))}
 
-        {/* ── 6. Candle & Flame ─────────────────────────────────────────────── */}
-        <g className="hero-teacup" transform="translate(265, 330)">
-          {/* Candle body */}
-          <rect x="-14" y="60" width="28" height="72" rx="3" fill="#F5F0E8" stroke="#D4C9A8" strokeWidth="0.8" />
-          {/* Candle wax drips */}
-          <path d="M -14 68 Q -18 72 -16 78 L -14 78 Z" fill="#EDE8D8" opacity="0.7" />
-          <path d="M 14 74 Q 18 78 16 84 L 14 84 Z" fill="#EDE8D8" opacity="0.5" />
-          {/* Candle surface label details */}
-          <rect x="-9" y="72" width="18" height="50" rx="1" fill="rgba(212,175,55,0.08)" />
-          <line x1="-6" y1="82" x2="6" y2="82" stroke="rgba(212,175,55,0.25)" strokeWidth="0.5" />
-          <line x1="-6" y1="90" x2="6" y2="90" stroke="rgba(212,175,55,0.15)" strokeWidth="0.5" />
-          {/* Wick */}
-          <line x1="0" y1="60" x2="2" y2="52" stroke="#3a2a1a" strokeWidth="1.2" strokeLinecap="round" />
-          {/* Flame glow (blurred background) */}
-          <ellipse cx="2" cy="38" rx="24" ry="26" fill="#FF8C00" opacity="0.12" filter="url(#flame-blur)" />
-          {/* Outer flame */}
-          <path
-            className="flame-outer"
-            d="M 2 52 C -8 42 -12 28 -4 16 C 0 10 4 8 2 4 C 8 12 12 26 8 38 C 12 32 8 18 10 10 C 16 20 14 36 8 46 C 14 38 14 24 18 20 C 20 30 16 44 8 52 Z"
-            fill="url(#orange-grad)"
-            opacity="0.88"
-          />
-          {/* Middle flame */}
-          <path
-            className="flame-mid"
-            d="M 2 50 C -4 40 -6 28 0 18 C 4 12 2 8 2 4 C 6 12 8 28 4 40 C 8 34 6 20 8 14 C 12 24 10 38 6 48 Z"
-            fill="#FF9A2E"
-            opacity="0.92"
-          />
-          {/* Inner bright flame */}
-          <path
-            className="flame-inner"
-            d="M 2 48 C -2 40 -3 30 0 22 C 2 16 2 10 2 6 C 4 14 5 28 3 38 C 5 32 4 22 5 16 C 8 24 7 36 4 46 Z"
-            fill="#FFEE88"
-            opacity="0.96"
-          />
-          {/* Candle saucer plate */}
-          <ellipse cx="0" cy="134" rx="30" ry="6" fill="#2a2010" stroke="#D4AF37" strokeWidth="0.6" opacity="0.8" />
-        </g>
 
-        {/* ── 7. Teacup & Saucer ────────────────────────────────────────────── */}
+        {/* 7. Teacup & Saucer */}
         <g className="hero-teacup" transform="translate(480, 480)">
           {/* Saucer */}
           <ellipse cx="0" cy="70" rx="80" ry="14" fill="#1e1810" stroke="#D4AF37" strokeWidth="0.8" opacity="0.9" />
@@ -537,26 +490,8 @@ export default function HeroScene() {
         <path d="M 60 640 Q 400 635 700 642" stroke="rgba(255,255,255,0.03)" strokeWidth="1" fill="none" />
         <path d="M 100 660 Q 500 655 800 663" stroke="rgba(255,255,255,0.02)" strokeWidth="1.5" fill="none" />
 
-        {/* ── 11. Open Book decoration (left of teacup) ─────────────────────── */}
-        <g transform="translate(140, 590)" opacity="0.7">
-          {/* Book pages left */}
-          <path d="M -70 0 Q -35 -8 0 0 L 0 65 Q -35 58 -70 65 Z" fill="#F8F0E0" stroke="#C4A55A" strokeWidth="0.6" />
-          {/* Book pages right */}
-          <path d="M 0 0 Q 35 -8 70 0 L 70 65 Q 35 58 0 65 Z" fill="#F5EDD8" stroke="#C4A55A" strokeWidth="0.6" />
-          {/* Book spine */}
-          <line x1="0" y1="0" x2="0" y2="65" stroke="#C4A55A" strokeWidth="1.5" />
-          {/* Text lines on pages */}
-          {[10,18,26,34,42,50].map(y => (
-            <React.Fragment key={y}>
-              <line x1="-60" y1={y} x2="-8" y2={y - 1} stroke="rgba(100,80,40,0.2)" strokeWidth="0.8" />
-              <line x1="8" y1={y} x2="60" y2={y + 1} stroke="rgba(100,80,40,0.15)" strokeWidth="0.8" />
-            </React.Fragment>
-          ))}
-          {/* Book cover shadow */}
-          <ellipse cx="0" cy="70" rx="72" ry="6" fill="rgba(0,0,0,0.3)" filter="url(#subtle-blur)" />
-        </g>
 
-        {/* ── 12. Calendar Widget ────────────────────────────────────────────── */}
+        {/* 12. Calendar Widget */}
         <g transform={`translate(${CAL_X}, ${CAL_Y})`}>
           {/* Calendar card background */}
           <rect x="-98" y="-52" width="196" height="192" rx="6"
@@ -588,13 +523,7 @@ export default function HeroScene() {
           </text>
         </g>
 
-        {/* ── 14. Orange gradient def for flame ─────────────────────────────── */}
         <defs>
-          <linearGradient id="orange-grad" x1="50%" y1="0%" x2="50%" y2="100%">
-            <stop offset="0%" stopColor="#FFD700" />
-            <stop offset="35%" stopColor="#FF8C00" />
-            <stop offset="100%" stopColor="#FF4500" stopOpacity="0.7" />
-          </linearGradient>
         </defs>
 
       </svg>

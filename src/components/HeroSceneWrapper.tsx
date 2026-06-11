@@ -1,3 +1,2 @@
-// This wrapper re-exports HeroScene for use in client components.
-// The SVG is fetched client-side inside HeroScene.tsx.
+// Simple re-export — HeroScene is fully self-contained (no file system reads needed)
 export { default } from "./HeroScene";
