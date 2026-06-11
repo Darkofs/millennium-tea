@@ -113,7 +113,7 @@ export default function Hero() {
       <HeroSceneWrapper />
 
       {/* 2. Interactive Brand Copy Section ({ Why Millennium }) */}
-      <section className="brand-copy-section relative py-40 px-6 md:px-12 z-10 max-w-7xl mx-auto flex flex-col items-center justify-center border-b border-luxury-gold/10">
+      <section className="brand-copy-section relative pt-10 pb-28 px-6 md:px-12 z-10 max-w-7xl mx-auto flex flex-col items-center justify-center border-b border-luxury-gold/10">
         
         <div className="mb-14 text-center">
           <span className="text-xs md:text-sm tracking-[0.3em] font-medium text-luxury-gold/75 uppercase block mb-3">

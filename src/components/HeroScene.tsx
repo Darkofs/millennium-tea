@@ -242,8 +242,8 @@ export default function HeroScene() {
       }
 
       // ── 4. Teacup entrance ───────────────────────────────────────────────
-      gsap.fromTo(".hero-teacup",
-        { opacity: 0, y: 30, scale: 0.92 },
+      gsap.fromTo(".hero-teacup-trigger",
+        { opacity: 0, y: 30, scale: 0.92, transformOrigin: "480px 760px" },
         { opacity: 1, y: 0, scale: 1, duration: 1.4, ease: "power3.out", delay: 0.2 }
       );
 
@@ -280,7 +280,7 @@ export default function HeroScene() {
   }));
 
   // Calendar position
-  const CAL_X = 1160, CAL_Y = 380;
+  const CAL_X = 1160, CAL_Y = 480;
 
   return (
     <section
@@ -294,7 +294,7 @@ export default function HeroScene() {
         viewBox="0 0 1440 810"
         xmlns="http://www.w3.org/2000/svg"
         className="absolute inset-0 w-full h-full"
-        preserveAspectRatio="xMidYMid slice"
+        preserveAspectRatio="xMidYMax slice"
         aria-hidden="true"
       >
         <defs>
@@ -418,54 +418,59 @@ export default function HeroScene() {
 
 
         {/* 7. Teacup & Saucer */}
-        <g className="hero-teacup" transform="translate(480, 480)">
-          {/* Saucer */}
-          <ellipse cx="0" cy="70" rx="80" ry="14" fill="#1e1810" stroke="#D4AF37" strokeWidth="0.8" opacity="0.9" />
-          <ellipse cx="0" cy="68" rx="65" ry="10" fill="#2a2010" stroke="rgba(212,175,55,0.3)" strokeWidth="0.4" />
+        {/* 7. Teacup & Saucer */}
+        <g className="hero-teacup-trigger">
+          <g className="hero-teacup" transform="translate(480, 690)">
+            {/* Saucer */}
+            <ellipse cx="0" cy="70" rx="80" ry="14" fill="#1e1810" stroke="#D4AF37" strokeWidth="0.8" opacity="0.9" />
+            <ellipse cx="0" cy="68" rx="65" ry="10" fill="#2a2010" stroke="rgba(212,175,55,0.3)" strokeWidth="0.4" />
 
-          {/* Cup body - elegant shape */}
-          <path d="M -55 0 Q -58 35 -50 55 Q -30 72 0 72 Q 30 72 50 55 Q 58 35 55 0 Z"
-            fill="#1e1810" stroke="#D4AF37" strokeWidth="0.9" />
+            {/* Cup body - elegant shape */}
+            <path d="M -55 0 Q -58 35 -50 55 Q -30 72 0 72 Q 30 72 50 55 Q 58 35 55 0 Z"
+              fill="#1e1810" stroke="#D4AF37" strokeWidth="0.9" />
 
-          {/* Cup inner - tea liquid surface */}
-          <ellipse cx="0" cy="2" rx="52" ry="12" fill="#6B3A2A" opacity="0.85" />
-          {/* Tea surface highlight */}
-          <ellipse cx="-12" cy="0" rx="22" ry="5" fill="rgba(180,120,60,0.4)" opacity="0.6" />
+            {/* Cup inner - tea liquid surface */}
+            <ellipse cx="0" cy="2" rx="52" ry="12" fill="#6B3A2A" opacity="0.85" />
+            {/* Tea surface highlight */}
+            <ellipse cx="-12" cy="0" rx="22" ry="5" fill="rgba(180,120,60,0.4)" opacity="0.6" />
 
-          {/* Cup decorative band */}
-          <path d="M -55 18 Q 0 22 55 18" stroke="rgba(212,175,55,0.35)" strokeWidth="0.7" fill="none" />
-          <path d="M -54 26 Q 0 30 54 26" stroke="rgba(212,175,55,0.2)" strokeWidth="0.4" fill="none" />
+            {/* Cup decorative band */}
+            <path d="M -55 18 Q 0 22 55 18" stroke="rgba(212,175,55,0.35)" strokeWidth="0.7" fill="none" />
+            <path d="M -54 26 Q 0 30 54 26" stroke="rgba(212,175,55,0.2)" strokeWidth="0.4" fill="none" />
 
-          {/* Subtle leaf motif on cup */}
-          <g transform="translate(-18, 40)" opacity="0.3">
-            <path d="M 0 -8 C 4 -5 5 0 3 4 C 1 8 -3 8 -5 4 C -5 0 -3 -5 0 -8 Z" fill="#D4AF37" />
-            <line x1="0" y1="-8" x2="-1" y2="6" stroke="#D4AF37" strokeWidth="0.5" />
+            {/* Subtle leaf motif on cup */}
+            <g transform="translate(-18, 40)" opacity="0.3">
+              <path d="M 0 -8 C 4 -5 5 0 3 4 C 1 8 -3 8 -5 4 C -5 0 -3 -5 0 -8 Z" fill="#D4AF37" />
+              <line x1="0" y1="-8" x2="-1" y2="6" stroke="#D4AF37" strokeWidth="0.5" />
+            </g>
+            <g transform="translate(12, 42)" opacity="0.25">
+              <path d="M 0 -6 C 3 -4 4 0 2 3 C 0 6 -3 5 -4 2 C -4 -1 -2 -4 0 -6 Z" fill="#D4AF37" />
+            </g>
+
+            {/* Handle */}
+            <path d="M 55 10 Q 80 15 78 38 Q 76 58 55 52"
+              fill="none" stroke="#D4AF37" strokeWidth="5.5" strokeLinecap="round" opacity="0.9" />
+            <path d="M 55 10 Q 80 15 78 38 Q 76 58 55 52"
+              fill="none" stroke="#2a2010" strokeWidth="3" strokeLinecap="round" />
+
+            {/* Cup glow at base */}
+            <ellipse cx="0" cy="70" rx="75" ry="12" fill="rgba(212,175,55,0.05)" filter="url(#soft-blur)" />
           </g>
-          <g transform="translate(12, 42)" opacity="0.25">
-            <path d="M 0 -6 C 3 -4 4 0 2 3 C 0 6 -3 5 -4 2 C -4 -1 -2 -4 0 -6 Z" fill="#D4AF37" />
-          </g>
-
-          {/* Handle */}
-          <path d="M 55 10 Q 80 15 78 38 Q 76 58 55 52"
-            fill="none" stroke="#D4AF37" strokeWidth="5.5" strokeLinecap="round" opacity="0.9" />
-          <path d="M 55 10 Q 80 15 78 38 Q 76 58 55 52"
-            fill="none" stroke="#2a2010" strokeWidth="3" strokeLinecap="round" />
-
-          {/* Cup glow at base */}
-          <ellipse cx="0" cy="70" rx="75" ry="12" fill="rgba(212,175,55,0.05)" filter="url(#soft-blur)" />
         </g>
 
         {/* ── 8. Tea Steam ──────────────────────────────────────────────────── */}
         {/* 3 steam strands rising from the cup */}
-        <path className="steam-0"
-          d="M 456 478 C 448 464 452 446 444 432 C 436 418 440 402 432 388"
-          stroke="rgba(255,248,230,0.5)" strokeWidth="2.2" strokeLinecap="round" fill="none" />
-        <path className="steam-1"
-          d="M 480 476 C 484 460 478 442 484 428 C 490 414 484 398 490 384"
-          stroke="rgba(255,248,230,0.4)" strokeWidth="2.0" strokeLinecap="round" fill="none" />
-        <path className="steam-2"
-          d="M 504 478 C 514 462 508 444 518 430 C 528 416 522 400 532 386"
-          stroke="rgba(255,248,230,0.45)" strokeWidth="1.8" strokeLinecap="round" fill="none" />
+        <g transform="translate(0, 210)">
+          <path className="steam-0"
+            d="M 456 478 C 448 464 452 446 444 432 C 436 418 440 402 432 388"
+            stroke="rgba(255,248,230,0.5)" strokeWidth="2.2" strokeLinecap="round" fill="none" />
+          <path className="steam-1"
+            d="M 480 476 C 484 460 478 442 484 428 C 490 414 484 398 490 384"
+            stroke="rgba(255,248,230,0.4)" strokeWidth="2.0" strokeLinecap="round" fill="none" />
+          <path className="steam-2"
+            d="M 504 478 C 514 462 508 444 518 430 C 528 416 522 400 532 386"
+            stroke="rgba(255,248,230,0.45)" strokeWidth="1.8" strokeLinecap="round" fill="none" />
+        </g>
 
         {/* ── 9. Scattered tea leaves / herb decoration ─────────────────────── */}
         {/* Small botanical sprigs near the cup */}
@@ -484,8 +489,8 @@ export default function HeroScene() {
 
         {/* ── 10. Wooden surface / table edge ──────────────────────────────── */}
         {/* Subtle tabletop surface */}
-        <path d="M 0 620 Q 720 608 1440 618 L 1440 810 L 0 810 Z" fill="#1a1208" />
-        <path d="M 0 620 Q 720 608 1440 618" stroke="rgba(212,175,55,0.15)" strokeWidth="1" fill="none" />
+        <path d="M 0 765 Q 720 753 1440 763 L 1440 810 L 0 810 Z" fill="#1a1208" />
+        <path d="M 0 765 Q 720 753 1440 763" stroke="rgba(212,175,55,0.15)" strokeWidth="1" fill="none" />
         {/* Wood grain hints */}
         <path d="M 60 640 Q 400 635 700 642" stroke="rgba(255,255,255,0.03)" strokeWidth="1" fill="none" />
         <path d="M 100 660 Q 500 655 800 663" stroke="rgba(255,255,255,0.02)" strokeWidth="1.5" fill="none" />
@@ -637,7 +642,7 @@ export default function HeroScene() {
 
       {/* ── Bottom gradient fade ──────────────────────────────────────────── */}
       <div
-        className="absolute bottom-0 inset-x-0 h-40 pointer-events-none z-20"
+        className="absolute bottom-0 inset-x-0 h-20 pointer-events-none z-20"
         style={{ background: "linear-gradient(to bottom, transparent, #0b0b0b 90%)" }}
       />
 
