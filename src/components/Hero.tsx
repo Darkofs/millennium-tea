@@ -224,6 +224,15 @@ export default function Hero() {
             <span
               onMouseEnter={(e) => handleMouseEnterWord("effortlessly", e)}
               onMouseLeave={(e) => handleMouseLeaveWord("effortlessly", e)}
+              onTouchStart={(e) => {
+                handleMouseEnterWord("effortlessly", e as any);
+              }}
+              onTouchEnd={(e) => {
+                const target = e.currentTarget;
+                setTimeout(() => {
+                  handleMouseLeaveWord("effortlessly", { currentTarget: target } as any);
+                }, 1500);
+              }}
               className="clickable-card relative inline-block text-luxury-gold font-bold mx-1 pb-1 cursor-pointer transition-colors duration-300"
             >
               effortlessly
@@ -253,6 +262,15 @@ export default function Hero() {
             <span
               onMouseEnter={(e) => handleMouseEnterWord("handpicked", e)}
               onMouseLeave={(e) => handleMouseLeaveWord("handpicked", e)}
+              onTouchStart={(e) => {
+                handleMouseEnterWord("handpicked", e as any);
+              }}
+              onTouchEnd={(e) => {
+                const target = e.currentTarget;
+                setTimeout(() => {
+                  handleMouseLeaveWord("handpicked", { currentTarget: target } as any);
+                }, 1500);
+              }}
               className="clickable-card relative inline-block text-luxury-gold font-bold mx-1 px-1.5 cursor-pointer transition-colors duration-300"
             >
               handpicked
@@ -276,6 +294,15 @@ export default function Hero() {
             <span
               onMouseEnter={(e) => handleMouseEnterWord("wellness", e)}
               onMouseLeave={(e) => handleMouseLeaveWord("wellness", e)}
+              onTouchStart={(e) => {
+                handleMouseEnterWord("wellness", e as any);
+              }}
+              onTouchEnd={(e) => {
+                const target = e.currentTarget;
+                setTimeout(() => {
+                  handleMouseLeaveWord("wellness", { currentTarget: target } as any);
+                }, 1500);
+              }}
               className="clickable-card relative inline-block text-luxury-gold font-bold mx-1 px-2.5 py-0.5 cursor-pointer transition-colors duration-300"
             >
               wellness
@@ -302,6 +329,15 @@ export default function Hero() {
             <span
               onMouseEnter={(e) => handleMouseEnterWord("sensory", e)}
               onMouseLeave={(e) => handleMouseLeaveWord("sensory", e)}
+              onTouchStart={(e) => {
+                handleMouseEnterWord("sensory", e as any);
+              }}
+              onTouchEnd={(e) => {
+                const target = e.currentTarget;
+                setTimeout(() => {
+                  handleMouseLeaveWord("sensory", { currentTarget: target } as any);
+                }, 1500);
+              }}
               className="clickable-card relative inline-block text-luxury-gold border border-luxury-gold/35 rounded-lg px-4.5 overflow-hidden cursor-pointer transition-all duration-300"
             >
               {/* Highlight background pill block */}

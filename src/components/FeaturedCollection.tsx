@@ -174,12 +174,63 @@ export default function FeaturedCollection() {
         }
       };
 
+      const handleTouchMove = (e: TouchEvent) => {
+        const touch = e.touches[0];
+        const rect = card.getBoundingClientRect();
+        const x = touch.clientX - rect.left - rect.width / 2;
+        const y = touch.clientY - rect.top - rect.height / 2;
+
+        if (
+          touch.clientX >= rect.left &&
+          touch.clientX <= rect.right &&
+          touch.clientY >= rect.top &&
+          touch.clientY <= rect.bottom
+        ) {
+          const rotX = -(y / (rect.height / 2)) * 12;
+          const rotY = (x / (rect.width / 2)) * 12;
+
+          const glareX = ((touch.clientX - rect.left) / rect.width) * 100;
+          const glareY = ((touch.clientY - rect.top) / rect.height) * 100;
+
+          gsap.to(card, {
+            rotateX: rotX,
+            rotateY: rotY,
+            transformPerspective: 1200,
+            scale: 1.03,
+            boxShadow: "0 22px 45px rgba(0, 0, 0, 0.65), 0 0 30px rgba(212, 175, 55, 0.18)",
+            duration: 0.35,
+            ease: "power2.out",
+            overwrite: "auto",
+          });
+
+          if (glareEl) {
+            gsap.to(glareEl, {
+              opacity: 1,
+              background: `radial-gradient(circle at ${glareX}% ${glareY}%, rgba(212, 175, 55, 0.15) 0%, transparent 65%)`,
+              duration: 0.2,
+              ease: "power1.out",
+              overwrite: "auto",
+            });
+          }
+        } else {
+          handleMouseLeave();
+        }
+      };
+
+      const handleTouchEnd = () => {
+        handleMouseLeave();
+      };
+
       card.addEventListener("mousemove", handleMouseMove);
       card.addEventListener("mouseleave", handleMouseLeave);
+      card.addEventListener("touchmove", handleTouchMove, { passive: true });
+      card.addEventListener("touchend", handleTouchEnd, { passive: true });
 
       card._cleanupTilt = () => {
         card.removeEventListener("mousemove", handleMouseMove);
         card.removeEventListener("mouseleave", handleMouseLeave);
+        card.removeEventListener("touchmove", handleTouchMove);
+        card.removeEventListener("touchend", handleTouchEnd);
       };
     });
 
