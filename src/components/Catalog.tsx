@@ -229,6 +229,7 @@ export default function Catalog() {
               <button
                 key={tea.id}
                 onClick={() => handleTabChange(tea.id)}
+                data-wiggle="true"
                 className={`px-6 py-3 rounded-full text-xs font-semibold tracking-widest uppercase transition-all duration-500 cursor-pointer ${
                   activeTab === tea.id
                     ? "bg-luxury-gold text-luxury-black shadow-lg shadow-luxury-gold/25"

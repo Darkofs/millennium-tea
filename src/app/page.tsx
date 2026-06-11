@@ -223,12 +223,12 @@ export default function Home() {
       };
     };
 
-    // Scan the DOM and apply the effect to all buttons matching the keywords
+    // Scan the DOM and apply the effect to all buttons matching the keywords or data-wiggle attribute
     const scanAndApply = () => {
       const buttons = Array.from(document.querySelectorAll("button"));
       buttons.forEach(btn => {
         const text = (btn.textContent || "").toLowerCase().trim();
-        if (CTA_KEYWORDS.some(keyword => text.includes(keyword))) {
+        if (btn.dataset.wiggle === "true" || CTA_KEYWORDS.some(keyword => text.includes(keyword))) {
           applyEffect(btn);
         }
       });
