@@ -286,7 +286,7 @@ export default function HeroScene() {
     <section
       ref={sceneRef}
       className="relative w-full overflow-hidden select-none"
-      style={{ height: "100vh", minHeight: "560px", background: "#0b0b0b" }}
+      style={{ height: "100dvh", minHeight: "600px", background: "#0b0b0b" }}
       aria-label="Millennium Tea — Premium Luxury Tea Brand Hero"
     >
       {/* ── Master SVG Canvas ─────────────────────────────────────────────── */}
@@ -581,40 +581,7 @@ export default function HeroScene() {
             Aged with craft. Delivered with purpose.
           </p>
 
-          {/* CTA Row */}
-          <div className="hero-brand-line flex items-center gap-5 flex-wrap">
-            <button
-              className="pointer-events-auto font-sans font-semibold tracking-widest uppercase"
-              style={{
-                fontSize: "11px",
-                background: "linear-gradient(135deg, #D4AF37, #8B6914)",
-                color: "#0b0b0b",
-                padding: "13px 32px",
-                borderRadius: "2px",
-                letterSpacing: "0.18em",
-                boxShadow: "0 0 30px rgba(212,175,55,0.25)",
-                border: "none",
-                cursor: "pointer",
-              }}
-            >
-              Explore Collection
-            </button>
-            <button
-              className="pointer-events-auto font-sans font-medium tracking-wider uppercase"
-              style={{
-                fontSize: "10px",
-                background: "transparent",
-                color: "rgba(212,175,55,0.8)",
-                padding: "12px 24px",
-                border: "1px solid rgba(212,175,55,0.3)",
-                borderRadius: "2px",
-                letterSpacing: "0.15em",
-                cursor: "pointer",
-              }}
-            >
-              Our Story
-            </button>
-          </div>
+
         </div>
       </div>
 
@@ -674,22 +641,7 @@ export default function HeroScene() {
         style={{ background: "linear-gradient(to bottom, transparent, #0b0b0b 90%)" }}
       />
 
-      {/* ── Scroll indicator ─────────────────────────────────────────────── */}
-      <div className="absolute bottom-7 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 z-30 pointer-events-none">
-        <span style={{ fontSize: "8px", letterSpacing: "0.35em", color: "rgba(212,175,55,0.45)", textTransform: "uppercase", fontFamily: "'Outfit',sans-serif" }}>
-          Discover
-        </span>
-        <div style={{
-          width: 18, height: 30,
-          borderRadius: 9,
-          border: "1px solid rgba(212,175,55,0.35)",
-          display: "flex", alignItems: "flex-start", justifyContent: "center",
-          paddingTop: 5,
-          animation: "bounce 2s ease-in-out infinite",
-        }}>
-          <div style={{ width: 4, height: 8, borderRadius: 2, background: "rgba(212,175,55,0.55)" }} />
-        </div>
-      </div>
+
     </section>
   );
 }

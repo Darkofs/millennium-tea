@@ -1,2 +1,3 @@
-// Simple re-export — HeroScene is fully self-contained (no file system reads needed)
-export { default } from "./HeroScene";
+"use client";
+import HeroScene from "./HeroScene";
+export default HeroScene;
