@@ -4,12 +4,7 @@ import React, { useEffect, useRef } from "react";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 
-// ── Calendar helpers ──────────────────────────────────────────────────────────
-const MONTH_NAMES = [
-  "January","February","March","April","May","June",
-  "July","August","September","October","November","December",
-];
-const DAYS = ["S","M","T","W","T","F","S"];
+
 
 // ── Leaf path shapes (8 distinct botanical shapes) ────────────────────────────
 const LEAF_SHAPES = [
@@ -41,114 +36,8 @@ export default function HeroScene() {
   const sceneRef = useRef<HTMLDivElement>(null);
   const leavesRef = useRef<SVGGElement>(null);
   const candleFlameRef = useRef<SVGGElement>(null);
-  const calendarRef = useRef<SVGGElement>(null);
 
-  // ── Build calendar SVG group dynamically ──────────────────────────────────
-  useEffect(() => {
-    const calGroup = calendarRef.current;
-    if (!calGroup) return;
 
-    const now = new Date();
-    const year = now.getFullYear();
-    const month = now.getMonth();
-    const today = now.getDate();
-    const firstDay = new Date(year, month, 1).getDay();
-    const daysInMonth = new Date(year, month + 1, 0).getDate();
-
-    // Clear and rebuild
-    while (calGroup.firstChild) calGroup.removeChild(calGroup.firstChild);
-
-    const ns = "http://www.w3.org/2000/svg";
-
-    // Month name
-    const monthEl = document.createElementNS(ns, "text");
-    monthEl.setAttribute("x", "0");
-    monthEl.setAttribute("y", "-8");
-    monthEl.setAttribute("text-anchor", "middle");
-    const sf = getComputedStyle(document.documentElement).getPropertyValue("--font-script").trim();
-    monthEl.setAttribute("font-family", `${sf}, 'Great Vibes', cursive`);
-    monthEl.setAttribute("font-size", "26");
-    monthEl.setAttribute("fill", "#D4AF37");
-    monthEl.setAttribute("opacity", "0.95");
-    monthEl.setAttribute("class", "cal-month");
-    monthEl.textContent = MONTH_NAMES[month];
-    calGroup.appendChild(monthEl);
-
-    // Year
-    const yearEl = document.createElementNS(ns, "text");
-    yearEl.setAttribute("x", "0");
-    yearEl.setAttribute("y", "6");
-    yearEl.setAttribute("text-anchor", "middle");
-    yearEl.setAttribute("font-family", "'Outfit', 'Inter', sans-serif");
-    yearEl.setAttribute("font-size", "9");
-    yearEl.setAttribute("fill", "rgba(212,175,55,0.55)");
-    yearEl.setAttribute("letter-spacing", "4");
-    yearEl.textContent = String(year);
-    calGroup.appendChild(yearEl);
-
-    // Divider line
-    const line = document.createElementNS(ns, "line");
-    line.setAttribute("x1", "-85"); line.setAttribute("x2", "85");
-    line.setAttribute("y1", "14"); line.setAttribute("y2", "14");
-    line.setAttribute("stroke", "rgba(212,175,55,0.25)"); line.setAttribute("stroke-width", "0.5");
-    calGroup.appendChild(line);
-
-    // Day headers
-    const COL_W = 24, HEADER_Y = 28;
-    DAYS.forEach((d, i) => {
-      const el = document.createElementNS(ns, "text");
-      el.setAttribute("x", String(-84 + i * COL_W + COL_W / 2));
-      el.setAttribute("y", String(HEADER_Y));
-      el.setAttribute("text-anchor", "middle");
-      el.setAttribute("font-family", "'Outfit','Inter',sans-serif");
-      el.setAttribute("font-size", "8.5");
-      el.setAttribute("fill", i === 0 || i === 6 ? "rgba(212,175,55,0.7)" : "rgba(248,245,240,0.45)");
-      el.setAttribute("font-weight", "600");
-      el.textContent = d;
-      calGroup.appendChild(el);
-    });
-
-    // Day numbers
-    let dayNum = 1;
-    let row = 0;
-    const NUM_Y_START = 42;
-    const ROW_H = 18;
-
-    while (dayNum <= daysInMonth) {
-      for (let col = 0; col < 7 && dayNum <= daysInMonth; col++) {
-        if (row === 0 && col < firstDay) continue;
-        const cx = -84 + col * COL_W + COL_W / 2;
-        const cy = NUM_Y_START + row * ROW_H;
-        const isToday = dayNum === today;
-        const isWeekend = col === 0 || col === 6;
-
-        if (isToday) {
-          const circ = document.createElementNS(ns, "circle");
-          circ.setAttribute("cx", String(cx)); circ.setAttribute("cy", String(cy - 5));
-          circ.setAttribute("r", "10");
-          circ.setAttribute("fill", "rgba(212,175,55,0.2)");
-          circ.setAttribute("stroke", "#D4AF37"); circ.setAttribute("stroke-width", "0.8");
-          circ.setAttribute("class", "today-ring");
-          calGroup.appendChild(circ);
-        }
-
-        const el = document.createElementNS(ns, "text");
-        el.setAttribute("x", String(cx)); el.setAttribute("y", String(cy));
-        el.setAttribute("text-anchor", "middle");
-        el.setAttribute("font-family", "'Outfit','Inter',sans-serif");
-        el.setAttribute("font-size", "10");
-        el.setAttribute("font-weight", isToday ? "700" : "400");
-        el.setAttribute("fill",
-          isToday ? "#D4AF37" : isWeekend ? "rgba(212,175,55,0.55)" : "rgba(248,245,240,0.75)"
-        );
-        el.setAttribute("class", isToday ? "cal-day today" : "cal-day");
-        el.textContent = String(dayNum);
-        calGroup.appendChild(el);
-        dayNum++;
-      }
-      row++;
-    }
-  }, []);
 
   // ── GSAP animations ───────────────────────────────────────────────────────
   useEffect(() => {
@@ -221,25 +110,7 @@ export default function HeroScene() {
         });
       });
 
-      // ── 3. Calendar fade in ──────────────────────────────────────────────
-      const calDays = gsap.utils.toArray(".cal-day", scene);
-      if (calDays.length) {
-        gsap.set(calDays, { opacity: 0 });
-        gsap.to(calDays, {
-          opacity: 1, duration: 0.4,
-          stagger: { each: 0.025, from: "start" },
-          ease: "power2.out", delay: 1.0,
-        });
-      }
-      const calMonth = scene.querySelector(".cal-month");
-      if (calMonth) {
-        gsap.fromTo(calMonth, { opacity: 0, y: -8 }, { opacity: 0.95, y: 0, duration: 1.2, ease: "power3.out", delay: 0.7 });
-      }
-      const todayRing = scene.querySelector(".today-ring");
-      if (todayRing) {
-        gsap.fromTo(todayRing, { scale: 0, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.8, ease: "elastic.out(1, 0.5)", delay: 1.8 });
-        gsap.to(todayRing, { scale: 1.08, duration: 1.6, repeat: -1, yoyo: true, ease: "sine.inOut", delay: 2.8 });
-      }
+
 
       // ── 4. Teacup entrance ───────────────────────────────────────────────
       gsap.fromTo(".hero-teacup-trigger",
@@ -279,8 +150,7 @@ export default function HeroScene() {
     opacity: 0.06 + (i % 5) * 0.05,
   }));
 
-  // Calendar position
-  const CAL_X = 1160, CAL_Y = 480;
+
 
   return (
     <section
@@ -311,11 +181,7 @@ export default function HeroScene() {
           </radialGradient>
 
 
-          {/* Right side warm vignette for calendar */}
-          <radialGradient id="cal-bg" cx="50%" cy="50%" r="50%">
-            <stop offset="0%" stopColor="#1a1510" stopOpacity="0.9" />
-            <stop offset="100%" stopColor="#0b0b0b" stopOpacity="0" />
-          </radialGradient>
+
 
           {/* Gold shimmer for text */}
           <linearGradient id="gold-grad" x1="0%" y1="0%" x2="100%" y2="100%">
@@ -358,8 +224,6 @@ export default function HeroScene() {
         {/* ── 2. Atmospheric glow zones ──────────────────────────────────────── */}
         {/* Warm center-left glow (teacup warmth) */}
         <ellipse cx="430" cy="500" rx="320" ry="260" fill="url(#cup-glow)" filter="url(#soft-blur)" />
-        {/* Calendar area subtle warm panel */}
-        <rect x="1000" y="220" width="380" height="400" rx="8" fill="url(#cal-bg)" />
 
         {/* ── 3. Decorative border elements ─────────────────────────────────── */}
         {/* Top left ornate corner */}
@@ -496,24 +360,7 @@ export default function HeroScene() {
         <path d="M 100 660 Q 500 655 800 663" stroke="rgba(255,255,255,0.02)" strokeWidth="1.5" fill="none" />
 
 
-        {/* 12. Calendar Widget */}
-        <g transform={`translate(${CAL_X}, ${CAL_Y})`}>
-          {/* Calendar card background */}
-          <rect x="-98" y="-52" width="196" height="192" rx="6"
-            fill="rgba(15,12,6,0.88)"
-            stroke="rgba(212,175,55,0.3)" strokeWidth="0.8" />
-          {/* Header band */}
-          <rect x="-98" y="-52" width="196" height="38" rx="6"
-            fill="rgba(212,175,55,0.08)"
-            stroke="none" />
-          <rect x="-98" y="-14" width="196" height="2" fill="rgba(212,175,55,0.12)" />
 
-          {/* Dynamic calendar content (injected via JS) */}
-          <g ref={calendarRef} transform="translate(0, -28)" />
-
-          {/* Card bottom accent */}
-          <line x1="-80" y1="136" x2="80" y2="136" stroke="rgba(212,175,55,0.12)" strokeWidth="0.5" />
-        </g>
 
         {/* ── 13. Decorative right-side vertical text / brand mark ──────────── */}
         <g transform="translate(1400, 405) rotate(90)" opacity="0.2">
