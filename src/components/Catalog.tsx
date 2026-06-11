@@ -392,6 +392,7 @@ export default function Catalog() {
                 {/* Add to Cart */}
                 <button
                   onClick={handleAddToCart}
+                  data-wiggle="true"
                   className={`flex-1 py-4 rounded-xl text-xs font-semibold tracking-widest uppercase flex items-center justify-center gap-2 group cursor-pointer transition-all duration-300 border ${
                     addedFeedback
                       ? "bg-luxury-gold text-luxury-black border-luxury-gold"
@@ -405,6 +406,7 @@ export default function Catalog() {
                 {/* Buy via WhatsApp */}
                 <button
                   onClick={handleBuyAction}
+                  data-wiggle="true"
                   className="flex-1 flex items-center justify-center gap-2 bg-[#25D366] hover:bg-[#1ebe5d] text-white py-4 rounded-xl text-xs font-semibold tracking-widest uppercase transition-all duration-300 cursor-pointer"
                 >
                   <MessageCircle className="w-4 h-4 fill-white" />

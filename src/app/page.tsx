@@ -177,6 +177,9 @@ export default function Home() {
       if (btn.dataset.magneticApplied === "true") return;
       btn.dataset.magneticApplied = "true";
 
+      // Programmatically override transitionProperty to prevent CSS transition clashing with GSAP transforms
+      btn.style.transitionProperty = "background-color, border-color, color, box-shadow, opacity";
+
       // 1. Continuous wiggle loop (uses the registered custom ease)
       gsap.to(btn, {
         rotation: 12,
