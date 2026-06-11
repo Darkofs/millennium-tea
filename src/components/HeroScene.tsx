@@ -87,7 +87,7 @@ export default function HeroScene() {
             y: `+=${180 + (i % 8) * 50}`,
             x: `+=${dir * (40 + (i % 6) * 25)}`,
             rotation: `+=${dir * (120 + (i % 5) * 80)}`,
-            opacity: 0, ease: "none",
+            ease: "none",
             scrollTrigger: {
               trigger: scene,
               start: "top top",

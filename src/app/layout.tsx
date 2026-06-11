@@ -5,6 +5,7 @@ import { CartProvider } from "@/context/CartContext";
 import CartDrawer from "@/components/CartDrawer";
 import { AuthProvider } from "@/context/AuthContext";
 import NavigationHandler from "@/components/NavigationHandler";
+import FallingLeaves from "@/components/FallingLeaves";
 
 const serifFont = Cormorant_Garamond({
   variable: "--font-serif",
@@ -51,6 +52,7 @@ export default function RootLayout({
           <CartProvider>
             <NavigationHandler />
             <CartDrawer />
+            <FallingLeaves />
             {children}
           </CartProvider>
         </AuthProvider>
