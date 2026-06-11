@@ -31,6 +31,47 @@ const LEAF_COLORS = [
   "#8B6914","#A67C52","#7B3F00","#9C5A1D","#B8860B",
 ];
 
+const LEAF_POSITIONS = [
+  { x: 720, y: 385 },
+  { x: 643, y: 421 },
+  { x: 733, y: 311 },
+  { x: 829, y: 457 },
+  { x: 516, y: 367 },
+  { x: 916, y: 322 },
+  { x: 654, y: 510 },
+  { x: 593, y: 261 },
+  { x: 996, y: 436 },
+  { x: 432, y: 445 },
+  { x: 859, y: 234 },
+  { x: 823, y: 552 },
+  { x: 409, y: 293 },
+  { x: 1086, y: 344 },
+  { x: 497, y: 546 },
+  { x: 668, y: 183 },
+  { x: 1038, y: 521 },
+  { x: 292, y: 394 },
+  { x: 1032, y: 227 },
+  { x: 699, y: 615 },
+  { x: 423, y: 204 },
+  { x: 1192, y: 417 },
+  { x: 320, y: 526 },
+  { x: 829, y: 138 },
+  { x: 973, y: 609 },
+  { x: 225, y: 305 },
+  { x: 1201, y: 272 },
+  { x: 512, y: 638 },
+  { x: 534, y: 122 },
+  { x: 1215, y: 517 },
+  { x: 170, y: 459 },
+  { x: 1033, y: 138 },
+  { x: 819, y: 679 },
+  { x: 248, y: 200 },
+  { x: 1323, y: 360 },
+  { x: 303, y: 614 },
+  { x: 723, y: 69 },
+  { x: 1144, y: 623 },
+];
+
 // ── Component ─────────────────────────────────────────────────────────────────
 export default function HeroScene() {
   const sceneRef = useRef<HTMLDivElement>(null);
@@ -39,7 +80,7 @@ export default function HeroScene() {
 
 
 
-  // ── GSAP animations ───────────────────────────────────────────────────────
+  // ── GSAP animations & Mouse wind interaction ──────────────────────────────
   useEffect(() => {
     if (typeof window === "undefined") return;
     gsap.registerPlugin(ScrollTrigger);
@@ -47,43 +88,29 @@ export default function HeroScene() {
     const scene = sceneRef.current;
     if (!scene) return;
 
+    const svg = scene.querySelector("svg");
+    let handleMouseMove: any = null;
+    let handleMouseLeave: any = null;
+
     const ctx = gsap.context(() => {
-
-      // ── 1. Leaves — entrance stagger ─────────────────────────────────────
-      const leaves = gsap.utils.toArray<SVGElement>(".scene-leaf", scene);
-      if (leaves.length) {
-        gsap.set(leaves, { opacity: 0, scale: 0, transformOrigin: "center center" });
-        gsap.to(leaves, {
-          opacity: 1, scale: 1,
-          duration: 1.6,
-          stagger: { each: 0.06, from: "random" },
-          ease: "elastic.out(1, 0.5)",
-          delay: 0.4,
-        });
-
-        // Continuous ambient sway
-        leaves.forEach((leaf, i) => {
-          const dir = i % 2 === 0 ? 1 : -1;
-          gsap.to(leaf, {
-            rotation: dir * (6 + (i % 4) * 4),
-            duration: 1.8 + (i % 5) * 0.6,
-            repeat: -1, yoyo: true, ease: "sine.inOut",
-            delay: (i * 0.15) % 2.5,
-            transformOrigin: "center 80%",
-          });
-          // Gentle float
-          gsap.to(leaf, {
-            y: `+=${3 + (i % 4) * 2}`,
-            duration: 2.2 + (i % 3) * 0.8,
-            repeat: -1, yoyo: true, ease: "sine.inOut",
-            delay: (i * 0.2) % 3,
-          });
+      // ── 1. Leaves — entrance stagger & ambient sway ───────────────────────
+      const scrollLeaves = gsap.utils.toArray<SVGElement>(".scene-leaf-scroll", scene);
+      if (scrollLeaves.length) {
+        // Fall down from above the sky stagger
+        gsap.set(scrollLeaves, { opacity: 0, y: -200, transformOrigin: "center center" });
+        gsap.to(scrollLeaves, {
+          opacity: 1,
+          y: 0,
+          duration: 2.0,
+          stagger: { each: 0.05, from: "random" },
+          ease: "power2.out",
+          delay: 0.2,
         });
 
         // Scroll-driven cascade fall
-        leaves.forEach((leaf, i) => {
+        scrollLeaves.forEach((scrollLeaf, i) => {
           const dir = i % 2 === 0 ? 1 : -1;
-          gsap.to(leaf, {
+          gsap.to(scrollLeaf, {
             y: `+=${180 + (i % 8) * 50}`,
             x: `+=${dir * (40 + (i % 6) * 25)}`,
             rotation: `+=${dir * (120 + (i % 5) * 80)}`,
@@ -98,6 +125,26 @@ export default function HeroScene() {
         });
       }
 
+      // Continuous ambient sway on inner ambient group
+      const ambientLeaves = gsap.utils.toArray<SVGElement>(".scene-leaf-ambient", scene);
+      ambientLeaves.forEach((ambient, i) => {
+        const dir = i % 2 === 0 ? 1 : -1;
+        gsap.to(ambient, {
+          rotation: dir * (6 + (i % 4) * 4),
+          duration: 1.8 + (i % 5) * 0.6,
+          repeat: -1, yoyo: true, ease: "sine.inOut",
+          delay: (i * 0.15) % 2.5,
+          transformOrigin: "center 80%",
+        });
+        // Gentle float
+        gsap.to(ambient, {
+          y: `+=${3 + (i % 4) * 2}`,
+          duration: 2.2 + (i % 3) * 0.8,
+          repeat: -1, yoyo: true, ease: "sine.inOut",
+          delay: (i * 0.2) % 3,
+        });
+      });
+
       // ── 2. Bokeh particles float ─────────────────────────────────────────
       const bokeh = gsap.utils.toArray<SVGElement>(".bokeh-dot", scene);
       bokeh.forEach((dot, i) => {
@@ -109,8 +156,6 @@ export default function HeroScene() {
           delay: (i * 0.4) % 4,
         });
       });
-
-
 
       // ── 4. Teacup entrance ───────────────────────────────────────────────
       gsap.fromTo(".hero-teacup-trigger",
@@ -124,22 +169,118 @@ export default function HeroScene() {
         { opacity: 1, y: 0, duration: 0.9, stagger: 0.15, ease: "power3.out", delay: 0.6 }
       );
 
+      // ── Mouse Wind Interaction ──────────────────────────────────────────
+      const leaves = gsap.utils.toArray<SVGElement>(".scene-leaf", scene);
+      if (svg && leaves.length) {
+        let mouse = { x: 0, y: 0, px: 0, py: 0, vx: 0, vy: 0 };
+        
+        handleMouseMove = (e: MouseEvent) => {
+          const rect = svg.getBoundingClientRect();
+          // Map mouse coordinates to SVG viewBox (1440x810)
+          const mx = ((e.clientX - rect.left) / rect.width) * 1440;
+          const my = ((e.clientY - rect.top) / rect.height) * 810;
+          
+          // Calculate velocity
+          mouse.vx = mx - mouse.px;
+          mouse.vy = my - mouse.py;
+          mouse.x = mx;
+          mouse.y = my;
+          mouse.px = mx;
+          mouse.py = my;
+
+          // Apply force to leaves
+          const threshold = 180; // interaction radius
+          leaves.forEach((leaf: any) => {
+            const leafX = parseFloat(leaf.dataset.x);
+            const leafY = parseFloat(leaf.dataset.y);
+            
+            const dx = leafX - mx;
+            const dy = leafY - my;
+            const dist = Math.sqrt(dx * dx + dy * dy);
+            
+            if (dist < threshold) {
+              const force = (1 - dist / threshold); // stronger closer to cursor
+              const speed = Math.sqrt(mouse.vx * mouse.vx + mouse.vy * mouse.vy);
+              
+              let pushX = 0;
+              let pushY = 0;
+              
+              if (speed > 0.5) {
+                // Wind push in mouse direction
+                pushX += (mouse.vx / speed) * force * 110;
+                pushY += (mouse.vy / speed) * force * 110;
+              }
+              
+              // Add repulsion away from cursor so they scatter nicely
+              pushX += (dx / dist) * force * 70;
+              pushY += (dy / dist) * force * 70;
+              
+              // Dynamic rotation based on movement direction
+              const rotPush = (pushX - pushY) * 0.35;
+
+              gsap.to(leaf, {
+                x: pushX,
+                y: pushY,
+                rotation: rotPush,
+                duration: 0.65,
+                ease: "power2.out",
+                overwrite: "auto"
+              });
+            } else {
+              // Return to original layout coordinates
+              gsap.to(leaf, {
+                x: 0,
+                y: 0,
+                rotation: 0,
+                duration: 1.5,
+                ease: "elastic.out(1, 0.6)",
+                overwrite: "auto"
+              });
+            }
+          });
+        };
+
+        handleMouseLeave = () => {
+          leaves.forEach((leaf) => {
+            gsap.to(leaf, {
+              x: 0,
+              y: 0,
+              rotation: 0,
+              duration: 1.6,
+              ease: "elastic.out(1, 0.5)",
+              overwrite: "auto"
+            });
+          });
+        };
+
+        svg.addEventListener("mousemove", handleMouseMove);
+        svg.addEventListener("mouseleave", handleMouseLeave);
+      }
+
     }, scene);
 
-    return () => ctx.revert();
+    return () => {
+      ctx.revert();
+      if (svg) {
+        if (handleMouseMove) svg.removeEventListener("mousemove", handleMouseMove);
+        if (handleMouseLeave) svg.removeEventListener("mouseleave", handleMouseLeave);
+      }
+    };
   }, []);
 
-  // Generate leaves data
-  const leafData = Array.from({ length: 38 }, (_, i) => ({
-    id: i,
-    x: 80 + (i * 37.3) % 1280,
-    y: 60 + (i * 53.7) % 720,
-    scale: 0.55 + (i % 6) * 0.15,
-    rotation: (i * 47) % 360,
-    shape: LEAF_SHAPES[i % LEAF_SHAPES.length],
-    color: LEAF_COLORS[i % LEAF_COLORS.length],
-    opacity: 0.55 + (i % 5) * 0.1,
-  }));
+  // Generate leaves data with a robust pseudo-random scatter to avoid grid alignments
+  const leafData = LEAF_POSITIONS.map((pos, i) => {
+    return {
+      id: i,
+      x: pos.x,
+      y: pos.y,
+      scale: 0.55 + (i % 6) * 0.15,
+      rotation: (i * 47) % 360,
+      shape: LEAF_SHAPES[i % LEAF_SHAPES.length],
+      color: LEAF_COLORS[i % LEAF_COLORS.length],
+      opacity: 0.55 + (i % 5) * 0.1,
+    };
+  });
 
   // Bokeh particles data
   const bokehData = Array.from({ length: 22 }, (_, i) => ({
@@ -272,11 +413,24 @@ export default function HeroScene() {
         {leafData.map(leaf => (
           <g
             key={leaf.id}
-            className="scene-leaf"
-            transform={`translate(${leaf.x}, ${leaf.y}) rotate(${leaf.rotation}) scale(${leaf.scale})`}
+            className="scene-leaf-container"
+            transform={`translate(${leaf.x}, ${leaf.y})`}
             opacity={leaf.opacity}
           >
-            <path d={leaf.shape} fill={leaf.color} stroke="rgba(0,0,0,0.2)" strokeWidth="0.5" />
+            <g
+              className="scene-leaf-scroll"
+              transform={`scale(${leaf.scale})`}
+            >
+              <g
+                className="scene-leaf"
+                data-x={leaf.x}
+                data-y={leaf.y}
+              >
+                <g className="scene-leaf-ambient" transform={`rotate(${leaf.rotation})`}>
+                  <path d={leaf.shape} fill={leaf.color} stroke="rgba(0,0,0,0.2)" strokeWidth="0.5" />
+                </g>
+              </g>
+            </g>
           </g>
         ))}
 
