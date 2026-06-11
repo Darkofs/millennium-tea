@@ -4,6 +4,7 @@ import "./globals.css";
 import { CartProvider } from "@/context/CartContext";
 import CartDrawer from "@/components/CartDrawer";
 import { AuthProvider } from "@/context/AuthContext";
+import NavigationHandler from "@/components/NavigationHandler";
 
 const serifFont = Cormorant_Garamond({
   variable: "--font-serif",
@@ -42,6 +43,7 @@ export default function RootLayout({
       <body className="min-h-screen bg-[#0B0B0B] text-[#F8F5F0] font-sans selection:bg-[#D4AF37] selection:text-[#0B0B0B]">
         <AuthProvider>
           <CartProvider>
+            <NavigationHandler />
             <CartDrawer />
             {children}
           </CartProvider>
