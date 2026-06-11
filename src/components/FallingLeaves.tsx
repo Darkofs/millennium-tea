@@ -105,8 +105,14 @@ export default function FallingLeaves() {
       startAnimation(leaf, gsap.utils.random(0, 14));
     });
 
-    // Handle viewport resize: update fall animations to end at the new viewport bottom
+    // Handle viewport resize: only restart animations if the viewport width changes.
+    // This prevents mobile browsers from restarting animations when the URL/address bar hides or shows on scroll.
+    let lastWidth = window.innerWidth;
     const handleResize = () => {
+      const currentWidth = window.innerWidth;
+      if (currentWidth === lastWidth) return;
+      lastWidth = currentWidth;
+
       leaves.forEach((leaf) => {
         gsap.killTweensOf(leaf);
         startAnimation(leaf, 0);
