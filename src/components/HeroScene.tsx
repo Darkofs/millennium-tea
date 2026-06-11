@@ -77,8 +77,11 @@ export default function HeroScene() {
   const sceneRef = useRef<HTMLDivElement>(null);
   const leavesRef = useRef<SVGGElement>(null);
   const candleFlameRef = useRef<SVGGElement>(null);
+  const [isMobile, setIsMobile] = React.useState(false);
 
-
+  useEffect(() => {
+    setIsMobile(window.innerWidth < 768);
+  }, []);
 
   // ── GSAP animations & Mouse wind interaction ──────────────────────────────
   useEffect(() => {
@@ -194,7 +197,8 @@ export default function HeroScene() {
 
       // ── Mouse Wind Interaction ──────────────────────────────────────────
       const leaves = gsap.utils.toArray<SVGElement>(".scene-leaf", scene);
-      if (svg && leaves.length) {
+      const isTouchDevice = typeof window !== "undefined" && ('ontouchstart' in window || navigator.maxTouchPoints > 0);
+      if (svg && leaves.length && !isTouchDevice) {
         let mouse = { x: 0, y: 0, px: 0, py: 0, vx: 0, vy: 0 };
         
         handleMouseMove = (e: MouseEvent) => {
@@ -297,10 +301,12 @@ export default function HeroScene() {
         if (handleMouseLeave) svg.removeEventListener("mouseleave", handleMouseLeave);
       }
     };
-  }, []);
+  }, [isMobile]);
 
   // Generate leaves data with a robust pseudo-random scatter to avoid grid alignments
-  const leafData = LEAF_POSITIONS.map((pos, i) => {
+  // On mobile devices, slice the positions to 12 leaves to optimize GPU compositing and render performance
+  const activePositions = isMobile ? LEAF_POSITIONS.slice(0, 12) : LEAF_POSITIONS;
+  const leafData = activePositions.map((pos, i) => {
     return {
       id: i,
       x: pos.x,
@@ -447,17 +453,20 @@ export default function HeroScene() {
             className="scene-leaf-container"
             transform={`translate(${leaf.x}, ${leaf.y})`}
             opacity={leaf.opacity}
+            style={{ willChange: "transform, opacity" }}
           >
             <g
               className="scene-leaf-scroll"
               transform={`scale(${leaf.scale})`}
+              style={{ willChange: "transform, opacity" }}
             >
               <g
                 className="scene-leaf"
                 data-x={leaf.x}
                 data-y={leaf.y}
+                style={{ willChange: "transform" }}
               >
-                <g className="scene-leaf-ambient" transform={`rotate(${leaf.rotation})`}>
+                <g className="scene-leaf-ambient" transform={`rotate(${leaf.rotation})`} style={{ willChange: "transform" }}>
                   <path d={leaf.shape} fill={leaf.color} stroke="rgba(0,0,0,0.2)" strokeWidth="0.5" />
                 </g>
               </g>

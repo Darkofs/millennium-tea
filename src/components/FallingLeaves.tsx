@@ -34,7 +34,8 @@ export default function FallingLeaves() {
     const container = containerRef.current;
     if (!container) return;
 
-    const leafCount = 30;
+    const isMobile = window.innerWidth < 768;
+    const leafCount = isMobile ? 12 : 30;
     const leaves: HTMLDivElement[] = [];
 
     // Create leaf DOM elements dynamically
@@ -49,6 +50,7 @@ export default function FallingLeaves() {
 
       leaf.style.width = `${size}px`;
       leaf.style.height = `${size}px`;
+      leaf.style.willChange = "transform, opacity";
 
       // Inline SVG for the leaf vector path
       leaf.innerHTML = `
