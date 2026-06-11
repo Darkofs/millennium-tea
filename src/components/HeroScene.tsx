@@ -93,36 +93,59 @@ export default function HeroScene() {
     let handleMouseLeave: any = null;
 
     const ctx = gsap.context(() => {
-      // ── 1. Leaves — entrance stagger & ambient sway ───────────────────────
+      // ── 1. Leaves — wave-based fall loop ─────────────────────────────────
       const scrollLeaves = gsap.utils.toArray<SVGElement>(".scene-leaf-scroll", scene);
       if (scrollLeaves.length) {
-        // Fall down from above the sky stagger
-        gsap.set(scrollLeaves, { opacity: 0, y: -200, transformOrigin: "center center" });
-        gsap.to(scrollLeaves, {
-          opacity: 1,
-          y: 0,
-          duration: 2.0,
-          stagger: { each: 0.05, from: "random" },
-          ease: "power2.out",
-          delay: 0.2,
-        });
-
-        // Scroll-driven cascade fall
-        scrollLeaves.forEach((scrollLeaf, i) => {
-          const dir = i % 2 === 0 ? 1 : -1;
-          gsap.to(scrollLeaf, {
-            y: `+=${180 + (i % 8) * 50}`,
-            x: `+=${dir * (40 + (i % 6) * 25)}`,
-            rotation: `+=${dir * (120 + (i % 5) * 80)}`,
-            ease: "none",
-            scrollTrigger: {
-              trigger: scene,
-              start: "top top",
-              end: "+=120%",
-              scrub: 1.5 + (i % 3) * 0.6,
-            },
+        const startWave = () => {
+          const tl = gsap.timeline({
+            onComplete: () => {
+              // Wait 0.8 seconds after all leaves have vanished before starting the next wave
+              gsap.delayedCall(0.8, startWave);
+            }
           });
-        });
+
+          scrollLeaves.forEach((scrollLeaf) => {
+            const innerLeaf = scrollLeaf.querySelector(".scene-leaf") as HTMLElement;
+            const leafX = parseFloat(innerLeaf?.dataset.x || "0");
+            const leafY = parseFloat(innerLeaf?.dataset.y || "0");
+
+            const delay = gsap.utils.random(0, 5); // Stagger starts over 5 seconds
+            const duration = gsap.utils.random(7, 11); // Fall duration of 7-11 seconds
+
+            // Set initial position above the SVG viewport: random x across the width
+            tl.set(scrollLeaf, {
+              x: gsap.utils.random(50, 1390) - leafX,
+              y: -150 - leafY,
+              opacity: 0,
+              rotation: gsap.utils.random(0, 360),
+            }, 0);
+
+            // Fade in as it enters the viewport
+            tl.to(scrollLeaf, {
+              opacity: 1,
+              duration: 1.5,
+              ease: "power1.out",
+            }, delay);
+
+            // Fall animation way past the bottom edge of the hero (SVG height is 810)
+            tl.to(scrollLeaf, {
+              y: 1100 - leafY, // Fall down more (past bottom tabletop and viewport boundary)
+              x: `+=${gsap.utils.random(-200, 200)}`,
+              rotation: `+=${gsap.utils.random(270, 630)}`,
+              duration: duration,
+              ease: "none",
+            }, delay);
+
+            // Fade out near the bottom to vanish cleanly
+            tl.to(scrollLeaf, {
+              opacity: 0,
+              duration: 0.8,
+              ease: "power1.in",
+            }, delay + duration - 0.8);
+          });
+        };
+
+        startWave();
       }
 
       // Continuous ambient sway on inner ambient group
@@ -194,8 +217,16 @@ export default function HeroScene() {
             const leafX = parseFloat(leaf.dataset.x);
             const leafY = parseFloat(leaf.dataset.y);
             
-            const dx = leafX - mx;
-            const dy = leafY - my;
+            // Find parent scroll group (scene-leaf-scroll) to get its current fall offset
+            const scrollParent = leaf.closest(".scene-leaf-scroll");
+            const scrollX = scrollParent ? (gsap.getProperty(scrollParent, "x") as number) : 0;
+            const scrollY = scrollParent ? (gsap.getProperty(scrollParent, "y") as number) : 0;
+            
+            const currentX = leafX + scrollX;
+            const currentY = leafY + scrollY;
+            
+            const dx = currentX - mx;
+            const dy = currentY - my;
             const dist = Math.sqrt(dx * dx + dy * dy);
             
             if (dist < threshold) {
@@ -227,7 +258,7 @@ export default function HeroScene() {
                 overwrite: "auto"
               });
             } else {
-              // Return to original layout coordinates
+              // Return to original layout coordinates (which is inline with parent's falling path)
               gsap.to(leaf, {
                 x: 0,
                 y: 0,
