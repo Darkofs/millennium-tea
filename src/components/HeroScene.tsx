@@ -1,419 +1,764 @@
 "use client";
 
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef } from "react";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 
-// ── Calendar helpers ────────────────────────────────────────────────────────
+// ── Calendar helpers ──────────────────────────────────────────────────────────
 const MONTH_NAMES = [
-  "January", "February", "March", "April", "May", "June",
-  "July", "August", "September", "October", "November", "December",
+  "January","February","March","April","May","June",
+  "July","August","September","October","November","December",
+];
+const DAYS = ["S","M","T","W","T","F","S"];
+
+// ── Leaf path shapes (8 distinct botanical shapes) ────────────────────────────
+const LEAF_SHAPES = [
+  // Elongated oval leaf
+  "M 0 -28 C 9 -22 14 -8 12 0 C 14 8 9 22 0 28 C -9 22 -14 8 -12 0 C -14 -8 -9 -22 0 -28 Z M 0 -28 L 0 28 M 0 -8 L 8 -4 M 0 4 L -8 10",
+  // Wide maple-style leaf
+  "M 0 -22 C 6 -18 16 -14 18 -8 C 22 -4 18 0 14 0 C 18 4 16 10 10 14 C 6 16 2 14 0 14 C -2 14 -6 16 -10 14 C -16 10 -18 4 -14 0 C -18 0 -22 -4 -18 -8 C -16 -14 -6 -18 0 -22 Z M 0 -22 L 0 14",
+  // Ginkgo fan leaf
+  "M 0 0 C -8 -6 -18 -8 -20 -16 C -18 -22 -10 -24 -4 -20 C -6 -24 -2 -28 0 -28 C 2 -28 6 -24 4 -20 C 10 -24 18 -22 20 -16 C 18 -8 8 -6 0 0 Z M 0 0 L 0 14 M -8 -4 L -6 4 M 8 -4 L 6 4",
+  // Slim lance leaf
+  "M 0 -32 C 5 -20 7 -8 6 0 C 7 8 5 20 0 32 C -5 20 -7 8 -6 0 C -7 -8 -5 -20 0 -32 Z M 0 -32 L 0 32 M 0 -12 L 5 -6 M 0 6 L -5 12",
+  // Rounded bay leaf
+  "M 0 -24 C 12 -20 16 -10 14 0 C 16 10 12 20 0 26 C -12 20 -16 10 -14 0 C -16 -10 -12 -20 0 -24 Z M 0 -24 L 0 26 M 0 -10 L 8 -4 M 0 4 L -8 10 M 0 14 L 6 18",
+  // Serrated edge leaf
+  "M 0 -26 C 4 -22 10 -20 12 -14 C 14 -10 10 -6 12 -2 C 14 2 10 6 8 10 C 6 16 2 20 0 24 C -2 20 -6 16 -8 10 C -10 6 -14 2 -12 -2 C -10 -6 -14 -10 -12 -14 C -10 -20 -4 -22 0 -26 Z M 0 -26 L 0 24",
+  // Tea leaf (elongated with tip)
+  "M 0 -30 C 7 -24 11 -14 10 -4 C 11 6 8 16 4 24 C 2 28 0 30 0 30 C 0 30 -2 28 -4 24 C -8 16 -11 6 -10 -4 C -11 -14 -7 -24 0 -30 Z M 0 -30 L 0 30 M 0 -14 L 7 -6 M 0 2 L -7 10",
+  // Clover-style round leaf
+  "M 0 -18 C 6 -18 10 -14 10 -8 C 10 -4 8 0 0 0 C 8 0 14 4 14 10 C 14 16 8 18 0 18 C -8 18 -14 16 -14 10 C -14 4 -8 0 0 0 C -8 0 -10 -4 -10 -8 C -10 -14 -6 -18 0 -18 Z",
 ];
 
-// Column centres in the SVG viewBox (0 0 1440 810):
-// Day header Y = 102; columns = Sun, Mon, Tue, Wed, Thu, Fri, Sat
-const COL_XS = [913, 970, 1027, 1084, 1140, 1197, 1254];
-const ROW_YS = [178, 235, 292, 349, 406, 463];
+const LEAF_COLORS = [
+  "#8B4513","#A0522D","#CD853F","#D2691E","#6B4226",
+  "#8B6914","#A67C52","#7B3F00","#9C5A1D","#B8860B",
+];
 
-function buildCalendarData(year: number, month: number) {
-  const firstDay = new Date(year, month, 1).getDay(); // 0=Sun
-  const daysInMonth = new Date(year, month + 1, 0).getDate();
-  return { firstDay, daysInMonth };
-}
-
-// ── Component ────────────────────────────────────────────────────────────────
+// ── Component ─────────────────────────────────────────────────────────────────
 export default function HeroScene() {
-  const wrapRef = useRef<HTMLDivElement>(null);
-  const overlayRef = useRef<SVGSVGElement>(null);
-  const [svgContent, setSvgContent] = useState<string>("");
-  const [svgLoaded, setSvgLoaded] = useState(false);
+  const sceneRef = useRef<HTMLDivElement>(null);
+  const leavesRef = useRef<SVGGElement>(null);
+  const candleFlameRef = useRef<SVGGElement>(null);
+  const calendarRef = useRef<SVGGElement>(null);
 
-  // ── Load the optimized SVG ─────────────────────────────────────────────────
+  // ── Build calendar SVG group dynamically ──────────────────────────────────
   useEffect(() => {
-    fetch("/images/herosection/mainfile_labeled.svg")
-      .then((r) => r.text())
-      .then((text) => {
-        setSvgContent(text);
-        setSvgLoaded(true);
-      })
-      .catch(console.error);
-  }, []);
-
-  // ── Build dynamic calendar, flame, steam AFTER svg is in DOM ──────────────
-  useEffect(() => {
-    if (!svgLoaded) return;
-    const overlay = overlayRef.current;
-    if (!overlay) return;
+    const calGroup = calendarRef.current;
+    if (!calGroup) return;
 
     const now = new Date();
     const year = now.getFullYear();
     const month = now.getMonth();
     const today = now.getDate();
-    const { firstDay, daysInMonth } = buildCalendarData(year, month);
+    const firstDay = new Date(year, month, 1).getDay();
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+    // Clear and rebuild
+    while (calGroup.firstChild) calGroup.removeChild(calGroup.firstChild);
 
     const ns = "http://www.w3.org/2000/svg";
 
-    // ── 1. Gold glow + flame glow filters ─────────────────────────────────
-    let defsEl = overlay.querySelector("defs") as SVGDefsElement | null;
-    if (!defsEl) {
-      defsEl = document.createElementNS(ns, "defs") as unknown as SVGDefsElement;
-      overlay.insertBefore(defsEl, overlay.firstChild);
-    }
-    defsEl.innerHTML += `
-      <filter id="gold-glow" x="-50%" y="-50%" width="200%" height="200%">
-        <feGaussianBlur stdDeviation="3" result="blur"/>
-        <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
-      </filter>
-      <filter id="flame-glow" x="-100%" y="-100%" width="300%" height="300%">
-        <feGaussianBlur stdDeviation="10" result="blur"/>
-        <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
-      </filter>
-    `;
+    // Month name
+    const monthEl = document.createElementNS(ns, "text");
+    monthEl.setAttribute("x", "0");
+    monthEl.setAttribute("y", "-8");
+    monthEl.setAttribute("text-anchor", "middle");
+    const sf = getComputedStyle(document.documentElement).getPropertyValue("--font-script").trim();
+    monthEl.setAttribute("font-family", `${sf}, 'Great Vibes', cursive`);
+    monthEl.setAttribute("font-size", "26");
+    monthEl.setAttribute("fill", "#D4AF37");
+    monthEl.setAttribute("opacity", "0.95");
+    monthEl.setAttribute("class", "cal-month");
+    monthEl.textContent = MONTH_NAMES[month];
+    calGroup.appendChild(monthEl);
 
-    // ── 2. Dynamic Calendar ────────────────────────────────────────────────
-    // Remove any existing calendar overlay
-    overlay.querySelector("#dynamic-calendar")?.remove();
-    const calGroup = document.createElementNS(ns, "g");
-    calGroup.setAttribute("id", "dynamic-calendar");
+    // Year
+    const yearEl = document.createElementNS(ns, "text");
+    yearEl.setAttribute("x", "0");
+    yearEl.setAttribute("y", "6");
+    yearEl.setAttribute("text-anchor", "middle");
+    yearEl.setAttribute("font-family", "'Outfit', 'Inter', sans-serif");
+    yearEl.setAttribute("font-size", "9");
+    yearEl.setAttribute("fill", "rgba(212,175,55,0.55)");
+    yearEl.setAttribute("letter-spacing", "4");
+    yearEl.textContent = String(year);
+    calGroup.appendChild(yearEl);
 
-    // Month name – large script-style text
-    const monthText = document.createElementNS(ns, "text");
-    monthText.setAttribute("x", "1084");
-    monthText.setAttribute("y", "68");
-    monthText.setAttribute("text-anchor", "middle");
-    // Use the Next.js-loaded Great Vibes font (via CSS variable) or fall back to generic cursive
-    const scriptFontFamily = getComputedStyle(document.documentElement)
-      .getPropertyValue("--font-script").trim() || "cursive";
-    monthText.setAttribute("font-family", `${scriptFontFamily}, 'Great Vibes', cursive`);
-    monthText.setAttribute("font-size", "40");
-    monthText.setAttribute("fill", "#c5a03a");
-    monthText.setAttribute("opacity", "0");
-    monthText.setAttribute("filter", "url(#gold-glow)");
-    monthText.textContent = MONTH_NAMES[month];
-    calGroup.appendChild(monthText);
+    // Divider line
+    const line = document.createElementNS(ns, "line");
+    line.setAttribute("x1", "-85"); line.setAttribute("x2", "85");
+    line.setAttribute("y1", "14"); line.setAttribute("y2", "14");
+    line.setAttribute("stroke", "rgba(212,175,55,0.25)"); line.setAttribute("stroke-width", "0.5");
+    calGroup.appendChild(line);
 
-    // Day number cells
-    let dayNum = 1;
-    for (let row = 0; row < ROW_YS.length && dayNum <= daysInMonth; row++) {
-      const rowY = ROW_YS[row];
-      for (let col = 0; col < COL_XS.length && dayNum <= daysInMonth; col++) {
-        if (row === 0 && col < firstDay) continue;
-        const colX = COL_XS[col];
-        const isToday = dayNum === today;
-
-        if (isToday) {
-          const circle = document.createElementNS(ns, "circle");
-          circle.setAttribute("cx", String(colX + 13));
-          circle.setAttribute("cy", String(rowY));
-          circle.setAttribute("r", "22");
-          circle.setAttribute("fill", "rgba(197,160,58,0.18)");
-          circle.setAttribute("stroke", "#c5a03a");
-          circle.setAttribute("stroke-width", "1.5");
-          circle.setAttribute("class", "today-highlight");
-          circle.setAttribute("opacity", "0");
-          calGroup.appendChild(circle);
-        }
-
-        const dayText = document.createElementNS(ns, "text");
-        dayText.setAttribute("x", String(colX + 13));
-        dayText.setAttribute("y", String(rowY + 6));
-        dayText.setAttribute("text-anchor", "middle");
-        dayText.setAttribute("font-family", "'Inter', 'Outfit', sans-serif");
-        dayText.setAttribute("font-size", "17");
-        dayText.setAttribute("font-weight", isToday ? "700" : "400");
-        dayText.setAttribute("fill", isToday ? "#c5a03a" : "rgba(255,248,230,0.82)");
-        dayText.setAttribute("opacity", "0");
-        dayText.setAttribute("class", isToday ? "cal-day today-day" : "cal-day");
-        dayText.textContent = String(dayNum);
-        calGroup.appendChild(dayText);
-
-        dayNum++;
-      }
-    }
-
-    overlay.appendChild(calGroup);
-
-    // ── 3. Candle Flame Overlay ───────────────────────────────────────────
-    // Candle is approximately at x≈548, y≈435 in the 1440×810 viewBox
-    overlay.querySelector("#candle-flame-overlay")?.remove();
-    const flameGroup = document.createElementNS(ns, "g");
-    flameGroup.setAttribute("id", "candle-flame-overlay");
-    flameGroup.setAttribute("transform", "translate(548, 435)");
-
-    const outerFlame = document.createElementNS(ns, "path");
-    outerFlame.setAttribute("d", "M 0 2 C -11 -14 -16 -34 0 -52 C 16 -34 11 -14 0 2 Z");
-    outerFlame.setAttribute("fill", "rgba(255,170,50,0.82)");
-    outerFlame.setAttribute("class", "candle-flame-outer");
-    flameGroup.appendChild(outerFlame);
-
-    const innerFlame = document.createElementNS(ns, "path");
-    innerFlame.setAttribute("d", "M 0 0 C -7 -10 -9 -25 0 -36 C 9 -25 7 -10 0 0 Z");
-    innerFlame.setAttribute("fill", "rgba(255,245,130,0.96)");
-    innerFlame.setAttribute("class", "candle-flame-inner");
-    flameGroup.appendChild(innerFlame);
-
-    const glowEl = document.createElementNS(ns, "ellipse");
-    glowEl.setAttribute("cx", "0");
-    glowEl.setAttribute("cy", "-22");
-    glowEl.setAttribute("rx", "30");
-    glowEl.setAttribute("ry", "30");
-    glowEl.setAttribute("fill", "rgba(255,200,80,0.07)");
-    glowEl.setAttribute("filter", "url(#flame-glow)");
-    glowEl.setAttribute("class", "candle-glow");
-    flameGroup.appendChild(glowEl);
-
-    overlay.appendChild(flameGroup);
-
-    // ── 4. Tea Steam Overlay ─────────────────────────────────────────────
-    // Teacup spout approximately at x≈330, y≈560
-    overlay.querySelector("#tea-steam-overlay")?.remove();
-    const steamGroup = document.createElementNS(ns, "g");
-    steamGroup.setAttribute("id", "tea-steam-overlay");
-
-    const steamDefs = [
-      { cx: 316, baseY: 558 },
-      { cx: 330, baseY: 552 },
-      { cx: 344, baseY: 558 },
-    ];
-
-    steamDefs.forEach(({ cx, baseY }, i) => {
-      const strand = document.createElementNS(ns, "path");
-      const ctrl = cx + (i === 1 ? -10 : 10);
-      strand.setAttribute(
-        "d",
-        `M ${cx} ${baseY} C ${ctrl} ${baseY - 16} ${cx + (i % 2 === 0 ? 8 : -8)} ${baseY - 32} ${cx} ${baseY - 50}`
-      );
-      strand.setAttribute("stroke", "rgba(255,248,230,0.50)");
-      strand.setAttribute("stroke-width", "2.2");
-      strand.setAttribute("stroke-linecap", "round");
-      strand.setAttribute("fill", "none");
-      strand.setAttribute("class", `steam-strand steam-strand-${i}`);
-      steamGroup.appendChild(strand);
+    // Day headers
+    const COL_W = 24, HEADER_Y = 28;
+    DAYS.forEach((d, i) => {
+      const el = document.createElementNS(ns, "text");
+      el.setAttribute("x", String(-84 + i * COL_W + COL_W / 2));
+      el.setAttribute("y", String(HEADER_Y));
+      el.setAttribute("text-anchor", "middle");
+      el.setAttribute("font-family", "'Outfit','Inter',sans-serif");
+      el.setAttribute("font-size", "8.5");
+      el.setAttribute("fill", i === 0 || i === 6 ? "rgba(212,175,55,0.7)" : "rgba(248,245,240,0.45)");
+      el.setAttribute("font-weight", "600");
+      el.textContent = d;
+      calGroup.appendChild(el);
     });
 
-    overlay.appendChild(steamGroup);
+    // Day numbers
+    let dayNum = 1;
+    let row = 0;
+    const NUM_Y_START = 42;
+    const ROW_H = 18;
 
-    // Cleanup
-    return () => {
-      overlay.querySelector("#dynamic-calendar")?.remove();
-      overlay.querySelector("#candle-flame-overlay")?.remove();
-      overlay.querySelector("#tea-steam-overlay")?.remove();
-    };
-  }, [svgLoaded]);
+    while (dayNum <= daysInMonth) {
+      for (let col = 0; col < 7 && dayNum <= daysInMonth; col++) {
+        if (row === 0 && col < firstDay) continue;
+        const cx = -84 + col * COL_W + COL_W / 2;
+        const cy = NUM_Y_START + row * ROW_H;
+        const isToday = dayNum === today;
+        const isWeekend = col === 0 || col === 6;
 
-  // ── GSAP Animations ───────────────────────────────────────────────────────
+        if (isToday) {
+          const circ = document.createElementNS(ns, "circle");
+          circ.setAttribute("cx", String(cx)); circ.setAttribute("cy", String(cy - 5));
+          circ.setAttribute("r", "10");
+          circ.setAttribute("fill", "rgba(212,175,55,0.2)");
+          circ.setAttribute("stroke", "#D4AF37"); circ.setAttribute("stroke-width", "0.8");
+          circ.setAttribute("class", "today-ring");
+          calGroup.appendChild(circ);
+        }
+
+        const el = document.createElementNS(ns, "text");
+        el.setAttribute("x", String(cx)); el.setAttribute("y", String(cy));
+        el.setAttribute("text-anchor", "middle");
+        el.setAttribute("font-family", "'Outfit','Inter',sans-serif");
+        el.setAttribute("font-size", "10");
+        el.setAttribute("font-weight", isToday ? "700" : "400");
+        el.setAttribute("fill",
+          isToday ? "#D4AF37" : isWeekend ? "rgba(212,175,55,0.55)" : "rgba(248,245,240,0.75)"
+        );
+        el.setAttribute("class", isToday ? "cal-day today" : "cal-day");
+        el.textContent = String(dayNum);
+        calGroup.appendChild(el);
+        dayNum++;
+      }
+      row++;
+    }
+  }, []);
+
+  // ── GSAP animations ───────────────────────────────────────────────────────
   useEffect(() => {
-    if (!svgLoaded || typeof window === "undefined") return;
+    if (typeof window === "undefined") return;
     gsap.registerPlugin(ScrollTrigger);
 
-    const wrap = wrapRef.current;
-    if (!wrap) return;
+    const scene = sceneRef.current;
+    if (!scene) return;
 
-    // Small timeout to ensure dangerouslySetInnerHTML has flushed
-    const t = setTimeout(() => {
-      const ctx = gsap.context(() => {
+    const ctx = gsap.context(() => {
 
-        // ── A. Leaf scroll-driven cascade ──────────────────────────────────
-        const leaves = gsap.utils.toArray<SVGPathElement>(".hero-leaf", wrap);
-        if (leaves.length) {
-          gsap.set(leaves, { opacity: 0, scale: 0.7, transformOrigin: "center center" });
+      // ── 1. Leaves — entrance stagger ─────────────────────────────────────
+      const leaves = gsap.utils.toArray<SVGElement>(".scene-leaf", scene);
+      if (leaves.length) {
+        gsap.set(leaves, { opacity: 0, scale: 0, transformOrigin: "center center" });
+        gsap.to(leaves, {
+          opacity: 1, scale: 1,
+          duration: 1.6,
+          stagger: { each: 0.06, from: "random" },
+          ease: "elastic.out(1, 0.5)",
+          delay: 0.4,
+        });
 
-          // Staggered entrance reveal
-          gsap.to(leaves, {
-            opacity: 1,
-            scale: 1,
-            duration: 1.4,
-            stagger: { each: 0.035, from: "random" },
-            ease: "power3.out",
-            delay: 0.2,
+        // Continuous ambient sway
+        leaves.forEach((leaf, i) => {
+          const dir = i % 2 === 0 ? 1 : -1;
+          gsap.to(leaf, {
+            rotation: dir * (6 + (i % 4) * 4),
+            duration: 1.8 + (i % 5) * 0.6,
+            repeat: -1, yoyo: true, ease: "sine.inOut",
+            delay: (i * 0.15) % 2.5,
+            transformOrigin: "center 80%",
           });
-
-          // Continuous gentle wobble (ambient, infinite)
-          leaves.forEach((leaf, i) => {
-            const dir = i % 2 === 0 ? 1 : -1;
-            gsap.to(leaf, {
-              rotation: dir * (8 + (i % 5) * 3),
-              duration: 2 + (i % 4) * 0.7,
-              repeat: -1,
-              yoyo: true,
-              ease: "sine.inOut",
-              delay: (i * 0.12) % 3,
-              transformOrigin: "center center",
-            });
+          // Gentle float
+          gsap.to(leaf, {
+            y: `+=${3 + (i % 4) * 2}`,
+            duration: 2.2 + (i % 3) * 0.8,
+            repeat: -1, yoyo: true, ease: "sine.inOut",
+            delay: (i * 0.2) % 3,
           });
+        });
 
-          // Scroll-driven fall: leaves cascade down as user scrolls
-          leaves.forEach((leaf, i) => {
-            const dir = i % 2 === 0 ? 1 : -1;
-            gsap.to(leaf, {
-              y: `+=${120 + (i % 7) * 45}`,
-              x: `+=${dir * (25 + (i % 6) * 18)}`,
-              rotation: `+=${dir * (90 + (i % 5) * 72)}`,
-              opacity: 0,
-              ease: "none",
-              scrollTrigger: {
-                trigger: wrap,
-                start: "top top",
-                end: "+=100%",
-                scrub: 1.2 + (i % 3) * 0.5,
-              },
-            });
+        // Scroll-driven cascade fall
+        leaves.forEach((leaf, i) => {
+          const dir = i % 2 === 0 ? 1 : -1;
+          gsap.to(leaf, {
+            y: `+=${180 + (i % 8) * 50}`,
+            x: `+=${dir * (40 + (i % 6) * 25)}`,
+            rotation: `+=${dir * (120 + (i % 5) * 80)}`,
+            opacity: 0, ease: "none",
+            scrollTrigger: {
+              trigger: scene,
+              start: "top top",
+              end: "+=120%",
+              scrub: 1.5 + (i % 3) * 0.6,
+            },
           });
-        }
+        });
+      }
 
-        // ── B. Calendar text fade-in ────────────────────────────────────────
-        const calTexts = gsap.utils.toArray(".cal-day", wrap);
-        if (calTexts.length) {
-          gsap.to(calTexts, {
-            opacity: 1,
-            duration: 0.5,
-            stagger: { each: 0.03, from: "start" },
-            ease: "power2.out",
-            delay: 0.6,
-          });
-        }
+      // ── 2. Bokeh particles float ─────────────────────────────────────────
+      const bokeh = gsap.utils.toArray<SVGElement>(".bokeh-dot", scene);
+      bokeh.forEach((dot, i) => {
+        gsap.to(dot, {
+          y: `-=${15 + (i % 4) * 8}`,
+          opacity: 0,
+          duration: 3 + (i % 5),
+          repeat: -1, ease: "power1.in",
+          delay: (i * 0.4) % 4,
+        });
+      });
 
-        // Month name text
-        const monthTxt = wrap.querySelector("#dynamic-calendar text");
-        if (monthTxt) {
-          gsap.to(monthTxt, {
-            opacity: 0.92,
-            duration: 1.2,
-            ease: "power3.out",
-            delay: 0.4,
-          });
-        }
+      // ── 3. Calendar fade in ──────────────────────────────────────────────
+      const calDays = gsap.utils.toArray(".cal-day", scene);
+      if (calDays.length) {
+        gsap.set(calDays, { opacity: 0 });
+        gsap.to(calDays, {
+          opacity: 1, duration: 0.4,
+          stagger: { each: 0.025, from: "start" },
+          ease: "power2.out", delay: 1.0,
+        });
+      }
+      const calMonth = scene.querySelector(".cal-month");
+      if (calMonth) {
+        gsap.fromTo(calMonth, { opacity: 0, y: -8 }, { opacity: 0.95, y: 0, duration: 1.2, ease: "power3.out", delay: 0.7 });
+      }
+      const todayRing = scene.querySelector(".today-ring");
+      if (todayRing) {
+        gsap.fromTo(todayRing, { scale: 0, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.8, ease: "elastic.out(1, 0.5)", delay: 1.8 });
+        gsap.to(todayRing, { scale: 1.08, duration: 1.6, repeat: -1, yoyo: true, ease: "sine.inOut", delay: 2.8 });
+      }
 
-        // Today highlight
-        const todayCircle = wrap.querySelector(".today-highlight");
-        const todayDay = wrap.querySelector(".today-day");
-        if (todayCircle) {
-          gsap.to(todayCircle, {
-            opacity: 1,
-            duration: 0.8,
-            ease: "power2.out",
-            delay: 1.2,
-          });
-          gsap.to(todayCircle, {
-            scale: 1.1,
-            duration: 1.8,
-            repeat: -1,
-            yoyo: true,
-            ease: "sine.inOut",
-            delay: 2.2,
-            transformOrigin: "center center",
-          });
-        }
-        if (todayDay) {
-          gsap.to(todayDay, { opacity: 1, duration: 0.5, delay: 1.0 });
-        }
+      // ── 4. Teacup entrance ───────────────────────────────────────────────
+      gsap.fromTo(".hero-teacup",
+        { opacity: 0, y: 30, scale: 0.92 },
+        { opacity: 1, y: 0, scale: 1, duration: 1.4, ease: "power3.out", delay: 0.2 }
+      );
 
-      }, wrap);
+      // ── 5. Brand text stagger ────────────────────────────────────────────
+      gsap.fromTo(".hero-brand-line",
+        { opacity: 0, y: 20 },
+        { opacity: 1, y: 0, duration: 0.9, stagger: 0.15, ease: "power3.out", delay: 0.6 }
+      );
 
-      return () => ctx.revert();
-    }, 100);
+    }, scene);
 
-    return () => clearTimeout(t);
-  }, [svgLoaded]);
+    return () => ctx.revert();
+  }, []);
+
+  // Generate leaves data
+  const leafData = Array.from({ length: 38 }, (_, i) => ({
+    id: i,
+    x: 80 + (i * 37.3) % 1280,
+    y: 60 + (i * 53.7) % 720,
+    scale: 0.55 + (i % 6) * 0.15,
+    rotation: (i * 47) % 360,
+    shape: LEAF_SHAPES[i % LEAF_SHAPES.length],
+    color: LEAF_COLORS[i % LEAF_COLORS.length],
+    opacity: 0.55 + (i % 5) * 0.1,
+  }));
+
+  // Bokeh particles data
+  const bokehData = Array.from({ length: 22 }, (_, i) => ({
+    id: i,
+    x: 40 + (i * 61.8) % 1360,
+    y: 80 + (i * 97.3) % 680,
+    r: 1.5 + (i % 4),
+    opacity: 0.06 + (i % 5) * 0.05,
+  }));
+
+  // Calendar position
+  const CAL_X = 1160, CAL_Y = 380;
 
   return (
     <section
-      ref={wrapRef}
-      className="hero-scene-section relative w-full overflow-hidden bg-luxury-black select-none"
-      style={{ aspectRatio: "16 / 9", maxHeight: "100vh" }}
-      aria-label="Millennium Tea — Seasonal hero illustration"
+      ref={sceneRef}
+      className="relative w-full overflow-hidden select-none"
+      style={{ height: "100vh", minHeight: "560px", background: "#0b0b0b" }}
+      aria-label="Millennium Tea — Premium Luxury Tea Brand Hero"
     >
-      {/* ── Base SVG scene (inlined for GSAP access to .hero-leaf paths) ─── */}
-      {svgContent ? (
-        <div
-          className="absolute inset-0 w-full h-full [&>svg]:w-full [&>svg]:h-full [&>svg]:absolute [&>svg]:inset-0"
-          // eslint-disable-next-line react/no-danger
-          dangerouslySetInnerHTML={{ __html: svgContent }}
-        />
-      ) : (
-        // Loading skeleton
-        <div className="absolute inset-0 flex items-center justify-center">
-          <div className="w-16 h-16 border-2 border-luxury-gold/30 border-t-luxury-gold rounded-full animate-spin" />
-        </div>
-      )}
-
-      {/* ── Overlay SVG — dynamic calendar, flame, steam ─────────────────── */}
+      {/* ── Master SVG Canvas ─────────────────────────────────────────────── */}
       <svg
-        ref={overlayRef}
         viewBox="0 0 1440 810"
         xmlns="http://www.w3.org/2000/svg"
-        className="absolute inset-0 w-full h-full pointer-events-none z-10"
+        className="absolute inset-0 w-full h-full"
+        preserveAspectRatio="xMidYMid slice"
         aria-hidden="true"
-        preserveAspectRatio="xMidYMid meet"
-      />
+      >
+        <defs>
+          {/* Deep atmospheric background gradient */}
+          <radialGradient id="bg-center" cx="42%" cy="52%" r="55%">
+            <stop offset="0%" stopColor="#1a1208" stopOpacity="1" />
+            <stop offset="100%" stopColor="#0b0b0b" stopOpacity="1" />
+          </radialGradient>
 
-      {/* ── CSS-driven animations ─────────────────────────────────────────── */}
+          {/* Gold warm glow at teacup */}
+          <radialGradient id="cup-glow" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stopColor="#D4AF37" stopOpacity="0.18" />
+            <stop offset="100%" stopColor="#D4AF37" stopOpacity="0" />
+          </radialGradient>
+
+          {/* Candle warm light glow */}
+          <radialGradient id="candle-light" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stopColor="#FF9A2E" stopOpacity="0.22" />
+            <stop offset="60%" stopColor="#FF6B00" stopOpacity="0.06" />
+            <stop offset="100%" stopColor="#FF6B00" stopOpacity="0" />
+          </radialGradient>
+
+          {/* Right side warm vignette for calendar */}
+          <radialGradient id="cal-bg" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stopColor="#1a1510" stopOpacity="0.9" />
+            <stop offset="100%" stopColor="#0b0b0b" stopOpacity="0" />
+          </radialGradient>
+
+          {/* Gold shimmer for text */}
+          <linearGradient id="gold-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor="#F5E27A" />
+            <stop offset="40%" stopColor="#D4AF37" />
+            <stop offset="100%" stopColor="#8B6914" />
+          </linearGradient>
+
+          {/* Ivory gradient */}
+          <linearGradient id="ivory-grad" x1="0%" y1="0%" x2="0%" y2="100%">
+            <stop offset="0%" stopColor="#F8F5F0" />
+            <stop offset="100%" stopColor="#D4CEC4" />
+          </linearGradient>
+
+          {/* Soft blur filter for glows */}
+          <filter id="glow-blur" x="-50%" y="-50%" width="200%" height="200%">
+            <feGaussianBlur stdDeviation="18" result="blur" />
+            <feMerge><feMergeNode in="blur" /><feMergeNode in="SourceGraphic" /></feMerge>
+          </filter>
+          <filter id="soft-blur" x="-30%" y="-30%" width="160%" height="160%">
+            <feGaussianBlur stdDeviation="6" />
+          </filter>
+          <filter id="flame-blur" x="-80%" y="-80%" width="260%" height="260%">
+            <feGaussianBlur stdDeviation="5" />
+          </filter>
+          <filter id="subtle-blur">
+            <feGaussianBlur stdDeviation="1.5" />
+          </filter>
+        </defs>
+
+        {/* ── 1. Background ─────────────────────────────────────────────────── */}
+        <rect width="1440" height="810" fill="url(#bg-center)" />
+
+        {/* Subtle texture pattern overlay */}
+        <rect width="1440" height="810" fill="none"
+          stroke="rgba(212,175,55,0.015)" strokeWidth="0"
+          style={{ backgroundImage: "none" }}
+        />
+
+        {/* ── 2. Atmospheric glow zones ──────────────────────────────────────── */}
+        {/* Warm center-left glow (teacup warmth) */}
+        <ellipse cx="430" cy="500" rx="320" ry="260" fill="url(#cup-glow)" filter="url(#soft-blur)" />
+        {/* Candle warm light */}
+        <ellipse cx="280" cy="430" rx="180" ry="160" fill="url(#candle-light)" filter="url(#soft-blur)" />
+        {/* Calendar area subtle warm panel */}
+        <rect x="1000" y="220" width="380" height="400" rx="8" fill="url(#cal-bg)" />
+
+        {/* ── 3. Decorative border elements ─────────────────────────────────── */}
+        {/* Top left ornate corner */}
+        <g opacity="0.35" transform="translate(30, 30)">
+          <line x1="0" y1="0" x2="80" y2="0" stroke="#D4AF37" strokeWidth="0.7" />
+          <line x1="0" y1="0" x2="0" y2="80" stroke="#D4AF37" strokeWidth="0.7" />
+          <circle cx="0" cy="0" r="4" fill="none" stroke="#D4AF37" strokeWidth="0.7" />
+          <path d="M 12 0 Q 6 6 0 12" stroke="#D4AF37" strokeWidth="0.5" fill="none" />
+        </g>
+        {/* Top right corner */}
+        <g opacity="0.35" transform="translate(1410, 30) scale(-1,1)">
+          <line x1="0" y1="0" x2="80" y2="0" stroke="#D4AF37" strokeWidth="0.7" />
+          <line x1="0" y1="0" x2="0" y2="80" stroke="#D4AF37" strokeWidth="0.7" />
+          <circle cx="0" cy="0" r="4" fill="none" stroke="#D4AF37" strokeWidth="0.7" />
+        </g>
+        {/* Bottom left corner */}
+        <g opacity="0.35" transform="translate(30, 780) scale(1,-1)">
+          <line x1="0" y1="0" x2="80" y2="0" stroke="#D4AF37" strokeWidth="0.7" />
+          <line x1="0" y1="0" x2="0" y2="80" stroke="#D4AF37" strokeWidth="0.7" />
+          <circle cx="0" cy="0" r="4" fill="none" stroke="#D4AF37" strokeWidth="0.7" />
+        </g>
+        {/* Bottom right corner */}
+        <g opacity="0.35" transform="translate(1410, 780) scale(-1,-1)">
+          <line x1="0" y1="0" x2="80" y2="0" stroke="#D4AF37" strokeWidth="0.7" />
+          <line x1="0" y1="0" x2="0" y2="80" stroke="#D4AF37" strokeWidth="0.7" />
+          <circle cx="0" cy="0" r="4" fill="none" stroke="#D4AF37" strokeWidth="0.7" />
+        </g>
+
+        {/* Subtle horizontal rule accent */}
+        <line x1="60" y1="55" x2="680" y2="55" stroke="rgba(212,175,55,0.12)" strokeWidth="0.5" />
+        <line x1="760" y1="55" x2="1380" y2="55" stroke="rgba(212,175,55,0.12)" strokeWidth="0.5" />
+        <circle cx="720" cy="55" r="3" fill="none" stroke="rgba(212,175,55,0.25)" strokeWidth="0.7" />
+
+        {/* ── 4. Floating bokeh particles ───────────────────────────────────── */}
+        {bokehData.map(b => (
+          <circle
+            key={b.id}
+            className="bokeh-dot"
+            cx={b.x} cy={b.y} r={b.r}
+            fill="#D4AF37"
+            opacity={b.opacity}
+          />
+        ))}
+
+        {/* ── 5. Autumn Leaves ──────────────────────────────────────────────── */}
+        {leafData.map(leaf => (
+          <g
+            key={leaf.id}
+            className="scene-leaf"
+            transform={`translate(${leaf.x}, ${leaf.y}) rotate(${leaf.rotation}) scale(${leaf.scale})`}
+            opacity={leaf.opacity}
+          >
+            <path d={leaf.shape} fill={leaf.color} stroke="rgba(0,0,0,0.2)" strokeWidth="0.5" />
+          </g>
+        ))}
+
+        {/* ── 6. Candle & Flame ─────────────────────────────────────────────── */}
+        <g className="hero-teacup" transform="translate(265, 330)">
+          {/* Candle body */}
+          <rect x="-14" y="60" width="28" height="72" rx="3" fill="#F5F0E8" stroke="#D4C9A8" strokeWidth="0.8" />
+          {/* Candle wax drips */}
+          <path d="M -14 68 Q -18 72 -16 78 L -14 78 Z" fill="#EDE8D8" opacity="0.7" />
+          <path d="M 14 74 Q 18 78 16 84 L 14 84 Z" fill="#EDE8D8" opacity="0.5" />
+          {/* Candle surface label details */}
+          <rect x="-9" y="72" width="18" height="50" rx="1" fill="rgba(212,175,55,0.08)" />
+          <line x1="-6" y1="82" x2="6" y2="82" stroke="rgba(212,175,55,0.25)" strokeWidth="0.5" />
+          <line x1="-6" y1="90" x2="6" y2="90" stroke="rgba(212,175,55,0.15)" strokeWidth="0.5" />
+          {/* Wick */}
+          <line x1="0" y1="60" x2="2" y2="52" stroke="#3a2a1a" strokeWidth="1.2" strokeLinecap="round" />
+          {/* Flame glow (blurred background) */}
+          <ellipse cx="2" cy="38" rx="24" ry="26" fill="#FF8C00" opacity="0.12" filter="url(#flame-blur)" />
+          {/* Outer flame */}
+          <path
+            className="flame-outer"
+            d="M 2 52 C -8 42 -12 28 -4 16 C 0 10 4 8 2 4 C 8 12 12 26 8 38 C 12 32 8 18 10 10 C 16 20 14 36 8 46 C 14 38 14 24 18 20 C 20 30 16 44 8 52 Z"
+            fill="url(#orange-grad)"
+            opacity="0.88"
+          />
+          {/* Middle flame */}
+          <path
+            className="flame-mid"
+            d="M 2 50 C -4 40 -6 28 0 18 C 4 12 2 8 2 4 C 6 12 8 28 4 40 C 8 34 6 20 8 14 C 12 24 10 38 6 48 Z"
+            fill="#FF9A2E"
+            opacity="0.92"
+          />
+          {/* Inner bright flame */}
+          <path
+            className="flame-inner"
+            d="M 2 48 C -2 40 -3 30 0 22 C 2 16 2 10 2 6 C 4 14 5 28 3 38 C 5 32 4 22 5 16 C 8 24 7 36 4 46 Z"
+            fill="#FFEE88"
+            opacity="0.96"
+          />
+          {/* Candle saucer plate */}
+          <ellipse cx="0" cy="134" rx="30" ry="6" fill="#2a2010" stroke="#D4AF37" strokeWidth="0.6" opacity="0.8" />
+        </g>
+
+        {/* ── 7. Teacup & Saucer ────────────────────────────────────────────── */}
+        <g className="hero-teacup" transform="translate(480, 480)">
+          {/* Saucer */}
+          <ellipse cx="0" cy="70" rx="80" ry="14" fill="#1e1810" stroke="#D4AF37" strokeWidth="0.8" opacity="0.9" />
+          <ellipse cx="0" cy="68" rx="65" ry="10" fill="#2a2010" stroke="rgba(212,175,55,0.3)" strokeWidth="0.4" />
+
+          {/* Cup body - elegant shape */}
+          <path d="M -55 0 Q -58 35 -50 55 Q -30 72 0 72 Q 30 72 50 55 Q 58 35 55 0 Z"
+            fill="#1e1810" stroke="#D4AF37" strokeWidth="0.9" />
+
+          {/* Cup inner - tea liquid surface */}
+          <ellipse cx="0" cy="2" rx="52" ry="12" fill="#6B3A2A" opacity="0.85" />
+          {/* Tea surface highlight */}
+          <ellipse cx="-12" cy="0" rx="22" ry="5" fill="rgba(180,120,60,0.4)" opacity="0.6" />
+
+          {/* Cup decorative band */}
+          <path d="M -55 18 Q 0 22 55 18" stroke="rgba(212,175,55,0.35)" strokeWidth="0.7" fill="none" />
+          <path d="M -54 26 Q 0 30 54 26" stroke="rgba(212,175,55,0.2)" strokeWidth="0.4" fill="none" />
+
+          {/* Subtle leaf motif on cup */}
+          <g transform="translate(-18, 40)" opacity="0.3">
+            <path d="M 0 -8 C 4 -5 5 0 3 4 C 1 8 -3 8 -5 4 C -5 0 -3 -5 0 -8 Z" fill="#D4AF37" />
+            <line x1="0" y1="-8" x2="-1" y2="6" stroke="#D4AF37" strokeWidth="0.5" />
+          </g>
+          <g transform="translate(12, 42)" opacity="0.25">
+            <path d="M 0 -6 C 3 -4 4 0 2 3 C 0 6 -3 5 -4 2 C -4 -1 -2 -4 0 -6 Z" fill="#D4AF37" />
+          </g>
+
+          {/* Handle */}
+          <path d="M 55 10 Q 80 15 78 38 Q 76 58 55 52"
+            fill="none" stroke="#D4AF37" strokeWidth="5.5" strokeLinecap="round" opacity="0.9" />
+          <path d="M 55 10 Q 80 15 78 38 Q 76 58 55 52"
+            fill="none" stroke="#2a2010" strokeWidth="3" strokeLinecap="round" />
+
+          {/* Cup glow at base */}
+          <ellipse cx="0" cy="70" rx="75" ry="12" fill="rgba(212,175,55,0.05)" filter="url(#soft-blur)" />
+        </g>
+
+        {/* ── 8. Tea Steam ──────────────────────────────────────────────────── */}
+        {/* 3 steam strands rising from the cup */}
+        <path className="steam-0"
+          d="M 456 478 C 448 464 452 446 444 432 C 436 418 440 402 432 388"
+          stroke="rgba(255,248,230,0.5)" strokeWidth="2.2" strokeLinecap="round" fill="none" />
+        <path className="steam-1"
+          d="M 480 476 C 484 460 478 442 484 428 C 490 414 484 398 490 384"
+          stroke="rgba(255,248,230,0.4)" strokeWidth="2.0" strokeLinecap="round" fill="none" />
+        <path className="steam-2"
+          d="M 504 478 C 514 462 508 444 518 430 C 528 416 522 400 532 386"
+          stroke="rgba(255,248,230,0.45)" strokeWidth="1.8" strokeLinecap="round" fill="none" />
+
+        {/* ── 9. Scattered tea leaves / herb decoration ─────────────────────── */}
+        {/* Small botanical sprigs near the cup */}
+        <g transform="translate(360, 520)" opacity="0.4">
+          <path d="M 0 0 L 20 -15 M 20 -15 C 22 -22 18 -25 16 -22 C 18 -25 15 -28 12 -25 C 15 -28 10 -28 10 -24" stroke="#6B8E23" strokeWidth="1.2" fill="none" strokeLinecap="round" />
+          <path d="M 0 0 L -5 -18 M -5 -18 C -8 -24 -12 -24 -10 -20 C -12 -24 -15 -22 -12 -18" stroke="#6B8E23" strokeWidth="1.0" fill="none" strokeLinecap="round" />
+        </g>
+        <g transform="translate(620, 530)" opacity="0.35">
+          <path d="M 0 0 L -18 -12 M -18 -12 C -22 -18 -18 -22 -15 -18 C -18 -22 -14 -26 -12 -22" stroke="#5F7A2A" strokeWidth="1.0" fill="none" strokeLinecap="round" />
+        </g>
+        <g transform="translate(340, 580)" opacity="0.3">
+          <circle cx="0" cy="0" r="5" fill="#4A6B1A" />
+          <circle cx="12" cy="-4" r="4" fill="#4A6B1A" />
+          <circle cx="6" cy="-12" r="3.5" fill="#4A6B1A" />
+        </g>
+
+        {/* ── 10. Wooden surface / table edge ──────────────────────────────── */}
+        {/* Subtle tabletop surface */}
+        <path d="M 0 620 Q 720 608 1440 618 L 1440 810 L 0 810 Z" fill="#1a1208" />
+        <path d="M 0 620 Q 720 608 1440 618" stroke="rgba(212,175,55,0.15)" strokeWidth="1" fill="none" />
+        {/* Wood grain hints */}
+        <path d="M 60 640 Q 400 635 700 642" stroke="rgba(255,255,255,0.03)" strokeWidth="1" fill="none" />
+        <path d="M 100 660 Q 500 655 800 663" stroke="rgba(255,255,255,0.02)" strokeWidth="1.5" fill="none" />
+
+        {/* ── 11. Open Book decoration (left of teacup) ─────────────────────── */}
+        <g transform="translate(140, 590)" opacity="0.7">
+          {/* Book pages left */}
+          <path d="M -70 0 Q -35 -8 0 0 L 0 65 Q -35 58 -70 65 Z" fill="#F8F0E0" stroke="#C4A55A" strokeWidth="0.6" />
+          {/* Book pages right */}
+          <path d="M 0 0 Q 35 -8 70 0 L 70 65 Q 35 58 0 65 Z" fill="#F5EDD8" stroke="#C4A55A" strokeWidth="0.6" />
+          {/* Book spine */}
+          <line x1="0" y1="0" x2="0" y2="65" stroke="#C4A55A" strokeWidth="1.5" />
+          {/* Text lines on pages */}
+          {[10,18,26,34,42,50].map(y => (
+            <React.Fragment key={y}>
+              <line x1="-60" y1={y} x2="-8" y2={y - 1} stroke="rgba(100,80,40,0.2)" strokeWidth="0.8" />
+              <line x1="8" y1={y} x2="60" y2={y + 1} stroke="rgba(100,80,40,0.15)" strokeWidth="0.8" />
+            </React.Fragment>
+          ))}
+          {/* Book cover shadow */}
+          <ellipse cx="0" cy="70" rx="72" ry="6" fill="rgba(0,0,0,0.3)" filter="url(#subtle-blur)" />
+        </g>
+
+        {/* ── 12. Calendar Widget ────────────────────────────────────────────── */}
+        <g transform={`translate(${CAL_X}, ${CAL_Y})`}>
+          {/* Calendar card background */}
+          <rect x="-98" y="-52" width="196" height="192" rx="6"
+            fill="rgba(15,12,6,0.88)"
+            stroke="rgba(212,175,55,0.3)" strokeWidth="0.8" />
+          {/* Header band */}
+          <rect x="-98" y="-52" width="196" height="38" rx="6"
+            fill="rgba(212,175,55,0.08)"
+            stroke="none" />
+          <rect x="-98" y="-14" width="196" height="2" fill="rgba(212,175,55,0.12)" />
+
+          {/* Dynamic calendar content (injected via JS) */}
+          <g ref={calendarRef} transform="translate(0, -28)" />
+
+          {/* Card bottom accent */}
+          <line x1="-80" y1="136" x2="80" y2="136" stroke="rgba(212,175,55,0.12)" strokeWidth="0.5" />
+        </g>
+
+        {/* ── 13. Decorative right-side vertical text / brand mark ──────────── */}
+        <g transform="translate(1400, 405) rotate(90)" opacity="0.2">
+          <text
+            fontFamily="'Outfit','Inter',sans-serif"
+            fontSize="9"
+            fill="#D4AF37"
+            letterSpacing="5"
+            textAnchor="middle"
+          >
+            SINCE 1993 · ANACHAL · MUNNAR
+          </text>
+        </g>
+
+        {/* ── 14. Orange gradient def for flame ─────────────────────────────── */}
+        <defs>
+          <linearGradient id="orange-grad" x1="50%" y1="0%" x2="50%" y2="100%">
+            <stop offset="0%" stopColor="#FFD700" />
+            <stop offset="35%" stopColor="#FF8C00" />
+            <stop offset="100%" stopColor="#FF4500" stopOpacity="0.7" />
+          </linearGradient>
+        </defs>
+
+      </svg>
+
+      {/* ── Brand Text Overlay (HTML for better typography) ────────────────── */}
+      <div className="absolute inset-0 flex flex-col justify-center pointer-events-none z-10"
+        style={{ paddingLeft: "clamp(40px, 5vw, 80px)", paddingRight: "clamp(40px, 5vw, 80px)" }}>
+
+        {/* Left column — brand story */}
+        <div className="max-w-[520px]">
+          {/* Eyebrow */}
+          <div className="hero-brand-line flex items-center gap-3 mb-6">
+            <div className="h-px w-10 bg-luxury-gold/60" />
+            <span
+              className="text-[10px] tracking-[0.45em] font-medium uppercase"
+              style={{ color: "#D4AF37", opacity: 0.8 }}
+            >
+              Anachal · Munnar · Est. 1993
+            </span>
+          </div>
+
+          {/* Main headline */}
+          <h1 className="hero-brand-line font-serif leading-[1.05] mb-6"
+            style={{
+              fontSize: "clamp(42px, 5.5vw, 82px)",
+              background: "linear-gradient(135deg, #F5E27A 0%, #D4AF37 45%, #8B6914 100%)",
+              WebkitBackgroundClip: "text",
+              WebkitTextFillColor: "transparent",
+              backgroundClip: "text",
+              letterSpacing: "-0.02em",
+            }}
+          >
+            Millennium<br />
+            <span style={{
+              fontStyle: "italic",
+              fontSize: "0.78em",
+              background: "linear-gradient(135deg, #F8F5F0 0%, #D4CEC4 100%)",
+              WebkitBackgroundClip: "text",
+              WebkitTextFillColor: "transparent",
+              backgroundClip: "text",
+            }}>Tea Reserves</span>
+          </h1>
+
+          {/* Subline */}
+          <p className="hero-brand-line font-sans mb-8"
+            style={{
+              fontSize: "clamp(13px, 1.3vw, 16px)",
+              color: "rgba(248,245,240,0.60)",
+              lineHeight: 1.75,
+              letterSpacing: "0.02em",
+              maxWidth: "380px",
+            }}
+          >
+            Handpicked single-origin teas from pristine high-altitude gardens.
+            Aged with craft. Delivered with purpose.
+          </p>
+
+          {/* CTA Row */}
+          <div className="hero-brand-line flex items-center gap-5 flex-wrap">
+            <button
+              className="pointer-events-auto font-sans font-semibold tracking-widest uppercase"
+              style={{
+                fontSize: "11px",
+                background: "linear-gradient(135deg, #D4AF37, #8B6914)",
+                color: "#0b0b0b",
+                padding: "13px 32px",
+                borderRadius: "2px",
+                letterSpacing: "0.18em",
+                boxShadow: "0 0 30px rgba(212,175,55,0.25)",
+                border: "none",
+                cursor: "pointer",
+              }}
+            >
+              Explore Collection
+            </button>
+            <button
+              className="pointer-events-auto font-sans font-medium tracking-wider uppercase"
+              style={{
+                fontSize: "10px",
+                background: "transparent",
+                color: "rgba(212,175,55,0.8)",
+                padding: "12px 24px",
+                border: "1px solid rgba(212,175,55,0.3)",
+                borderRadius: "2px",
+                letterSpacing: "0.15em",
+                cursor: "pointer",
+              }}
+            >
+              Our Story
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* ── CSS animations ─────────────────────────────────────────────────── */}
       <style>{`
-        /* Candle flame flicker */
-        .candle-flame-outer {
-          animation: flame-outer 1.15s ease-in-out infinite alternate;
-          transform-origin: 548px 437px;
+        /* ── Candle flame ── */
+        .flame-outer {
+          animation: flicker-outer 1.05s ease-in-out infinite alternate;
+          transform-origin: 267px 356px;
         }
-        .candle-flame-inner {
-          animation: flame-inner 0.78s ease-in-out infinite alternate;
-          transform-origin: 548px 437px;
+        .flame-mid {
+          animation: flicker-mid 0.72s ease-in-out infinite alternate;
+          transform-origin: 267px 358px;
         }
-        .candle-glow {
-          animation: glow-pulse 2.2s ease-in-out infinite alternate;
+        .flame-inner {
+          animation: flicker-inner 0.55s ease-in-out infinite alternate;
+          transform-origin: 267px 360px;
         }
-        @keyframes flame-outer {
-          0%   { transform: scaleX(1)    scaleY(1)    skewX(0deg);   opacity: 0.82; }
-          25%  { transform: scaleX(0.90) scaleY(1.10) skewX(-3deg);  opacity: 0.90; }
-          60%  { transform: scaleX(1.08) scaleY(0.93) skewX(4deg);   opacity: 0.76; }
-          100% { transform: scaleX(0.95) scaleY(1.05) skewX(-2deg);  opacity: 0.88; }
+        @keyframes flicker-outer {
+          0%   { transform: scaleX(1)    scaleY(1)    skewX(0);    opacity: 0.88; }
+          20%  { transform: scaleX(0.88) scaleY(1.12) skewX(-4deg);opacity: 0.95; }
+          50%  { transform: scaleX(1.10) scaleY(0.92) skewX(5deg); opacity: 0.78; }
+          75%  { transform: scaleX(0.92) scaleY(1.06) skewX(-2deg);opacity: 0.90; }
+          100% { transform: scaleX(1.04) scaleY(0.97) skewX(2deg); opacity: 0.85; }
         }
-        @keyframes flame-inner {
-          0%   { transform: scaleX(0.88) scaleY(1.06); opacity: 0.95; }
-          50%  { transform: scaleX(1.10) scaleY(0.90); opacity: 0.86; }
-          100% { transform: scaleX(0.94) scaleY(1.04); opacity: 0.97; }
+        @keyframes flicker-mid {
+          0%   { transform: scaleX(0.92) scaleY(1.05); opacity: 0.92; }
+          40%  { transform: scaleX(1.08) scaleY(0.94); opacity: 0.85; }
+          100% { transform: scaleX(0.96) scaleY(1.03); opacity: 0.94; }
         }
-        @keyframes glow-pulse {
-          0%   { opacity: 0.05; }
-          100% { opacity: 0.18; }
+        @keyframes flicker-inner {
+          0%   { transform: scaleX(0.94) scaleY(1.04); opacity: 0.98; }
+          50%  { transform: scaleX(1.06) scaleY(0.95); opacity: 0.92; }
+          100% { transform: scaleX(0.97) scaleY(1.02); opacity: 0.98; }
         }
 
-        /* Tea steam rise */
-        .steam-strand-0 { animation: steam-rise 3.4s ease-in-out infinite;                    }
-        .steam-strand-1 { animation: steam-rise 3.4s ease-in-out infinite; animation-delay: 1.1s; }
-        .steam-strand-2 { animation: steam-rise 3.4s ease-in-out infinite; animation-delay: 2.2s; }
+        /* ── Tea steam ── */
+        .steam-0 { animation: steam-rise 3.2s ease-in-out infinite; }
+        .steam-1 { animation: steam-rise 3.2s ease-in-out infinite; animation-delay: 1.05s; }
+        .steam-2 { animation: steam-rise 3.2s ease-in-out infinite; animation-delay: 2.10s; }
         @keyframes steam-rise {
-          0%   { opacity: 0;    stroke-dashoffset: 0;   transform: translateY(0px)   scaleX(1);    }
-          20%  { opacity: 0.55; transform: translateY(-8px)  scaleX(0.95); }
-          55%  { opacity: 0.38; transform: translateY(-24px) scaleX(1.06); }
-          100% { opacity: 0;    transform: translateY(-52px) scaleX(0.88); }
+          0%   { opacity: 0;    stroke-dasharray: 120; stroke-dashoffset: 120; transform: translateY(0); }
+          15%  { opacity: 0.55; }
+          60%  { opacity: 0.32; transform: translateY(-22px); }
+          100% { opacity: 0;    stroke-dashoffset: -120; transform: translateY(-48px); }
         }
 
-        /* Hide static SVG calendar vector number glyphs (replaced by dynamic text) */
-        .hero-calendar-path { display: none !important; }
-
-        /* Ensure inlined base SVG fills its container */
-        .hero-scene-section > div:first-child > svg {
-          width: 100% !important;
-          height: 100% !important;
-          position: absolute !important;
-          inset: 0 !important;
-          display: block !important;
+        /* ── Bokeh float ── */
+        .bokeh-dot {
+          animation: bokeh-float 6s ease-in-out infinite;
         }
       `}</style>
 
-      {/* ── Bottom fade to black ─────────────────────────────────────────── */}
+      {/* ── Bottom gradient fade ──────────────────────────────────────────── */}
       <div
-        className="absolute bottom-0 left-0 right-0 h-48 pointer-events-none z-20"
+        className="absolute bottom-0 inset-x-0 h-40 pointer-events-none z-20"
         style={{ background: "linear-gradient(to bottom, transparent, #0b0b0b 90%)" }}
       />
 
-      {/* ── Scroll nudge indicator ───────────────────────────────────────── */}
-      <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 z-30 pointer-events-none">
-        <span className="text-[9px] tracking-[0.3em] text-luxury-gold/50 font-medium uppercase">
-          Scroll to Explore
+      {/* ── Scroll indicator ─────────────────────────────────────────────── */}
+      <div className="absolute bottom-7 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 z-30 pointer-events-none">
+        <span style={{ fontSize: "8px", letterSpacing: "0.35em", color: "rgba(212,175,55,0.45)", textTransform: "uppercase", fontFamily: "'Outfit',sans-serif" }}>
+          Discover
         </span>
-        <div className="w-[18px] h-[28px] rounded-[9px] border border-luxury-gold/40 flex items-start justify-center pt-[5px] animate-bounce">
-          <div className="w-[4px] h-[7px] rounded-full bg-luxury-gold/60" />
+        <div style={{
+          width: 18, height: 30,
+          borderRadius: 9,
+          border: "1px solid rgba(212,175,55,0.35)",
+          display: "flex", alignItems: "flex-start", justifyContent: "center",
+          paddingTop: 5,
+          animation: "bounce 2s ease-in-out infinite",
+        }}>
+          <div style={{ width: 4, height: 8, borderRadius: 2, background: "rgba(212,175,55,0.55)" }} />
         </div>
       </div>
     </section>
