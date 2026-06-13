@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, Minus, Plus, Trash2, ShoppingBag, MessageCircle, ChevronRight, CreditCard, CheckCircle, AlertCircle, Loader, User } from "lucide-react";
+import { X, Minus, Plus, Trash2, ShoppingBag, MessageCircle, ChevronRight, CreditCard, CheckCircle, AlertCircle, Loader, User, ArrowLeft } from "lucide-react";
 import { useCart } from "@/context/CartContext";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
@@ -62,6 +62,33 @@ export default function CartDrawer() {
   const router = useRouter();
   const { user } = useAuth();
 
+  const [step, setStep] = useState<"cart" | "shipping">("cart");
+  const [shippingDetails, setShippingDetails] = useState({
+    name: user?.name ?? "",
+    email: user?.email ?? "",
+    phone: "",
+    address: "",
+    address_2: "",
+    pincode: "",
+    city: "",
+    state: "",
+  });
+
+  React.useEffect(() => {
+    if (user) {
+      setShippingDetails((prev) => ({
+        ...prev,
+        name: prev.name || user.name,
+        email: prev.email || user.email,
+      }));
+    }
+  }, [user]);
+
+  const handleShippingChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setShippingDetails((prev) => ({ ...prev, [name]: value }));
+  };
+
   const handleWhatsAppCheckout = () => {
     if (items.length === 0) return;
     const lines = items.map(
@@ -79,6 +106,36 @@ export default function CartDrawer() {
     if (items.length === 0) return;
     setPaymentStatus("loading");
     setPaymentError("");
+
+    // Validate shipping fields
+    const phoneRegex = /^[0-9]{10}$/;
+    const pinRegex = /^[0-9]{6}$/;
+
+    if (!shippingDetails.name.trim()) {
+      setPaymentError("Please enter your name.");
+      setPaymentStatus("error");
+      return;
+    }
+    if (!phoneRegex.test(shippingDetails.phone.trim())) {
+      setPaymentError("Please enter a valid 10-digit phone number.");
+      setPaymentStatus("error");
+      return;
+    }
+    if (!shippingDetails.address.trim()) {
+      setPaymentError("Please enter your street address.");
+      setPaymentStatus("error");
+      return;
+    }
+    if (!pinRegex.test(shippingDetails.pincode.trim())) {
+      setPaymentError("Please enter a valid 6-digit pin code.");
+      setPaymentStatus("error");
+      return;
+    }
+    if (!shippingDetails.city.trim() || !shippingDetails.state.trim()) {
+      setPaymentError("Please enter both city and state.");
+      setPaymentStatus("error");
+      return;
+    }
 
     try {
       // 1. Load Razorpay script
@@ -111,9 +168,9 @@ export default function CartDrawer() {
         order_id: orderId,
         image: "/images/logo.png",
         prefill: {
-          name: user?.name ?? "",
-          email: user?.email ?? "",
-          contact: "",
+          name: shippingDetails.name,
+          email: shippingDetails.email,
+          contact: shippingDetails.phone,
         },
         theme: {
           color: "#D4AF37",
@@ -128,6 +185,8 @@ export default function CartDrawer() {
                 razorpay_order_id: response.razorpay_order_id,
                 razorpay_payment_id: response.razorpay_payment_id,
                 razorpay_signature: response.razorpay_signature,
+                shipping_address: shippingDetails,
+                items: items,
               }),
             });
             const verifyData = await verifyRes.json();
@@ -221,9 +280,20 @@ export default function CartDrawer() {
             {/* Header */}
             <div className="flex items-center justify-between px-6 py-5 border-b border-luxury-gold/10">
               <div className="flex items-center gap-3">
+                {step === "shipping" && (
+                  <button
+                    onClick={() => { setStep("cart"); setPaymentError(""); }}
+                    className="mr-2 text-luxury-gold hover:text-luxury-ivory transition-colors cursor-pointer"
+                    aria-label="Back to cart"
+                  >
+                    <ArrowLeft className="w-4 h-4" />
+                  </button>
+                )}
                 <ShoppingBag className="w-5 h-5 text-luxury-gold" />
-                <span className="font-serif text-lg text-luxury-ivory tracking-wide">Your Cart</span>
-                {totalCount > 0 && (
+                <span className="font-serif text-lg text-luxury-ivory tracking-wide">
+                  {step === "cart" ? "Your Cart" : "Shipping Details"}
+                </span>
+                {step === "cart" && totalCount > 0 && (
                   <span className="w-5 h-5 rounded-full bg-luxury-gold text-luxury-black text-[10px] font-bold flex items-center justify-center">
                     {totalCount}
                   </span>
@@ -286,7 +356,7 @@ export default function CartDrawer() {
                     Browse Collection
                   </button>
                 </div>
-              ) : (
+              ) : step === "cart" ? (
                 <>
                   {items.map((item) => (
                     <motion.div
@@ -335,6 +405,102 @@ export default function CartDrawer() {
                     </motion.div>
                   ))}
                 </>
+              ) : (
+                /* Step 2: Shipping Form */
+                <div className="space-y-4 text-left">
+                  <div className="space-y-1.5">
+                    <label className="text-[10px] uppercase tracking-wider text-luxury-ivory/40 block">Full Name</label>
+                    <input
+                      type="text"
+                      name="name"
+                      value={shippingDetails.name}
+                      onChange={handleShippingChange}
+                      required
+                      placeholder="e.g. John Doe"
+                      className="w-full px-4 py-3.5 rounded-xl bg-black/40 border border-luxury-gold/15 focus:border-luxury-gold text-xs text-luxury-ivory outline-none transition-colors"
+                    />
+                  </div>
+                  
+                  <div className="space-y-1.5">
+                    <label className="text-[10px] uppercase tracking-wider text-luxury-ivory/40 block">Phone Number (10 digits)</label>
+                    <input
+                      type="tel"
+                      name="phone"
+                      value={shippingDetails.phone}
+                      onChange={handleShippingChange}
+                      required
+                      maxLength={10}
+                      placeholder="e.g. 9876543210"
+                      className="w-full px-4 py-3.5 rounded-xl bg-black/40 border border-luxury-gold/15 focus:border-luxury-gold text-xs text-luxury-ivory outline-none transition-colors"
+                    />
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <label className="text-[10px] uppercase tracking-wider text-luxury-ivory/40 block">Street Address</label>
+                    <input
+                      type="text"
+                      name="address"
+                      value={shippingDetails.address}
+                      onChange={handleShippingChange}
+                      required
+                      placeholder="e.g. House No., Street Name, Area"
+                      className="w-full px-4 py-3.5 rounded-xl bg-black/40 border border-luxury-gold/15 focus:border-luxury-gold text-xs text-luxury-ivory outline-none transition-colors"
+                    />
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <label className="text-[10px] uppercase tracking-wider text-luxury-ivory/40 block">Landmark / Suite / Apt (Optional)</label>
+                    <input
+                      type="text"
+                      name="address_2"
+                      value={shippingDetails.address_2}
+                      onChange={handleShippingChange}
+                      placeholder="e.g. Near Main Market, Apt 3B"
+                      className="w-full px-4 py-3.5 rounded-xl bg-black/40 border border-luxury-gold/15 focus:border-luxury-gold text-xs text-luxury-ivory outline-none transition-colors"
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-3.5">
+                    <div className="space-y-1.5">
+                      <label className="text-[10px] uppercase tracking-wider text-luxury-ivory/40 block">Pin Code (6 digits)</label>
+                      <input
+                        type="text"
+                        name="pincode"
+                        value={shippingDetails.pincode}
+                        onChange={handleShippingChange}
+                        required
+                        maxLength={6}
+                        placeholder="e.g. 685612"
+                        className="w-full px-4 py-3.5 rounded-xl bg-black/40 border border-luxury-gold/15 focus:border-luxury-gold text-xs text-luxury-ivory outline-none transition-colors"
+                      />
+                    </div>
+                    <div className="space-y-1.5">
+                      <label className="text-[10px] uppercase tracking-wider text-luxury-ivory/40 block">City</label>
+                      <input
+                        type="text"
+                        name="city"
+                        value={shippingDetails.city}
+                        onChange={handleShippingChange}
+                        required
+                        placeholder="e.g. Munnar"
+                        className="w-full px-4 py-3.5 rounded-xl bg-black/40 border border-luxury-gold/15 focus:border-luxury-gold text-xs text-luxury-ivory outline-none transition-colors"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <label className="text-[10px] uppercase tracking-wider text-luxury-ivory/40 block">State</label>
+                    <input
+                      type="text"
+                      name="state"
+                      value={shippingDetails.state}
+                      onChange={handleShippingChange}
+                      required
+                      placeholder="e.g. Kerala"
+                      className="w-full px-4 py-3.5 rounded-xl bg-black/40 border border-luxury-gold/15 focus:border-luxury-gold text-xs text-luxury-ivory outline-none transition-colors"
+                    />
+                  </div>
+                </div>
               )}
             </div>
 
@@ -373,6 +539,14 @@ export default function CartDrawer() {
                    >
                      <User className="w-4 h-4 text-luxury-black" />
                      Sign In to Checkout
+                     <ChevronRight className="w-4 h-4" />
+                   </button>
+                 ) : step === "cart" ? (
+                   <button
+                     onClick={() => setStep("shipping")}
+                     className="w-full flex items-center justify-center gap-2.5 bg-luxury-gold hover:bg-yellow-400 text-luxury-black font-bold text-sm tracking-wide py-3.5 rounded-xl transition-all duration-300 shadow-lg shadow-luxury-gold/20 cursor-pointer"
+                   >
+                     Proceed to Shipping
                      <ChevronRight className="w-4 h-4" />
                    </button>
                  ) : (
