@@ -41,25 +41,13 @@ export default function Header() {
         {/* Brand Logo */}
         <button
           onClick={() => scrollToSection("home")}
-          className="flex items-center gap-3 focus:outline-none cursor-pointer"
+          className="flex items-center gap-3 focus:outline-none cursor-pointer group"
           onMouseEnter={(e) => {
             const badge = e.currentTarget.querySelector(".logo-badge");
-            const ring = e.currentTarget.querySelector(".logo-inner-ring");
             if (badge) {
               gsap.to(badge, {
                 rotate: 180,
-                scale: 1.06,
-                borderColor: "#f8f5f0",
-                duration: 0.5,
-                ease: "power2.out",
-                overwrite: "auto",
-              });
-            }
-            if (ring) {
-              gsap.to(ring, {
-                scale: 0.88,
-                opacity: 0.7,
-                borderColor: "#f8f5f0",
+                scale: 1.08,
                 duration: 0.5,
                 ease: "power2.out",
                 overwrite: "auto",
@@ -68,22 +56,10 @@ export default function Header() {
           }}
           onMouseLeave={(e) => {
             const badge = e.currentTarget.querySelector(".logo-badge");
-            const ring = e.currentTarget.querySelector(".logo-inner-ring");
             if (badge) {
               gsap.to(badge, {
                 rotate: 0,
                 scale: 1,
-                borderColor: "#d4af37",
-                duration: 0.65,
-                ease: "elastic.out(1, 0.5)",
-                overwrite: "auto",
-              });
-            }
-            if (ring) {
-              gsap.to(ring, {
-                scale: 1,
-                opacity: 1,
-                borderColor: "rgba(212, 175, 55, 0.3)",
                 duration: 0.65,
                 ease: "elastic.out(1, 0.5)",
                 overwrite: "auto",
@@ -91,9 +67,12 @@ export default function Header() {
             }
           }}
         >
-          <div className="logo-badge relative w-10 h-10 rounded-full border border-luxury-gold flex items-center justify-center transition-all duration-300">
-            <span className="text-luxury-gold font-serif text-lg font-bold">M</span>
-            <div className="logo-inner-ring absolute inset-0.5 rounded-full border border-luxury-gold/30"></div>
+          <div className="logo-badge relative w-14 h-14 flex items-center justify-center transition-all duration-300">
+            <img
+              src="/logo/gold.svg"
+              alt="Millennium Logo"
+              className="w-full h-full object-contain"
+            />
           </div>
           <div className="text-left">
             <span className="block font-serif text-base tracking-[0.2em] font-bold text-luxury-ivory uppercase group-hover:text-luxury-gold transition-colors duration-300">

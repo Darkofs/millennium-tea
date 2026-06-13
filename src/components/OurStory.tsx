@@ -17,7 +17,7 @@ const timelineEvents: TimelineEvent[] = [
   {
     year: "1834",
     title: "Origins of Indian Tea",
-    description: "The first commercial tea plants are cultivated in Assam's Brahmaputra Valley, establishing India as a world-class tea grower.",
+    description: "The first commercial tea plants are cultivated in Kannan Deven Hills, establishing India as a world-class tea grower.",
   },
   {
     year: "1912",
@@ -27,7 +27,7 @@ const timelineEvents: TimelineEvent[] = [
   {
     year: "1980s",
     title: "Embracing Organic Sourcing",
-    description: "Our gardens transition away from synthetic inputs, pioneering biodynamic farming in Darjeeling and Assam.",
+    description: "Our gardens transition away from synthetic inputs, pioneering biodynamic farming in Darjeeling and Kannan Deven Hills.",
   },
   {
     year: "Present Day",
@@ -108,7 +108,7 @@ export default function OurStory() {
           </div>
           <div className="lg:col-span-5">
             <p className="font-sans text-sm md:text-base text-luxury-ivory/60 leading-relaxed">
-              Nestled at elevations of 1,600 meters in Darjeeling, Assam, and Nilgiri, our partner gardens enjoy unique volcanic soils, clean mountain air, and abundant monsoonal rains, producing teas of unparalleled depth and aroma.
+              Nestled at elevations of 1,600 meters in Darjeeling, Kannan Deven Hills, and Nilgiri, our partner gardens enjoy unique volcanic soils, clean mountain air, and abundant monsoonal rains, producing teas of unparalleled depth and aroma.
             </p>
           </div>
         </div>

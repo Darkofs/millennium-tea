@@ -23,13 +23,17 @@ export default function Footer() {
           <div className="md:col-span-2">
             <button
               onClick={() => scrollToSection("home")}
-              className="flex items-center gap-3 mb-6 focus:outline-none text-left cursor-pointer"
+              className="flex items-center gap-3 mb-6 focus:outline-none text-left cursor-pointer group"
             >
-              <div className="w-10 h-10 rounded-full border border-luxury-gold flex items-center justify-center">
-                <span className="text-luxury-gold font-serif text-lg font-bold">M</span>
+              <div className="w-14 h-14 flex items-center justify-center">
+                <img
+                  src="/logo/gold.svg"
+                  alt="Millennium Logo"
+                  className="w-full h-full object-contain"
+                />
               </div>
               <div>
-                <span className="block font-serif text-lg tracking-[0.2em] font-bold text-luxury-ivory uppercase">
+                <span className="block font-serif text-lg tracking-[0.2em] font-bold text-luxury-ivory uppercase group-hover:text-luxury-gold transition-colors duration-300">
                   Millennium
                 </span>
                 <span className="block font-sans text-[10px] tracking-[0.4em] font-medium text-luxury-gold uppercase -mt-1">

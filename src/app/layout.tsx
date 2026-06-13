@@ -29,9 +29,12 @@ export const metadata: Metadata = {
   title: "Millennium | Premium Handcrafted Luxury Tea",
   description: "Exquisite artisanal tea blends from Anachal, Munnar — designed for wellness, flavor, and everyday luxury. Special Masala Tea, Ginger Tea, Lemon Tea, Green Tea, and Turmeric Health Tea.",
   metadataBase: new URL("https://millenniumtea.com"),
+  icons: {
+    icon: "/logo/original.svg",
+  },
   openGraph: {
     title: "Millennium | Premium Handcrafted Luxury Tea",
-    description: "Exquisite artisanal tea blends designed for wellness, flavor, and everyday luxury. Sourced from pristine estates in Darjeeling, Assam, and Munnar.",
+    description: "Exquisite artisanal tea blends designed for wellness, flavor, and everyday luxury. Sourced from pristine estates in Darjeeling, Kannan Deven Hills, and Munnar.",
     images: ["/og-image.jpg"],
   },
 };

@@ -33,8 +33,8 @@ const teaData: TeaProduct[] = [
     id: "masala",
     name: "Special Masala Tea Powder",
     botanicalName: "Camellia sinensis blended with Elettaria & Cinnamomum",
-    tagline: "A Harmonious Heritage Blend of Bold Assam Leaves & Fresh Spices",
-    origin: "Assam Valley estates (CTC) & Western Ghats spices",
+    tagline: "A Harmonious Heritage Blend of Bold Kannan Deven Hills Leaves & Fresh Spices",
+    origin: "Kannan Deven Hills estates (CTC) & Western Ghats spices",
     image: "/images/masalatea/special masala tea.png",
     description: "Millennium's Special Masala Tea is an exquisite blend of high-grade CTC black tea and five freshly-ground organic spices: Cardamom, Cinnamon, Cloves, Ginger, and Black Pepper. Hand-blended in small batches to guarantee an authentic, rich spice profile.",
     grades: [
@@ -58,9 +58,9 @@ const teaData: TeaProduct[] = [
     name: "Ginger Tea Powder",
     botanicalName: "Camellia sinensis blended with Zingiber officinale",
     tagline: "Warm Zesty Radiance Combined with Rich Malabar Black Tea",
-    origin: "High-grade Assam estates & Wayanad dried ginger farms",
+    origin: "High-grade Kannan Deven Hills estates & Wayanad dried ginger farms",
     image: "/images/ginger tea/ginger tea transparent.png",
-    description: "Our Ginger Tea blends rich Orthodox Assam tea with organic, sun-dried ginger root flakes and extract. Developed specifically for wellness and respiratory care, it features a warm, bold flavor profile with a delightful, throat-soothing kick.",
+    description: "Our Ginger Tea blends rich Orthodox Kannan Deven Hills tea with organic, sun-dried ginger root flakes and extract. Developed specifically for wellness and respiratory care, it features a warm, bold flavor profile with a delightful, throat-soothing kick.",
     grades: [
       { name: "Zesty Gold Blend", size: "Fine Leaf Blend", desc: "Aromatic black tea leaves combined with microscopic gingerol-rich powder. Outstanding spice release.", oil: "5.2% gingerol content" },
       { name: "Classic Ginger CTC", size: "Pekoe Dust (PD)", desc: "Quick-brewing premium CTC blended with natural dried ginger granules.", oil: "4.5% gingerol content" }
@@ -300,7 +300,7 @@ export default function Catalog() {
                     </span>
                   </div>
                   <button
-                    onClick={handleBuyAction}
+                    onClick={handleAddToCart}
                     className="btn-gold-shimmer py-3.5 px-6 rounded-xl text-xs font-bold tracking-widest uppercase flex items-center justify-center gap-2 cursor-pointer transition-all duration-300"
                   >
                     Buy Now

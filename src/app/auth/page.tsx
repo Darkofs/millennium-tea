@@ -82,9 +82,12 @@ function AuthContent() {
 
           {/* Logo link */}
           <Link href="/" className="flex items-center gap-3 group focus:outline-none self-start relative z-10">
-            <div className="relative w-10 h-10 rounded-full border border-luxury-gold flex items-center justify-center transition-transform duration-500 group-hover:rotate-180">
-              <span className="text-luxury-gold font-serif text-lg font-bold">M</span>
-              <div className="absolute inset-0.5 rounded-full border border-luxury-gold/30"></div>
+            <div className="relative w-14 h-14 flex items-center justify-center transition-transform duration-500 group-hover:rotate-180">
+              <img
+                src="/logo/gold.svg"
+                alt="Millennium Logo"
+                className="w-full h-full object-contain"
+              />
             </div>
             <div className="text-left">
               <span className="block font-serif text-base tracking-[0.2em] font-bold text-luxury-ivory uppercase group-hover:text-luxury-gold transition-colors duration-300">

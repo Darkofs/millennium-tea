@@ -67,7 +67,7 @@ export default function ProductShowcase() {
             transition={{ duration: 0.8, delay: 0.2 }}
             className="font-sans text-sm md:text-base text-luxury-ivory/70 leading-relaxed mb-8"
           >
-            Handcrafted from select high-altitude Assam CTC tea, blended with fresh ground cardamom, cloves, cinnamon, and black pepper. Rich, warming, and deeply aromatic, designed for an authentic royal spice experience in every sip.
+            Handcrafted from select high-altitude Kannan Deven Hills CTC tea, blended with fresh ground cardamom, cloves, cinnamon, and black pepper. Rich, warming, and deeply aromatic, designed for an authentic royal spice experience in every sip.
           </motion.p>
 
           {/* Specs Grid */}
@@ -80,7 +80,7 @@ export default function ProductShowcase() {
           >
             {[
               { title: "Spice Blend Ratio", value: "15% Fresh Ground", icon: Flame },
-              { title: "Tea Base Variety", value: "Assam CTC Grade A", icon: Coffee },
+              { title: "Tea Base Variety", value: "Kannan Deven Hills CTC Grade A", icon: Coffee },
               { title: "Aroma Sensation", value: "Intense Spicy & Warm", icon: Sun },
               { title: "Purity Guarantee", value: "100% Organic Spices", icon: ShieldCheck },
             ].map((spec, idx) => (
@@ -170,7 +170,7 @@ export default function ProductShowcase() {
           >
             {[
               { title: "Ginger Infusion", value: "10% Dried Root", icon: Activity },
-              { title: "Tea Base", value: "Assam Orthodox Leaf", icon: Coffee },
+              { title: "Tea Base", value: "Kannan Deven Hills Orthodox Leaf", icon: Coffee },
               { title: "Flavor Profile", value: "Zesty, Warm, Pungent", icon: Sun },
               { title: "Wellness Support", value: "Digestive Care", icon: ShieldCheck },
             ].map((spec, idx) => (
