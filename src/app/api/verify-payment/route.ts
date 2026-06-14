@@ -129,6 +129,93 @@ export async function POST(req: NextRequest) {
       console.log("[Shiprocket] Skipped order creation: missing shipping details or empty cart items list.");
     }
 
+    // 4. Send WhatsApp Notification to Admin via Meta Cloud API (in safe block)
+    let whatsappSent = false;
+    let whatsappError = null;
+    let whatsappData = null;
+
+    if (process.env.WHATSAPP_ACCESS_TOKEN && process.env.WHATSAPP_PHONE_NUMBER_ID && process.env.WHATSAPP_ADMIN_PHONE_NUMBER) {
+      try {
+        console.log("[WhatsApp] Starting admin notification flow...");
+        const adminPhone = process.env.WHATSAPP_ADMIN_PHONE_NUMBER;
+        const phoneId = process.env.WHATSAPP_PHONE_NUMBER_ID;
+        const token = process.env.WHATSAPP_ACCESS_TOKEN;
+        const templateName = process.env.WHATSAPP_TEMPLATE_NAME || "new_order_admin_alert";
+
+        // Build list of items
+        const itemsText = items.map((item: any) => 
+          `• ${item.name} (${item.size}) - [${item.grade}] x${item.quantity}`
+        ).join("\n");
+
+        // Build address string
+        const addrText = `${shipping_address.name}, Phone: ${shipping_address.phone}, ${shipping_address.address}${shipping_address.address_2 ? `, ${shipping_address.address_2}` : ""}, ${shipping_address.city}, ${shipping_address.state} - ${shipping_address.pincode}`;
+
+        const totalAmount = `Rs. ${items.reduce((sum: number, item: any) => sum + (item.price * item.quantity), 0).toLocaleString()}`;
+
+        const waPayload = {
+          messaging_product: "whatsapp",
+          to: adminPhone,
+          type: "template",
+          template: {
+            name: templateName,
+            language: {
+              code: "en_US"
+            },
+            components: [
+              {
+                type: "body",
+                parameters: [
+                  {
+                    type: "text",
+                    text: razorpay_payment_id
+                  },
+                  {
+                    type: "text",
+                    text: totalAmount
+                  },
+                  {
+                    type: "text",
+                    text: shipping_address.name || "Customer"
+                  },
+                  {
+                    type: "text",
+                    text: itemsText
+                  },
+                  {
+                    type: "text",
+                    text: addrText
+                  }
+                ]
+              }
+            ]
+          }
+        };
+
+        const waRes = await fetch(`https://graph.facebook.com/v20.0/${phoneId}/messages`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`
+          },
+          body: JSON.stringify(waPayload)
+        });
+
+        whatsappData = await waRes.json();
+        if (waRes.ok) {
+          whatsappSent = true;
+          console.log("[WhatsApp] Admin notification sent successfully:", whatsappData);
+        } else {
+          console.error("[WhatsApp] Meta API failed:", whatsappData);
+          whatsappError = whatsappData.error?.message || "Failed to send WhatsApp message";
+        }
+      } catch (err: any) {
+        console.error("[WhatsApp Integration Error]", err);
+        whatsappError = err instanceof Error ? err.message : "WhatsApp alert threw an error";
+      }
+    } else {
+      console.log("[WhatsApp] Trigger skipped: missing WHATSAPP_ACCESS_TOKEN, WHATSAPP_PHONE_NUMBER_ID, or WHATSAPP_ADMIN_PHONE_NUMBER.");
+    }
+
     return NextResponse.json({
       success: true,
       paymentId: razorpay_payment_id,
@@ -137,6 +224,11 @@ export async function POST(req: NextRequest) {
         created: shiprocketOrderCreated,
         error: shiprocketError,
         data: shiprocketData,
+      },
+      whatsapp: {
+        sent: whatsappSent,
+        error: whatsappError,
+        data: whatsappData,
       }
     });
   } catch (err: unknown) {
