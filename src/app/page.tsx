@@ -272,6 +272,8 @@ export default function Home() {
     const ring = document.querySelector(".custom-cursor-ring") as HTMLElement;
     if (!dot || !ring) return;
 
+    document.body.classList.add("has-custom-cursor");
+
     // Place initial cursor offscreen
     gsap.set([dot, ring], { xPercent: -50, yPercent: -50, x: -100, y: -100 });
 
@@ -372,6 +374,7 @@ export default function Home() {
     window.addEventListener("mouseout", handleMouseOut);
 
     return () => {
+      document.body.classList.remove("has-custom-cursor");
       window.removeEventListener("mousemove", handleMouseMove);
       window.removeEventListener("mouseover", handleMouseOver);
       window.removeEventListener("mouseout", handleMouseOut);
