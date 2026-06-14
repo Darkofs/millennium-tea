@@ -421,6 +421,83 @@ function InvoiceContent() {
           }
           @page { margin: 0; size: A4; }
         }
+
+        /* MOBILE RESPONSIVE OVERRIDES */
+        @media (max-width: 768px) {
+          .invoice-wrapper {
+            padding: 0 0 40px 0;
+          }
+          .invoice-actions {
+            max-width: 100%;
+            padding: 16px 20px;
+            margin-bottom: 0;
+            background: #0B0B0B;
+            border-bottom: 1px solid rgba(212,175,55,0.15);
+          }
+          .invoice-card {
+            border-radius: 0;
+            box-shadow: none;
+            max-width: 100%;
+          }
+          .inv-header {
+            padding: 28px 20px;
+            flex-direction: column;
+            gap: 20px;
+            align-items: flex-start;
+          }
+          .inv-title-block {
+            text-align: left;
+            width: 100%;
+            border-top: 1px solid rgba(212,175,55,0.15);
+            padding-top: 20px;
+          }
+          .inv-title {
+            font-size: 28px;
+          }
+          .inv-body {
+            padding: 28px 20px;
+          }
+          .inv-meta {
+            grid-template-columns: 1fr;
+            gap: 24px;
+            margin-bottom: 28px;
+            padding-bottom: 24px;
+          }
+          .inv-parties {
+            grid-template-columns: 1fr;
+            gap: 28px;
+            margin-bottom: 28px;
+            padding-bottom: 24px;
+          }
+          .inv-table {
+            display: block;
+            overflow-x: auto;
+            white-space: nowrap;
+            margin-bottom: 24px;
+            -webkit-overflow-scrolling: touch;
+          }
+          .inv-table th, .inv-table td {
+            padding: 10px 8px;
+            font-size: 12px;
+          }
+          .inv-totals-table {
+            width: 100%;
+            min-width: 0;
+          }
+          .inv-payment {
+            padding: 14px 16px;
+            margin-bottom: 24px;
+          }
+          .inv-footer {
+            padding: 20px;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 16px;
+          }
+          .inv-footer-reg {
+            text-align: left;
+          }
+        }
       `}</style>
 
       <div className="invoice-wrapper">
