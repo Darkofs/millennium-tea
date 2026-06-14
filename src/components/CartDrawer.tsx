@@ -198,7 +198,9 @@ export default function CartDrawer() {
                 date: new Date().toISOString(),
                 items: [...items],
                 total: totalPrice,
-                status: "Paid"
+                status: "Paid",
+                shiprocketOrderId: verifyData.shiprocket?.data?.order_id || null,
+                shiprocketShipmentId: verifyData.shiprocket?.data?.shipment_id || null,
               };
 
               try {

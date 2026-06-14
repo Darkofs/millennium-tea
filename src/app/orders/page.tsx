@@ -25,6 +25,8 @@ interface Order {
   items: OrderItem[];
   total: number;
   status: string;
+  shiprocketOrderId?: string | number | null;
+  shiprocketShipmentId?: string | number | null;
 }
 
 function OrdersContent() {
@@ -37,6 +39,27 @@ function OrdersContent() {
   const [orders, setOrders] = useState<Order[]>([]);
   const [mounted, setMounted] = useState(false);
   const [showConfirmation, setShowConfirmation] = useState(false);
+  const [trackingLoadingId, setTrackingLoadingId] = useState<string | number | null>(null);
+
+  const handleTrackShipment = async (shipmentId: string | number) => {
+    try {
+      setTrackingLoadingId(shipmentId);
+      const res = await fetch(`/api/track-shipment?shipment_id=${shipmentId}`);
+      const data = await res.json();
+      
+      if (data.success && data.data?.tracking_data?.shipment_track?.[0]?.awb_code) {
+        const awb = data.data.tracking_data.shipment_track[0].awb_code;
+        window.open(`https://shiprocket.co/tracking/${awb}`, "_blank");
+      } else {
+        alert("Your handcrafted blend is currently being prepared and packaged at our Munnar estate. Tracking updates will appear as soon as the courier partner receives the parcel.");
+      }
+    } catch (err) {
+      console.error("Tracking lookup failed:", err);
+      alert("Failed to connect to tracking server. Please try again later.");
+    } finally {
+      setTrackingLoadingId(null);
+    }
+  };
 
   useEffect(() => {
     setMounted(true);
@@ -282,6 +305,17 @@ function OrdersContent() {
                       <FileText className="w-3 h-3" />
                       Invoice PDF
                     </a>
+                    {/* Track Button */}
+                    {order.shiprocketShipmentId && (
+                      <button
+                        onClick={() => handleTrackShipment(order.shiprocketShipmentId!)}
+                        disabled={trackingLoadingId === order.shiprocketShipmentId}
+                        className="inline-flex items-center gap-1.5 bg-luxury-gold hover:bg-yellow-400 disabled:bg-luxury-gold/50 text-luxury-black text-[10px] font-bold px-3.5 py-1.5 rounded-full uppercase tracking-widest transition-all duration-300 whitespace-nowrap cursor-pointer disabled:cursor-not-allowed"
+                      >
+                        <Package className="w-3 h-3" />
+                        {trackingLoadingId === order.shiprocketShipmentId ? "Tracking..." : "Track Order"}
+                      </button>
+                    )}
                   </div>
                 </div>
 
