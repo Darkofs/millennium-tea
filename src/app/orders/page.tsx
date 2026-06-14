@@ -27,6 +27,7 @@ interface Order {
   status: string;
   shiprocketOrderId?: string | number | null;
   shiprocketShipmentId?: string | number | null;
+  shippingAddress?: any;
 }
 
 function OrdersContent() {
@@ -59,6 +60,41 @@ function OrdersContent() {
     } finally {
       setTrackingLoadingId(null);
     }
+  };
+
+  const generateWhatsAppMessage = (order: Order) => {
+    const itemsText = order.items
+      .map(
+        (item) =>
+          `• ${item.name} (${item.size}) - [${item.grade}] x${item.quantity} (₹${item.price.toLocaleString()})`
+      )
+      .join("\n");
+
+    let addressText = "";
+    if (order.shippingAddress) {
+      const addr = order.shippingAddress;
+      addressText = `\n\n*Shipping Address:*\nName: ${addr.name}\nPhone: ${addr.phone}\nAddress: ${addr.address}${addr.address_2 ? `, ${addr.address_2}` : ""}\nCity: ${addr.city}\nState: ${addr.state}\nPincode: ${addr.pincode}`;
+    }
+
+    const shiprocketText = order.shiprocketOrderId 
+      ? `\nShiprocket Order ID: ${order.shiprocketOrderId}` 
+      : "";
+
+    const message = `Hi Millennium Tea! I have an enquiry about my order.
+
+*Order Details:*
+Order ID: ${order.id}
+Razorpay Ref: ${order.orderId}${shiprocketText}
+Date: ${formatDate(order.date)}
+Total: ₹${order.total.toLocaleString()}
+Payment Status: ${order.status}
+
+*Items Ordered:*
+${itemsText}${addressText}
+
+Please assist me. Thank you!`;
+
+    return encodeURIComponent(message);
   };
 
   useEffect(() => {
@@ -362,7 +398,7 @@ function OrdersContent() {
                   </div>
                   {/* WhatsApp Enquiry Button */}
                   <a
-                    href={`https://wa.me/message/WXU5NCOSMGVRE1?text=${encodeURIComponent(`Hi Millennium Tea! I have an enquiry about my order.%0AOrder ID: ${order.id}%0ARazorpay Ref: ${order.orderId}%0ADate: ${formatDate(order.date)}%0ATotal: ₹${order.total.toLocaleString()}%0A%0APlease assist me. Thank you!`)}`}
+                    href={`https://wa.me/message/WXU5NCOSMGVRE1?text=${generateWhatsAppMessage(order)}`}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="inline-flex items-center gap-2 bg-[#25D366]/10 border border-[#25D366]/30 hover:bg-[#25D366]/20 hover:border-[#25D366]/60 text-[#25D366] text-[11px] font-semibold px-4 py-2 rounded-full transition-all duration-300 whitespace-nowrap shrink-0"
