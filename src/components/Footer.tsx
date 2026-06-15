@@ -18,7 +18,7 @@ export default function Footer() {
   return (
     <footer className="relative w-full z-10 bg-luxury-black border-t border-luxury-gold/10 py-16">
       <div className="max-w-7xl mx-auto px-6 md:px-12">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-12 items-start mb-12">
+        <div className="grid grid-cols-1 md:grid-cols-5 gap-12 items-start mb-12">
           {/* Col 1: Brand Info */}
           <div className="md:col-span-2">
             <button
@@ -71,22 +71,59 @@ export default function Footer() {
             </ul>
           </div>
 
-          {/* Col 3: Legal & Trading */}
+          {/* Col 3: Legal & Compliance */}
           <div>
             <h4 className="text-xs tracking-[0.3em] font-bold text-luxury-gold uppercase mb-6">
               Legal & Compliance
             </h4>
             <ul className="flex flex-col gap-3 text-xs md:text-sm text-luxury-ivory/60">
-              <li>Tea Board Reg: TB-A9821</li>
-              <li>GSTIN: 32AAECB5910K1ZB</li>
               <li>
                 <a href="#" className="hover:text-luxury-gold transition-colors">
-                  Terms of Export (FOB/CIF)
+                  Terms and Conditions
                 </a>
               </li>
               <li>
                 <a href="#" className="hover:text-luxury-gold transition-colors">
+                  Returns & Exchanges
+                </a>
+              </li>
+              <li>
+                <a href="#" className="hover:text-luxury-gold transition-colors">
+                  Social Impact
+                </a>
+              </li>
+            </ul>
+          </div>
+
+          {/* Col 4: Customer Care */}
+          <div>
+            <h4 className="text-xs tracking-[0.3em] font-bold text-luxury-gold uppercase mb-6">
+              Customer Care
+            </h4>
+            <ul className="flex flex-col gap-3 text-xs md:text-sm text-luxury-ivory/60">
+              <li>
+                <a href="#" className="hover:text-luxury-gold transition-colors">
                   Privacy Policy
+                </a>
+              </li>
+              <li>
+                <a href="#" className="hover:text-luxury-gold transition-colors">
+                  Shipping Policy
+                </a>
+              </li>
+              <li>
+                <a href="#" className="hover:text-luxury-gold transition-colors">
+                  FAQ
+                </a>
+              </li>
+              <li>
+                <a href="#" className="hover:text-luxury-gold transition-colors">
+                  Refund Policy
+                </a>
+              </li>
+              <li>
+                <a href="#" className="hover:text-luxury-gold transition-colors">
+                  Return Policy
                 </a>
               </li>
             </ul>
