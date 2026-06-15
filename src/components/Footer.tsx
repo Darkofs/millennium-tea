@@ -108,9 +108,9 @@ export default function Footer() {
                 </Link>
               </li>
               <li>
-                <a href="#" className="hover:text-luxury-gold transition-colors">
+                <Link href="/shipping-policy" className="hover:text-luxury-gold transition-colors">
                   Shipping Policy
-                </a>
+                </Link>
               </li>
               <li>
                 <a href="#" className="hover:text-luxury-gold transition-colors">
