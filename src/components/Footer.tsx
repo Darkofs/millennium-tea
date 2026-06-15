@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import Link from "next/link";
 import { ArrowUp, Mail, MessageCircle } from "lucide-react";
 
 export default function Footer() {
@@ -102,9 +103,9 @@ export default function Footer() {
             </h4>
             <ul className="flex flex-col gap-3 text-xs md:text-sm text-luxury-ivory/60">
               <li>
-                <a href="#" className="hover:text-luxury-gold transition-colors">
+                <Link href="/privacy-policy" className="hover:text-luxury-gold transition-colors">
                   Privacy Policy
-                </a>
+                </Link>
               </li>
               <li>
                 <a href="#" className="hover:text-luxury-gold transition-colors">
