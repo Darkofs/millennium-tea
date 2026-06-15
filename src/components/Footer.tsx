@@ -123,9 +123,9 @@ export default function Footer() {
                 </Link>
               </li>
               <li>
-                <a href="#" className="hover:text-luxury-gold transition-colors">
+                <Link href="/return-policy" className="hover:text-luxury-gold transition-colors">
                   Return Policy
-                </a>
+                </Link>
               </li>
             </ul>
           </div>
